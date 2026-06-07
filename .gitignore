@@ -3,8 +3,9 @@
 # ==========================================
 nbproject/private/
 nbproject/genfiles.properties
-nbproject/build-impl.xml~
 nbproject/build-impl.xml
+nbproject/build-impl.xml~
+nbproject/*.~
 nbbuild/
 nbdist/
 .nb-gradle/
