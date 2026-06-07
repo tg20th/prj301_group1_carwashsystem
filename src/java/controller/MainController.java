@@ -1,0 +1,140 @@
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
+ */
+package controller;
+
+import dao.VehicleDAO;
+import dto.Vehicle;
+import java.io.IOException;
+import java.io.PrintWriter;
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+/**
+ *
+ * @author Lan
+ */
+@WebServlet("/MainController")
+public class MainController extends HttpServlet {
+
+    /**
+     * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
+     * methods.
+     *
+     * @param request servlet request
+     * @param response servlet response
+     * @throws ServletException if a servlet-specific error occurs
+     * @throws IOException if an I/O error occurs
+     */
+    protected void processRequest(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        response.setContentType("text/html;charset=UTF-8");
+        String url = "index.jsp";
+        try {
+            String action = request.getParameter("action");
+            if (action == null) {
+                action = "home";
+            }
+            switch (action) {
+                case "home":
+                    url = "index.jsp";
+                    break;
+                case "register_page":
+                    url = "register.jsp";
+                    break;
+                case "register":
+                    url = "RegisterController";
+                    break;
+                case "login":
+                    url = "LoginController";
+                    break;
+                case "logout":
+                    url = "LogoutController";
+                    break;
+                case "dashboard":
+                    url = "CustomerDashBoardController";
+                    break;
+                case "AddVehicle_page":
+                    url = "addVehicle.jsp";
+                    break;
+                case "AddVehicle":
+                    url = "AddVehicleController";
+                    break;
+                case "RemoveVehicle":
+                    url = "RemoveVehicleController";
+                    break;
+                case "UpdateVehicle_page":
+                    String vIDStr = request.getParameter("vehicleID");
+                    if (vIDStr != null) {
+                        int vehicleID = Integer.parseInt(vIDStr);
+                        VehicleDAO dao = new VehicleDAO();
+                        Vehicle v = dao.getVehicleByID(vehicleID);
+                        request.setAttribute("VEHICLE", v);
+                        url = "updateVehicle.jsp";
+                    } else {
+                        url = "CustomerDashBoardController";
+                    }
+                    break;
+                case "UpdateVehicle":
+                    url = "UpdateVehicleController";
+                    break;
+                case "editprofile":
+                    url = "edit_customer.jsp";
+                    break;
+                case "saveaccount":
+                    url = "SaveAccountController";
+                    break;
+                default:
+                    url = "index.jsp";
+                    break;
+            }
+            request.getRequestDispatcher(url).forward(request, response);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
+    /**
+     * Handles the HTTP <code>GET</code> method.
+     *
+     * @param request servlet request
+     * @param response servlet response
+     * @throws ServletException if a servlet-specific error occurs
+     * @throws IOException if an I/O error occurs
+     */
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        processRequest(request, response);
+    }
+
+    /**
+     * Handles the HTTP <code>POST</code> method.
+     *
+     * @param request servlet request
+     * @param response servlet response
+     * @throws ServletException if a servlet-specific error occurs
+     * @throws IOException if an I/O error occurs
+     */
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        processRequest(request, response);
+    }
+
+    /**
+     * Returns a short description of the servlet.
+     *
+     * @return a String containing servlet description
+     */
+    @Override
+    public String getServletInfo() {
+        return "Short description";
+    }// </editor-fold>
+
+}

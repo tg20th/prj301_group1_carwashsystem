@@ -1,0 +1,42 @@
+/* * Main CSS for Smart Automatic Car Washing System
+ * Theme: Tech-Forward Automation Slate (Dark Cyber, Racing Red & Crisp White)
+ */
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Poppins:wght@400;500;600;700&display=swap');
+
+:root {
+    --bg-primary: #08080a;               /* Deep cyber black */
+    --bg-secondary: #0f1015;             /* Card/Section background */
+    --accent-red: #e10914;               /* Signature laser red */
+    --accent-cyan: #ffffff;              /* Mapped to crisp white to restore standard Red & White palette */
+    --text-primary: #ffffff;             
+    --text-secondary: #a0a4b0;           
+    --glow-shadow: 0 0 20px rgba(225, 9, 20, 0.25);
+}
+
+body {
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    font-family: 'Roboto', sans-serif;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: 'Poppins', sans-serif;
+}
+
+.text-accent { color: var(--accent-red) !important; }
+.text-cyan { color: var(--text-primary) !important; }
+
+.service-card {
+    background-color: var(--bg-secondary);
+    border: 1px solid rgba(255, 255, 255, 0.03);
+    border-radius: 12px;
+    padding: 40px 30px;
+    transition: all 0.3s ease;
+}
+
+.auth-card-custom {
+    background: radial-gradient(circle at top right, rgba(23, 24, 33, 0.98), rgba(15, 16, 21, 0.99));
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 16px;
+    padding: 40px;
+}
