@@ -5,279 +5,156 @@ import dto.Vehicle;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.util.ArrayList;
-import java.util.List;
 
 public class VehicleDAO {
 
-    public int createVehicle(Vehicle v) {
-        int result = 0;
-        Connection cn = null;
-        try {
-            cn = DBUtils.getConnection();
-            String sql = "insert into Vehicles\n"
-                    + "      ([CustomerID]\n"
-                    + "     ,[LicensePlate]\n"
-                    + "     ,[Brand]\n"
-                    + "     ,[Model]\n"
-                    + "     ,[Color]\n"
-                    + "     ,[IsActive])\n"
-                    + "     values (?,?,?,?,?,?)";
-            PreparedStatement st = cn.prepareStatement(sql);
-            st.setInt(1, v.getCustomerID());
-            st.setString(2, v.getLicensePlate());
-            st.setString(3, v.getBrand());
-            st.setString(4, v.getModel());
-            st.setString(5, v.getColor());
-            st.setBoolean(6, v.isActive());
+    public boolean isLicensePlateExists(String plate) {
 
-            result = st.executeUpdate();
+        String sql = "SELECT VehicleID FROM Vehicles WHERE LicensePlate = ?";
+
+        try {
+            Connection con = DBUtils.getConnection();
+
+            PreparedStatement st = con.prepareStatement(sql);
+
+            st.setString(1, plate);
+
+            ResultSet rs = st.executeQuery();
+
+            return rs.next();
+
         } catch (Exception e) {
-            e.printStackTrace();;
-        } finally {
-            try {
-                if (cn != null) {
-                    cn.close();
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            e.printStackTrace();
         }
-        return result;
+
+        return false;
     }
 
-    public Vehicle getVeByPlate(String licensePlate) {
-        Vehicle v = null;
-        Connection cn = null;
+    public int createVehicle(Vehicle v) {
+
+        String sql = "INSERT INTO Vehicles("
+                + "CustomerID,"
+                + "ModelID,"
+                + "LicensePlate,"
+                + "Color,"
+                + "ManufactureYear,"
+                + "ImageURL,"
+                + "Status"
+                + ") "
+                + "VALUES(?,?,?,?,?,?,?)";
+
         try {
-            cn = DBUtils.getConnection();
-            String sql = "select [VehicleID]\n"
-                    + "      ,[CustomerID]\n"
-                    + "      ,[LicensePlate]\n"
-                    + "      ,[Brand]\n"
-                    + "      ,[Model]\n"
-                    + "      ,[Color]\n"
-                    + "      ,[IsActive]\n"
-                    + "  from Vehicles\n"
-                    + "  where LicensePlate = ? ";
-            PreparedStatement st = cn.prepareStatement(sql);
-            st.setString(1, licensePlate);
-            ResultSet rs = st.executeQuery();
-            while (rs.next()) {
-                int vehicleID = rs.getInt("VehicleID");
-                int customerID = rs.getInt("CustomerID");
-                String brand = rs.getString("Brand");
-                String model = rs.getString("Model");
-                String color = rs.getString("Color");
-                boolean isActive = rs.getBoolean("IsActive");
-                v = new Vehicle(vehicleID, customerID, licensePlate, brand, model, color, isActive);
+            Connection con = DBUtils.getConnection();
+
+            PreparedStatement st = con.prepareStatement(sql);
+
+            st.setInt(1, v.getCustomerID());
+            st.setInt(2, v.getModelID());
+            st.setString(3, v.getLicensePlate());
+            st.setString(4, v.getColor());
+
+            if (v.getManufactureYear() == null) {
+                st.setNull(5, java.sql.Types.INTEGER);
+            } else {
+                st.setInt(5, v.getManufactureYear());
+            }
+
+            st.setString(6, v.getImageURL());
+            st.setString(7, v.getStatus());
+
+            return st.executeUpdate();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return 0;
+    }
+
+    /**
+     * Lấy thông tin xe theo biển số (LicensePlate).
+     * Trả về đối tượng Vehicle (kèm brandName, modelName qua JOIN) hoặc null nếu không tìm thấy.
+     */
+    public Vehicle getVeByPlate(String plate) {
+        String sql = "SELECT v.*, b.BrandName, m.ModelName "
+                + "FROM Vehicles v "
+                + "JOIN VehicleModels m ON v.ModelID = m.ModelID "
+                + "JOIN VehicleBrands b ON m.BrandID = b.BrandID "
+                + "WHERE v.LicensePlate = ?";
+
+        try (Connection con = DBUtils.getConnection();
+             PreparedStatement st = con.prepareStatement(sql)) {
+
+            st.setString(1, plate);
+
+            try (ResultSet rs = st.executeQuery()) {
+                if (rs.next()) {
+                    Vehicle v = new Vehicle();
+
+                    v.setVehicleID(rs.getInt("VehicleID"));
+                    v.setCustomerID(rs.getInt("CustomerID"));
+                    v.setModelID(rs.getInt("ModelID"));
+                    v.setLicensePlate(rs.getString("LicensePlate"));
+                    v.setColor(rs.getString("Color"));
+
+                    int year = rs.getInt("ManufactureYear");
+                    if (!rs.wasNull()) {
+                        v.setManufactureYear(year);
+                    }
+
+                    v.setImageURL(rs.getString("ImageURL"));
+                    v.setStatus(rs.getString("Status"));
+
+                    v.setBrandName(rs.getString("BrandName"));
+                    v.setModelName(rs.getString("ModelName"));
+
+                    return v;
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();
-        } finally {
-            try {
-                if (cn != null) {
-                    cn.close();
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
         }
-        return v;
+
+        return null;
     }
 
+    /**
+     * Kích hoạt lại xe đã từng bị xóa (soft delete) của cùng khách hàng.
+     * Cập nhật thông tin mới từ form và đặt Status = 'Active'.
+     * Trả về 1 nếu thành công (có dòng được update), 0 nếu thất bại.
+     */
     public int reactivateVehicle(Vehicle v) {
-        int result = 0;
-        Connection cn = null;
-        try {
-            cn = DBUtils.getConnection();
-            String sql = "UPDATE Vehicles "
-                    + "SET Brand = ?, "
-                    + "Model = ?, "
-                    + "Color = ?, "
-                    + "IsActive = ? "
-                    + "WHERE LicensePlate = ? "
-                    + "AND CustomerID = ?";
-            PreparedStatement st = cn.prepareStatement(sql);
-            st.setString(1, v.getBrand());
-            st.setString(2, v.getModel());
-            st.setString(3, v.getColor());
-            st.setBoolean(4, true);
+        String sql = "UPDATE Vehicles SET "
+                + "ModelID = ?, "
+                + "Color = ?, "
+                + "ManufactureYear = ?, "
+                + "ImageURL = ?, "
+                + "Status = 'Active' "
+                + "WHERE LicensePlate = ? AND CustomerID = ?";
+
+        try (Connection con = DBUtils.getConnection();
+             PreparedStatement st = con.prepareStatement(sql)) {
+
+            st.setInt(1, v.getModelID());
+            st.setString(2, v.getColor());
+
+            if (v.getManufactureYear() == null) {
+                st.setNull(3, java.sql.Types.INTEGER);
+            } else {
+                st.setInt(3, v.getManufactureYear());
+            }
+
+            st.setString(4, v.getImageURL());
             st.setString(5, v.getLicensePlate());
             st.setInt(6, v.getCustomerID());
 
-            result = st.executeUpdate();
-        } catch (Exception e) {
-            e.printStackTrace();;
-        } finally {
-            try {
-                if (cn != null) {
-                    cn.close();
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-        return result;
-    }
+            return st.executeUpdate();
 
-    public List<Vehicle> getVehiclesByCustomerID(int customerID) {
-        List<Vehicle> list = new ArrayList<>();
-
-        String sql = "SELECT * FROM Vehicles WHERE CustomerID = ? AND IsActive = 1";
-
-        try (
-                 Connection conn = DBUtils.getConnection();  PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setInt(1, customerID);
-
-            try ( ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) {
-                    Vehicle vehicle = new Vehicle();
-
-                    vehicle.setVehicleID(rs.getInt("VehicleID"));
-                    vehicle.setCustomerID(rs.getInt("CustomerID"));
-                    vehicle.setLicensePlate(rs.getString("LicensePlate"));
-                    vehicle.setBrand(rs.getString("Brand"));
-                    vehicle.setModel(rs.getString("Model"));
-                    vehicle.setColor(rs.getString("Color"));
-                    vehicle.setActive(rs.getBoolean("IsActive"));
-
-                    list.add(vehicle);
-                }
-            }
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        return list;
+        return 0;
     }
 
-    public int deleteVehicle(int vehicleId) {
-        int result = 0;
-        Connection cn = null;
-        try {
-            cn = DBUtils.getConnection();
-            String sql = "update Vehicles "
-                    + "set IsActive = 0\n"
-                    + "where VehicleID = ?\n";
-            PreparedStatement st = cn.prepareStatement(sql);
-            st.setInt(1, vehicleId);
-            result = st.executeUpdate();
-        } catch (Exception e) {
-            e.printStackTrace();;
-        } finally {
-            try {
-                if (cn != null) {
-                    cn.close();
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-        return result;
-    }
-
-    public int updateVehicle(Vehicle v) {
-        int result = 0;
-        Connection cn = null;
-        try {
-            cn = DBUtils.getConnection();
-            String sql = "UPDATE Vehicles "
-                    + "SET LicensePlate = ?, "
-                    + "Brand = ?, "
-                    + "Model = ?, "
-                    + "Color = ? "
-                    + "WHERE VehicleID = ?";
-            PreparedStatement st = cn.prepareStatement(sql);
-
-            st.setString(1, v.getLicensePlate());
-            st.setString(2, v.getBrand());
-            st.setString(3, v.getModel());
-            st.setString(4, v.getColor());
-            st.setInt(5, v.getVehicleID());
-
-            result = st.executeUpdate();
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                if (cn != null) {
-                    cn.close();
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-        return result;
-    }
-
-    public Vehicle getVehicleByID(int vehicleID) {
-        Vehicle v = null;
-        Connection cn = null;
-        try {
-            cn = DBUtils.getConnection();
-            String sql = "select [VehicleID]\n"
-                    + "      ,[CustomerID]\n"
-                    + "      ,[LicensePlate]\n"
-                    + "      ,[Brand]\n"
-                    + "      ,[Model]\n"
-                    + "      ,[Color]\n"
-                    + "      ,[IsActive]\n"
-                    + "  from Vehicles\n"
-                    + "  where VehicleID = ? ";
-            PreparedStatement st = cn.prepareStatement(sql);
-            st.setInt(1, vehicleID);
-            ResultSet rs = st.executeQuery();
-            if (rs.next()) {
-                int customerID = rs.getInt("CustomerID");
-                String licensePlate = rs.getString("LicensePlate");
-                String brand = rs.getString("Brand");
-                String model = rs.getString("Model");
-                String color = rs.getString("Color");
-                boolean isActive = rs.getBoolean("IsActive");
-                v = new Vehicle(vehicleID, customerID, licensePlate, brand, model, color, isActive);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                if (cn != null) {
-                    cn.close();
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-        return v;
-    }
-
-    public boolean isLPExist(String lp, int veID) {
-        boolean result = false;
-        Connection cn = null;
-        try {
-            cn = DBUtils.getConnection();
-            String sql = "select VehicleID \n"
-                    + "from Vehicles\n"
-                    + "where LicensePlate= ? \n"
-                    + "and VehicleID != ?";
-            PreparedStatement st = cn.prepareStatement(sql);
-            st.setString(1, lp);
-            st.setInt(2, veID);
-            ResultSet rs = st.executeQuery();
-            while (rs.next()) {
-                result = true;
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                if (cn != null) {
-                    cn.close();
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            return result;
-        }
-    }
 }
