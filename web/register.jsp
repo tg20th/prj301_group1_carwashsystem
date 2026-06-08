@@ -171,17 +171,33 @@
 
                             <div class="mb-3">
                                 <label class="small text-muted mb-2 fw-medium">Company Name <span class="text-danger">*</span></label>
-                                <input type="text" id="companyName" name="companyName" class="form-control form-control-lg border-0 shadow-sm rounded-3" placeholder="Enter company name">
+                                <input type="text" id="companyName" name="companyName" 
+                                       value ="${param.busName}"
+                                       class="form-control form-control-lg border-0 shadow-sm rounded-3" 
+                                       placeholder="Enter company name"
+                                       pattern="^\S(.*\S)?$"
+                                       required="">
                             </div>
 
                             <div class="row g-3 mb-3">
                                 <div class="col-sm-6">
                                     <label class="small text-muted mb-2 fw-medium">Tax Code <span class="text-danger">*</span></label>
-                                    <input type="text" id="taxCode" name="taxCode" class="form-control form-control-lg border-0 shadow-sm rounded-3" placeholder="e.g. 0312345678">
+                                    <input type="text" id="taxCode" name="taxCode" 
+                                           value ="${param.tax}"
+                                           class="form-control form-control-lg border-0 shadow-sm rounded-3" 
+                                           placeholder="e.g. 0312345678"
+                                           required
+                                           pattern="\d{10}|\d{10}-\d{3}">
                                 </div>
                                 <div class="col-sm-6">
                                     <label class="small text-muted mb-2 fw-medium">Company Address <span class="text-danger">*</span></label>
-                                    <input type="text" id="companyAddress" name="companyAddress" class="form-control form-control-lg border-0 shadow-sm rounded-3" placeholder="City, District...">
+                                    <input type="text" id="companyAddress" 
+                                           name="companyAddress" 
+                                           value="${param.address}"
+                                           class="form-control form-control-lg border-0 shadow-sm rounded-3" 
+                                           placeholder="City, District..."
+                                           pattern="^\S(.*\S)?$"
+                                           required="">
                                 </div>
                             </div>
                         </div>
