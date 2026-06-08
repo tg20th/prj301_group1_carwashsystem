@@ -5,6 +5,8 @@ import dto.Vehicle;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.util.ArrayList;
+import java.util.List;
 
 public class VehicleDAO {
 
@@ -221,6 +223,37 @@ public class VehicleDAO {
             e.printStackTrace();
         }
         return 0;
+    }
+
+    public List<Vehicle> getVehiclesByCustomerID(int cusID) {
+        String sql = "SELECT *\n"
+                + "FROM Vehicles\n"
+                + "WHERE CustomerID = ?";
+        List<Vehicle> list = new ArrayList<>();
+
+        try ( Connection con = DBUtils.getConnection()) {
+            PreparedStatement st = con.prepareStatement(sql);
+            st.setInt(1, cusID);
+            ResultSet rs = st.executeQuery();
+            while (rs.next()) {
+                Vehicle v = new Vehicle();
+                v.setVehicleID(rs.getInt("VehicleID"));
+                v.setCustomerID(rs.getInt("CustomerID"));
+                v.setModelID(rs.getInt("ModelID"));
+                v.setLicensePlate(rs.getString("LicensePlate"));
+                v.setColor(rs.getString("Color"));
+                int year = rs.getInt("ManufactureYear");
+                v.setManufactureYear(year);
+                v.setImageURL(rs.getString("ImageURL"));
+                v.setStatus(rs.getString("Status"));
+                v.setBrandName(rs.getString("BrandName"));
+                v.setModelName(rs.getString("ModelName"));
+                list.add(v);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
     }
 
 }

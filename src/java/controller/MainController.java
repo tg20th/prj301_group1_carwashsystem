@@ -4,10 +4,15 @@
  */
 package controller;
 
+import dao.VehicleBrandDAO;
 import dao.VehicleDAO;
+import dao.VehicleModelDAO;
 import dto.Vehicle;
+import dto.VehicleBrand;
+import dto.VehicleModel;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -61,6 +66,40 @@ public class MainController extends HttpServlet {
                 case "AddVehicle_page":
                     url = "addVehicle.jsp";
                     break;
+                case "getVehicleData":
+                    response.setContentType("application/json;charset=UTF-8");
+                    try (PrintWriter out = response.getWriter()) {
+                        VehicleBrandDAO brandDAO = new VehicleBrandDAO();
+                        VehicleModelDAO modelDAO = new VehicleModelDAO();
+
+                        ArrayList<VehicleBrand> brands = brandDAO.getAllBrands();
+                        ArrayList<VehicleModel> models = modelDAO.getAllModels();
+
+                        StringBuilder json = new StringBuilder();
+                        json.append("{\"brands\":[");
+
+                        for (int i = 0; i < brands.size(); i++) {
+                            VehicleBrand b = brands.get(i);
+                            String name = b.getBrandName().replace("\"", "\\\"");
+                            json.append("{\"brandID\":").append(b.getBrandID())
+                                .append(",\"brandName\":\"").append(name).append("\"}");
+                            if (i < brands.size() - 1) json.append(",");
+                        }
+                        json.append("],\"models\":[");
+
+                        for (int i = 0; i < models.size(); i++) {
+                            VehicleModel m = models.get(i);
+                            String name = m.getModelName().replace("\"", "\\\"");
+                            json.append("{\"modelID\":").append(m.getModelID())
+                                .append(",\"brandID\":").append(m.getBrandID())
+                                .append(",\"modelName\":\"").append(name).append("\"}");
+                            if (i < models.size() - 1) json.append(",");
+                        }
+                        json.append("]}");
+
+                        out.print(json.toString());
+                    }
+                    return; // prevent forward, we already wrote JSON response
                 case "AddVehicle":
                     url = "AddVehicleController";
                     break;

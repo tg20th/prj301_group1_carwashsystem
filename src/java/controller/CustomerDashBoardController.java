@@ -50,7 +50,7 @@ public class CustomerDashBoardController extends HttpServlet {
 
         CustomerDAO cusDAO = new CustomerDAO();
         Customer customer = cusDAO.getCustomerByAccountID(account.getAccountID());
-
+        int pointBalance = cusDAO.getPointBalance(account.getAccountID());
         if (customer == null) {
             response.sendError(HttpServletResponse.SC_NOT_FOUND,
                     "Customer not found");
@@ -61,12 +61,12 @@ public class CustomerDashBoardController extends HttpServlet {
         Tier customerTier = tierDAO.getTier(customer.getTierID());
 
         VehicleDAO vehicleDAO = new VehicleDAO();
-        List<Vehicle> vehicleList
-                = vehicleDAO.getVehiclesByCustomerID(customer.getCusID());
+        List<Vehicle> vehicleList = vehicleDAO.getVehiclesByCustomerID(customer.getCusID());
 
         RewardDAO rewardDAO = new RewardDAO();
-        Reward nextReward = rewardDAO.getNextReward(customer.getTotalPoint());
-        
+
+        Reward nextReward = rewardDAO.getNextReward(pointBalance);
+
         request.getSession().setAttribute("CUSTOMER", customer);
         request.setAttribute("ACCOUNT", account);
         request.setAttribute("CUSTOMER", customer);
