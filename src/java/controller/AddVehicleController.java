@@ -79,10 +79,13 @@ public class AddVehicleController extends HttpServlet {
         int cusID = c.getCusID();
         String licensePlate = request.getParameter("licensePlate").toUpperCase();
         String brand = request.getParameter("brand");
-        String model = request.getParameter("model");
+        int modelID = Integer.parseInt(request.getParameter("modelID"));
         String color = request.getParameter("color");
+        int manufactureYear = Integer.parseInt(request.getParameter("manufactureYear"));
+        String imgURL = request.getParameter("imgURL");
+        String status = "Pending";
         
-        Vehicle v = new Vehicle(cusID, licensePlate, brand, model, color, true);
+        Vehicle v = new Vehicle(cusID, modelID, licensePlate, color, manufactureYear, imgURL, status);
         VehicleDAO d = new VehicleDAO();
         Vehicle found = d.getVeByPlate(licensePlate);
         if (found == null) {
