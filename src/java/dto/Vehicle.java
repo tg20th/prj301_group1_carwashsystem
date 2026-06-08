@@ -1,35 +1,37 @@
 package dto;
 
+import java.sql.Timestamp;
+
 public class Vehicle {
+
     private int vehicleID;
     private int customerID;
+    private int modelID;
     private String licensePlate;
-    private String brand;
-    private String model;
     private String color;
-    private boolean active;
+    private Integer manufactureYear;
+    private String imageURL;
+    private String status;
+    private Timestamp createdAt;
+    // ====== thêm field để hiển thị (JOIN) ======
+    private String brandName;
+    private String modelName;
 
     public Vehicle() {
     }
-
-    public Vehicle(int vehicleID, int customerID, String licensePlate, String brand, String model, String color, boolean active) {
-        this.vehicleID = vehicleID;
+    public Vehicle(int customerID, int modelID,
+                   String licensePlate, String color,
+                   Integer manufactureYear, String imageURL,
+                   String status) {
         this.customerID = customerID;
+        this.modelID = modelID;
         this.licensePlate = licensePlate;
-        this.brand = brand;
-        this.model = model;
         this.color = color;
-        this.active = active;
+        this.manufactureYear = manufactureYear;
+        this.imageURL = imageURL;
+        this.status = status;
     }
 
-    public Vehicle(int customerID, String licensePlate, String brand, String model, String color, boolean active) {
-        this.customerID = customerID;
-        this.licensePlate = licensePlate;
-        this.brand = brand;
-        this.model = model;
-        this.color = color;
-        this.active = active;
-    }
 
     public int getVehicleID() {
         return vehicleID;
@@ -47,28 +49,20 @@ public class Vehicle {
         this.customerID = customerID;
     }
 
+    public int getModelID() {
+        return modelID;
+    }
+
+    public void setModelID(int modelID) {
+        this.modelID = modelID;
+    }
+
     public String getLicensePlate() {
         return licensePlate;
     }
 
     public void setLicensePlate(String licensePlate) {
         this.licensePlate = licensePlate;
-    }
-
-    public String getBrand() {
-        return brand;
-    }
-
-    public void setBrand(String brand) {
-        this.brand = brand;
-    }
-
-    public String getModel() {
-        return model;
-    }
-
-    public void setModel(String model) {
-        this.model = model;
     }
 
     public String getColor() {
@@ -79,21 +73,51 @@ public class Vehicle {
         this.color = color;
     }
 
-    public boolean isActive() {
-        return active;
+    public Integer getManufactureYear() {
+        return manufactureYear;
     }
 
-    public boolean getIsActive() {
-        return active;
+    public void setManufactureYear(Integer manufactureYear) {
+        this.manufactureYear = manufactureYear;
     }
 
-    public void setActive(boolean active) {
-        this.active = active;
+    public String getImageURL() {
+        return imageURL;
     }
 
-    public void setIsActive(boolean active) {
-        this.active = active;
+    public void setImageURL(String imageURL) {
+        this.imageURL = imageURL;
     }
-    
-    
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public Timestamp getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(Timestamp createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public String getBrandName() {
+        return brandName;
+    }
+
+    public void setBrandName(String brandName) {
+        this.brandName = brandName;
+    }
+
+    public String getModelName() {
+        return modelName;
+    }
+
+    public void setModelName(String modelName) {
+        this.modelName = modelName;
+    }
 }
