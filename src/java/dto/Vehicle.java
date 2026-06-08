@@ -120,4 +120,25 @@ public class Vehicle {
     public void setModelName(String modelName) {
         this.modelName = modelName;
     }
+
+    // ====== Convenience methods for JSP / Controller compatibility ======
+    public String getBrand() {
+        return brandName;
+    }
+
+    public void setBrand(String brand) {
+        this.brandName = brand;
+    }
+
+    public String getModel() {
+        return modelName;
+    }
+
+    public void setModel(String model) {
+        this.modelName = model;
+    }
+
+    public boolean isActive() {
+        return "Active".equalsIgnoreCase(status);
+    }
 }

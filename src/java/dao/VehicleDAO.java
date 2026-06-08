@@ -71,4 +71,81 @@ public class VehicleDAO {
         return 0;
     }
 
+    public Vehicle getVeByPlate(String plate) {
+        String sql = "SELECT v.*, b.BrandName, m.ModelName "
+                + "FROM Vehicles v "
+                + "JOIN VehicleModels m ON v.ModelID = m.ModelID "
+                + "JOIN VehicleBrands b ON m.BrandID = b.BrandID "
+                + "WHERE v.LicensePlate = ?";
+
+        try (Connection con = DBUtils.getConnection();
+             PreparedStatement st = con.prepareStatement(sql)) {
+
+            st.setString(1, plate);
+
+            try (ResultSet rs = st.executeQuery()) {
+                if (rs.next()) {
+                    Vehicle v = new Vehicle();
+
+                    v.setVehicleID(rs.getInt("VehicleID"));
+                    v.setCustomerID(rs.getInt("CustomerID"));
+                    v.setModelID(rs.getInt("ModelID"));
+                    v.setLicensePlate(rs.getString("LicensePlate"));
+                    v.setColor(rs.getString("Color"));
+
+                    int year = rs.getInt("ManufactureYear");
+                    if (!rs.wasNull()) {
+                        v.setManufactureYear(year);
+                    }
+
+                    v.setImageURL(rs.getString("ImageURL"));
+                    v.setStatus(rs.getString("Status"));
+
+                    v.setBrandName(rs.getString("BrandName"));
+                    v.setModelName(rs.getString("ModelName"));
+
+                    return v;
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
+    public int reactivateVehicle(Vehicle v) {
+        String sql = "UPDATE Vehicles SET "
+                + "ModelID = ?, "
+                + "Color = ?, "
+                + "ManufactureYear = ?, "
+                + "ImageURL = ?, "
+                + "Status = 'Active' "
+                + "WHERE LicensePlate = ? AND CustomerID = ?";
+
+        try (Connection con = DBUtils.getConnection();
+             PreparedStatement st = con.prepareStatement(sql)) {
+
+            st.setInt(1, v.getModelID());
+            st.setString(2, v.getColor());
+
+            if (v.getManufactureYear() == null) {
+                st.setNull(3, java.sql.Types.INTEGER);
+            } else {
+                st.setInt(3, v.getManufactureYear());
+            }
+
+            st.setString(4, v.getImageURL());
+            st.setString(5, v.getLicensePlate());
+            st.setInt(6, v.getCustomerID());
+
+            return st.executeUpdate();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return 0;
+    }
+
 }
