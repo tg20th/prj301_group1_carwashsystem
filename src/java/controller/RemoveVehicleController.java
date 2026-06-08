@@ -31,17 +31,19 @@ public class RemoveVehicleController extends HttpServlet {
      */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        int vehicleId = Integer.parseInt(request.getParameter("vehicleID"));
-        VehicleDAO vehicleDAO = new VehicleDAO();
-        int result = vehicleDAO.deleteVehicle(vehicleId);
-        String message = "";
-        if(result==0){
-            message = "Remove vehicle fail!";
-        } else {
-            message = "Remove vehicle successful!";
+        try {
+            int vehicleID = Integer.parseInt(request.getParameter("vehicleID") );
+            VehicleDAO dao = new VehicleDAO();
+            int result = dao.deleteVehicle(vehicleID);
+            if (result > 0) {
+                request.setAttribute("MESSAGE","Remove vehicle successful!" );
+            } else {
+                request.setAttribute("ERROR","Remove vehicle failed!" );
+            }
+        } catch (Exception e) {
+            request.setAttribute( "ERROR","System error: " + e.getMessage());
         }
-        request.setAttribute("MESSAGE", message);
-        request.getRequestDispatcher("CustomerDashBoardController").forward(request, response);
+        request.getRequestDispatcher( "CustomerDashBoardController").forward(request, response);
     }
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
