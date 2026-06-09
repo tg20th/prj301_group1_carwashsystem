@@ -43,4 +43,34 @@ public class VehicleModelDAO {
 
         return list;
     }
+
+    public ArrayList<VehicleModel> getAllModels() {
+        ArrayList<VehicleModel> list = new ArrayList<>();
+        Connection cn = null;
+        String sql = "SELECT * FROM VehicleModels WHERE IsActive = 1";
+
+        try {
+            cn = DBUtils.getConnection();
+
+            PreparedStatement st = cn.prepareStatement(sql);
+
+            ResultSet rs = st.executeQuery();
+
+            while (rs.next()) {
+
+                VehicleModel m = new VehicleModel();
+
+                m.setModelID(rs.getInt("ModelID"));
+                m.setBrandID(rs.getInt("BrandID"));
+                m.setModelName(rs.getString("ModelName"));
+
+                list.add(m);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return list;
+    }
 }
