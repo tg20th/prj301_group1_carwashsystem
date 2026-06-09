@@ -226,9 +226,11 @@ public class VehicleDAO {
     }
 
     public List<Vehicle> getVehiclesByCustomerID(int cusID) {
-        String sql = "SELECT *\n"
-                + "FROM Vehicles\n"
-                + "WHERE CustomerID = ?";
+        String sql = "SELECT v.*, vm.ModelName, vb.BrandName\n"
+                + "FROM Vehicles v\n"
+                + "JOIN VehicleModels vm ON v.ModelID = vm.ModelID\n"
+                + "JOIN VehicleBrands vb ON vm.BrandID = vb.BrandID\n"
+                + "WHERE v.CustomerID = ?";
         List<Vehicle> list = new ArrayList<>();
 
         try ( Connection con = DBUtils.getConnection()) {

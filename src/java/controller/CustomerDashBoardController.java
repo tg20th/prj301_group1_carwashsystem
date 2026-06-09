@@ -73,6 +73,7 @@ public class CustomerDashBoardController extends HttpServlet {
         request.setAttribute("TIER", customerTier);
         request.setAttribute("VEHICLES", vehicleList);
         request.setAttribute("NEXTREWARD", nextReward);
+        request.setAttribute("POINT_BALANCE", pointBalance);
 
         request.getRequestDispatcher("customer-dashboard.jsp")
                 .forward(request, response);
