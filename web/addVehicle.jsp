@@ -2,8 +2,9 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <!DOCTYPE html>
 <%
-    Customer cus = (Customer) session.getAttribute("CUSTOMER");
-    if (cus == null) {
+    // More robust check: ACCOUNT is set right after login.
+    // CUSTOMER is only set after visiting dashboard. We accept either.
+    if (session.getAttribute("ACCOUNT") == null && session.getAttribute("CUSTOMER") == null) {
         response.sendRedirect("index.jsp");
         return;
     }
@@ -41,7 +42,7 @@
 
                         <%-- Success Message --%>
                         <% String success = (String) request.getAttribute("SUCCESS");
-                            if (success != null) { %>
+                            if (success != null) {%>
                         <div class="alert alert-success border-0 bg-success bg-opacity-10 text-success rounded-3 p-3 small mb-4 d-flex align-items-center alert-dismissible fade show" role="alert">
                             <i class="bi bi-check-circle-fill me-2 fs-5"></i> <%= success%>
                             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
@@ -60,23 +61,22 @@
                             <i class="bi bi-exclamation-circle-fill me-2 fs-5"></i> <%= errorMsg%>
                             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                         </div>
-                        <% } %>
+                        <% }%>
 
                         <!-- ==================== PHẦN QUÉT CAVET ==================== -->
                         <div class="mb-4 p-3 bg-light rounded-3 border">
                             <div class="d-flex align-items-center mb-2">
                                 <i class="bi bi-camera-fill me-2"></i>
-                                <span class="small fw-medium">Quét thông tin từ Cavet xe</span>
+                                <span class="small fw-medium">Scan Cavet</span>
                             </div>
-                            <p class="text-muted small mb-3">Chọn ảnh Cavet để tự động điền biển số, hãng xe, mẫu xe...</p>
 
                             <div class="d-flex gap-2 mb-3">
                                 <input type="file" accept="image/*" id="btnUploadInput" hidden>
                                 <label for="btnUploadInput" class="btn btn-outline-dark flex-fill">
-                                    <i class="bi bi-upload me-2"></i> Tải ảnh lên
+                                    <i class="bi bi-upload me-2"></i> Upload image
                                 </label>
                                 <button type="button" id="btnCamera" class="btn btn-outline-dark flex-fill">
-                                    <i class="bi bi-camera-fill me-2"></i> Mở Camera
+                                    <i class="bi bi-camera-fill me-2"></i> Open camera
                                 </button>
                             </div>
 
@@ -89,15 +89,12 @@
                                        style="max-height:200px; object-fit:cover;" autoplay playsinline></video>
                                 <div class="d-flex gap-2 mt-2">
                                     <button type="button" id="btnCapture" class="btn btn-dark btn-sm flex-fill">
-                                        <i class="bi bi-camera-fill me-1"></i> Chụp ảnh
+                                        <i class="bi bi-camera-fill me-1"></i> Take photo
                                     </button>
                                     <button type="button" id="btnStopWebcam" class="btn btn-outline-secondary btn-sm">
-                                        Dừng camera
+                                        Stop camera
                                     </button>
                                 </div>
-                                <small class="text-muted d-block mt-1 text-center">
-                                    Chỉ hoạt động trên localhost hoặc HTTPS.
-                                </small>
                             </div>
 
                             <!-- Preview -->
@@ -105,22 +102,22 @@
                                 <img id="cavetPreview" class="img-thumbnail rounded-3 shadow-sm border" style="max-height: 160px;">
                                 <div class="mt-2">
                                     <button type="button" id="btnRemoveCavet" class="btn btn-sm btn-outline-danger rounded-pill px-3">
-                                        <i class="bi bi-trash me-1"></i> Xóa ảnh
+                                        <i class="bi bi-trash me-1"></i> Remove image
                                     </button>
                                 </div>
                                 <div class="small text-muted mt-1" id="cavetStatus">
-                                    Ảnh Cavet đã sẵn sàng.
+                                    Cavet photo is ready!
                                 </div>
                             </div>
 
                             <!-- Nút quét FPT.AI -->
                             <button type="button" id="btnScanFpt" class="btn btn-primary w-100 mt-3" style="display:none;">
-                                <i class="bi bi-magic me-2"></i> Quét bằng FPT.AI &amp; Tự động điền
+                                <i class="bi bi-magic me-2"></i> Scan &amp;
                             </button>
                         </div>
                         <!-- ==================== KẾT THÚC PHẦN OCR ==================== -->
 
-                        <form action="MainController" method="post">
+                        <form action="MainController" method="post" enctype="multipart/form-data">
                             <input type="hidden" name="action" value="AddVehicle">
 
                             <!-- Biển số -->
@@ -137,14 +134,12 @@
                                     <label class="small text-muted mb-2 fw-medium">Brand <span class="text-danger">*</span></label>
                                     <select id="brandSelect" name="brandID"
                                             class="form-select form-select-lg border-0 bg-light shadow-sm rounded-3" required>
-                                        <option value="">-- Đang tải hãng xe --</option>
                                     </select>
                                 </div>
                                 <div class="col-sm-6">
                                     <label class="small text-muted mb-2 fw-medium">Model <span class="text-danger">*</span></label>
                                     <select id="modelSelect" name="modelID"
                                             class="form-select form-select-lg border-0 bg-light shadow-sm rounded-3" required disabled>
-                                        <option value="">-- Chọn hãng xe trước --</option>
                                     </select>
                                 </div>
                             </div>
@@ -170,6 +165,18 @@
                                 </div>
                             </div>
 
+                            <div class="mb-4">
+                                <label class="small text-muted mb-2 fw-medium">
+                                    License Plate Photo
+                                </label>
+                                <input type="file" 
+                                       name="image" 
+                                       accept="image/*"
+                                       class="form-control form-control-lg border-0 bg-light shadow-sm rounded-3"
+                                       required
+                                       >
+                            </div>
+
                             <button type="submit" class="btn btn-black w-100 rounded-pill py-3 fw-medium transition-hover">
                                 <i class="bi bi-plus-lg me-1"></i> Save Vehicle
                             </button>
@@ -190,35 +197,35 @@
                 const modelSel = document.getElementById('modelSelect');
 
                 fetch('MainController?action=getVehicleData')
-                    .then(res => res.json())
-                    .then(data => {
-                        allBrands = data.brands || [];
-                        allModels = data.models || [];
+                        .then(res => res.json())
+                        .then(data => {
+                            allBrands = data.brands || [];
+                            allModels = data.models || [];
 
-                        brandSel.innerHTML = '<option value="">-- Chọn hãng xe --</option>';
-                        allBrands.forEach(b => {
-                            const opt = document.createElement('option');
-                            opt.value = b.brandID;
-                            opt.textContent = b.brandName;
-                            brandSel.appendChild(opt);
-                        });
+                            brandSel.innerHTML = '<option value="">-- Choose brand --</option>';
+                            allBrands.forEach(b => {
+                                const opt = document.createElement('option');
+                                opt.value = b.brandID;
+                                opt.textContent = b.brandName;
+                                brandSel.appendChild(opt);
+                            });
 
-                        brandSel.addEventListener('change', function () {
-                            filterModelsByBrand(this.value, modelSel);
+                            brandSel.addEventListener('change', function () {
+                                filterModelsByBrand(this.value, modelSel);
+                            });
+                        })
+                        .catch(err => {
+                            console.error(err);
+                            brandSel.innerHTML = '<option value="">Lỗi tải dữ liệu hãng xe</option>';
                         });
-                    })
-                    .catch(err => {
-                        console.error(err);
-                        brandSel.innerHTML = '<option value="">Lỗi tải dữ liệu hãng xe</option>';
-                    });
             }
 
             function filterModelsByBrand(brandID, modelSel) {
                 modelSel.disabled = true;
-                modelSel.innerHTML = '<option value="">Đang tải mẫu xe...</option>';
+                modelSel.innerHTML = '<option value="">Model loading...</option>';
 
                 const filtered = allModels.filter(m => m.brandID == brandID);
-                modelSel.innerHTML = '<option value="">-- Chọn mẫu xe --</option>';
+                modelSel.innerHTML = '<option value="">-- Choose model --</option>';
                 filtered.forEach(m => {
                     const opt = document.createElement('option');
                     opt.value = m.modelID;
@@ -257,11 +264,12 @@
                     webcamContainer.style.display = 'block';
 
                     try {
-                        if (currentStream) currentStream.getTracks().forEach(track => track.stop());
+                        if (currentStream)
+                            currentStream.getTracks().forEach(track => track.stop());
 
                         showWebcamStatus('Đang khởi động camera...', 'info');
                         currentStream = await navigator.mediaDevices.getUserMedia({
-                            video: { facingMode: "environment", width: { ideal: 1280 }, height: { ideal: 720 } }
+                            video: {facingMode: "environment", width: {ideal: 1280}, height: {ideal: 720}}
                         });
                         webcamVideo.srcObject = currentStream;
                         webcamStatus.style.display = 'none';
@@ -294,7 +302,8 @@
                 btnStopWebcam.addEventListener('click', stopWebcam);
 
                 btnCapture.addEventListener('click', function () {
-                    if (!currentStream) return;
+                    if (!currentStream)
+                        return;
                     const canvas = document.createElement('canvas');
                     canvas.width = webcamVideo.videoWidth;
                     canvas.height = webcamVideo.videoHeight;
@@ -307,8 +316,8 @@
 
                     canvas.toBlob(blob => {
                         if (blob) {
-                            currentCavetImage = new File([blob], "capture.jpg", { type: "image/jpeg" });
-                            statusEl.textContent = 'Ảnh đã chụp từ camera.';
+                            currentCavetImage = new File([blob], "capture.jpg", {type: "image/jpeg"});
+                            statusEl.textContent = 'Cavet photo is ready';
                             btnScanFpt.style.display = 'block';
                         }
                     }, 'image/jpeg', 0.92);
@@ -339,7 +348,8 @@
                 });
 
                 btnScanFpt.addEventListener('click', function () {
-                    if (currentCavetImage) scanCavetWithFptAI(currentCavetImage);
+                    if (currentCavetImage)
+                        scanCavetWithFptAI(currentCavetImage);
                 });
             });
 
@@ -357,7 +367,7 @@
                 try {
                     const response = await fetch("https://api.fpt.ai/reader/predict/6a223efa3a713b981ba29564?direct=true", {
                         method: "POST",
-                        headers: { "api-key": "7S1NKmodAsU6o8HsVYpc46uS4jJmyz4Z" },
+                        headers: {"api-key": "7S1NKmodAsU6o8HsVYpc46uS4jJmyz4Z"},
                         body: formData
                     });
 
@@ -416,14 +426,14 @@
                 const plate = getValue(["plate_number", "license_plate"]);
                 const brand = getValue(["make", "brand"]);
                 const model = getValue(["model"]);
-                const year  = getValue(["year_manufacture", "year_of_manufacture"]);
+                const year = getValue(["year_manufacture", "year_of_manufacture"]);
                 const color = getValue(["vehicle_color", "color"]);
 
-                console.log("Extracted values:", { plate, brand, model, year, color });
+                console.log("Extracted values:", {plate, brand, model, year, color});
 
                 if (plate) {
-                    document.getElementById('licensePlate').value = 
-                        String(plate).toUpperCase().replace(/[^A-Z0-9-]/g, '');
+                    document.getElementById('licensePlate').value =
+                            String(plate).toUpperCase().replace(/[^A-Z0-9-]/g, '');
                 }
                 if (year && year !== "N/A") {
                     document.getElementById('manufactureYear').value = String(year).replace(/\D/g, '');
@@ -438,8 +448,8 @@
 
                     const matchedBrand = allBrands.find(b =>
                         b.brandName.toLowerCase() === brandLower ||
-                        b.brandName.toLowerCase().includes(brandLower) ||
-                        brandLower.includes(b.brandName.toLowerCase())
+                                b.brandName.toLowerCase().includes(brandLower) ||
+                                brandLower.includes(b.brandName.toLowerCase())
                     );
 
                     if (matchedBrand) {
@@ -455,8 +465,8 @@
 
                                 const matchedModel = allModels.find(m =>
                                     m.brandID == matchedBrand.brandID &&
-                                    (m.modelName.toLowerCase().includes(modelLower) || 
-                                     modelLower.includes(m.modelName.toLowerCase()))
+                                            (m.modelName.toLowerCase().includes(modelLower) ||
+                                                    modelLower.includes(m.modelName.toLowerCase()))
                                 );
                                 if (matchedModel) {
                                     modelSelect.value = matchedModel.modelID;
@@ -468,8 +478,8 @@
                     }
                 }
 
-                document.getElementById('cavetStatus').innerHTML = 
-                    '<span class="text-success fw-bold">✅ Đã tự động điền thông tin từ Cavet!</span>';
+                document.getElementById('cavetStatus').innerHTML =
+                        '<span class="text-success fw-bold">✅ Đã tự động điền thông tin từ Cavet!</span>';
             }
         </script>
     </body>
