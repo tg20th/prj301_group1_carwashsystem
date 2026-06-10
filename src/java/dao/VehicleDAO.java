@@ -33,9 +33,10 @@ public class VehicleDAO {
                 + "Color,"
                 + "ManufactureYear,"
                 + "ImageURL,"
-                + "Status"
+                + "Status,"
+                + "CreatedAt"
                 + ") "
-                + "VALUES(?,?,?,?,?,?,?)";
+                + "VALUES(?,?,?,?,?,?,?,?)";
         try {
             Connection con = DBUtils.getConnection();
             PreparedStatement st = con.prepareStatement(sql);
@@ -50,6 +51,7 @@ public class VehicleDAO {
             }
             st.setString(6, v.getImageURL());
             st.setString(7, v.getStatus());
+            st.setTimestamp(8, new java.sql.Timestamp(System.currentTimeMillis()));
             return st.executeUpdate();
         } catch (Exception e) {
             e.printStackTrace();
