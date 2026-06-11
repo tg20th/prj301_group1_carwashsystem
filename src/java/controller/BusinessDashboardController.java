@@ -4,11 +4,18 @@
  */
 package controller;
 
+import dao.BusinessDAO;
+import dao.CustomerDAO;
+import dao.PromotionDAO;
+import dao.RewardDAO;
+import dao.TierDAO;
 import dao.VehicleDAO;
 import dto.Account;
+import dto.Customer;
 import dto.Vehicle;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.List;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -18,10 +25,10 @@ import javax.servlet.http.HttpSession;
 
 /**
  *
- * @author PC
+ * @author Minh Khanh
  */
-@WebServlet(name = "RemoveVehicleController", urlPatterns = {"/RemoveVehicleController"})
-public class RemoveVehicleController extends HttpServlet {
+@WebServlet(name = "BusinessDashboardController", urlPatterns = {"/BusinessDashboardController"})
+public class BusinessDashboardController extends HttpServlet {
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -34,30 +41,41 @@ public class RemoveVehicleController extends HttpServlet {
      */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        response.setContentType("text/html;charset=UTF-8");
         try {
-            int vehicleID = Integer.parseInt(request.getParameter("vehicleID"));
-            VehicleDAO dao = new VehicleDAO();
-            Vehicle vehicle = dao.getVehicleByID(vehicleID);
-            int result = dao.deleteVehicle(vehicleID);
-            if (result > 0) {
-                request.setAttribute("SUCCESS", "Remove vehicle successful!");
-            } else {
-                request.setAttribute("ERROR", "Remove vehicle failed!");
+            Account account = (Account) request.getSession().getAttribute("ACCOUNT");
+            if (account == null) {
+                response.sendRedirect("login.jsp");
+                return;
             }
+            CustomerDAO cusDAO = new CustomerDAO();
+            BusinessDAO bizDAO = new BusinessDAO();
+            VehicleDAO vDao = new VehicleDAO();
+            PromotionDAO promoDAO = new PromotionDAO();
+            TierDAO tierDAO = new TierDAO();
+            RewardDAO rewardDAO = new RewardDAO();
+            
+            Customer customer = cusDAO.getCustomerByAccountID(account.getAccountID());
+            if (customer != null) {
+                int pointBalance = cusDAO.getPointBalance(account.getAccountID());
+                request.setAttribute("BUSINESS", bizDAO.getBussinessByID(String.valueOf(customer.getCusID())));
+                request.setAttribute("VEHICLE_LIST", vDao.getVehiclesByCustomerID(customer.getCusID()));
+                request.setAttribute("PROMO_LIST", promoDAO.getApplicablePromotions(customer.getCusID(), customer.getTierID()));
+                request.setAttribute("POINT_BALANCE", pointBalance);
+                request.setAttribute("TIER", tierDAO.getTier(customer.getTierID()));
+                request.setAttribute("NEXTREWARD", rewardDAO.getNextReward(pointBalance));
+            } else {
+                request.setAttribute("ERROR", "Customer information not found.");
+            }
+            request.getRequestDispatcher("businessDashboard.jsp").forward(request, response);
         } catch (Exception e) {
             e.printStackTrace();
-            request.setAttribute("ERROR", "System error: " + e.getMessage());
-        }
-        Account acc = (Account) request.getSession().getAttribute("ACCOUNT");
-        if (acc != null && acc.getRoleID() == 3) {
-            request.getRequestDispatcher("BusinessDashboardController").forward(request, response);
-        } else {
-           
-            request.getRequestDispatcher("CustomerDashBoardController").forward(request, response);
+            request.setAttribute("ERROR", "Unable to load dashboard data: " + e.getMessage());
+            request.getRequestDispatcher("businessDashboard.jsp").forward(request, response);
         }
     }
 
-    // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
+// <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
     /**
      * Handles the HTTP <code>GET</code> method.
      *
