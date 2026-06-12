@@ -248,8 +248,4 @@ public class VehicleDAO {
         }
         return list;
     }
-<<<<<<< HEAD
-=======
-
->>>>>>> 05091a098f8c2a0615752cea531209c3d2549bd5
 }
