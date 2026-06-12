@@ -1,59 +1,66 @@
-
 package dto;
 
 import java.sql.Date;
 
 public class Promotion {
-    private int id;
-    private String name;
-    private int discountPercent;
+
+    private int promotionID;
+    private String promoCode;
+    private String promotionName;
+    private String targetType;
+    private int discountPercent; // Dùng int, xử lý mặc định 0 từ SQL
+    private double discountAmount; // Dùng double để tính toán chính xác
     private Date startDate;
     private Date endDate;
     private String description;
-    private boolean status;
+    private boolean isActive;
 
     public Promotion() {
     }
 
-    public Promotion(int id, String name, int discountPercent, Date startDate, Date endDate, String description, boolean status) {
-        this.id = id;
-        this.name = name;
+    public Promotion(int promotionID, String promoCode, String promotionName, String targetType, int discountPercent, double discountAmount, Date startDate, Date endDate, String description, boolean isActive) {
+        this.promotionID = promotionID;
+        this.promoCode = promoCode;
+        this.promotionName = promotionName;
+        this.targetType = targetType;
         this.discountPercent = discountPercent;
+        this.discountAmount = discountAmount;
         this.startDate = startDate;
         this.endDate = endDate;
         this.description = description;
-        this.status = status;
+        this.isActive = isActive;
     }
 
-    public Promotion(String name, Date endDate, String description) {
-        this.name = name;
-        this.endDate = endDate;
-        this.description = description;
+    public int getPromotionID() {
+        return promotionID;
     }
 
-    
-    public Promotion(int id, String name, Date endDate, String description, boolean status) {
-        this.id = id;
-        this.name = name;
-        this.endDate = endDate;
-        this.description = description;
-        this.status = status;
+    public void setPromotionID(int promotionID) {
+        this.promotionID = promotionID;
     }
 
-    public int getId() {
-        return id;
+    public String getPromoCode() {
+        return promoCode;
     }
 
-    public void setId(int id) {
-        this.id = id;
+    public void setPromoCode(String promoCode) {
+        this.promoCode = promoCode;
     }
 
-    public String getName() {
-        return name;
+    public String getPromotionName() {
+        return promotionName;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setPromotionName(String promotionName) {
+        this.promotionName = promotionName;
+    }
+
+    public String getTargetType() {
+        return targetType;
+    }
+
+    public void setTargetType(String targetType) {
+        this.targetType = targetType;
     }
 
     public int getDiscountPercent() {
@@ -62,6 +69,14 @@ public class Promotion {
 
     public void setDiscountPercent(int discountPercent) {
         this.discountPercent = discountPercent;
+    }
+
+    public double getDiscountAmount() {
+        return discountAmount;
+    }
+
+    public void setDiscountAmount(double discountAmount) {
+        this.discountAmount = discountAmount;
     }
 
     public Date getStartDate() {
@@ -88,13 +103,11 @@ public class Promotion {
         this.description = description;
     }
 
-    public boolean isStatus() {
-        return status;
+    public boolean isActive() {
+        return isActive;
     }
 
-    public void setStatus(boolean status) {
-        this.status = status;
+    public void setActive(boolean active) {
+        this.isActive = active;
     }
-    
-    
 }

@@ -7,12 +7,48 @@ import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class BookingDAO {
+
+    public int createBooking(Booking b) {
+        String sql = "INSERT INTO Bookings "
+                + "(BookingID, CustomerID, VehicleID, ServiceID, "
+                + "WashBayID, TimeSlotID, InvoiceID, Quantity, PriceAtOrder, "
+                + "DurationAtOrder, BookingDate, AppointmentTime, "
+                + "Status, Notes) "
+                + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
+        try ( Connection cn = DBUtils.getConnection();  PreparedStatement st = cn.prepareStatement(sql)) {
+
+            st.setInt(1, b.getId());
+            st.setInt(2, b.getCustomerID());
+            st.setInt(3, b.getVehicleID());
+            st.setInt(4, b.getServiceID());
+            st.setInt(5, b.getWashBayId());
+            st.setInt(7, b.getInvoiceID());
+            st.setInt(8, b.getQuantity());
+            st.setDouble(9, b.getPriceAtOrder());
+            st.setInt(10, b.getDurationAtOrder());
+            st.setDate(11, b.getBookingDate());
+            st.setTimestamp(12, Timestamp.valueOf(b.getAppointmentTime()));
+            st.setString(13, b.getStatus());
+            st.setString(14, b.getNotes());
+
+            return st.executeUpdate();
+
+        } catch (ClassNotFoundException | SQLException e) {
+            e.printStackTrace();
+            return 0;
+        }
+    }
 
     public List<Booking> getAllBookToday() {
         List<Booking> list = new ArrayList<>();
