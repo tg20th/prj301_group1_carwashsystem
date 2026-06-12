@@ -43,7 +43,6 @@ public class LoginController extends HttpServlet {
         }
     }
 
-
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -56,7 +55,6 @@ public class LoginController extends HttpServlet {
 
         request.getRequestDispatcher("index.jsp").forward(request, response);
     }
-
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
@@ -98,11 +96,6 @@ public class LoginController extends HttpServlet {
         HttpSession session = request.getSession();
         session.setAttribute("ACCOUNT", account);
         
-        if(account.getRoleID() == 1) {
-            request.getRequestDispatcher("admin_dashbroad.jsp").forward(request, response);
-        }
-
-
         // Phân luồng theo role
         int roleID = account.getRoleID();
 

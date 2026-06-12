@@ -6,14 +6,11 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Register | Elite Auto</title>
-        <!-- Bootstrap 5 & Icons -->
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
         <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
-        <!-- Google Fonts (Inter) -->
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-        <!-- System Global Stylesheet -->
         <link href="css/style.css" rel="stylesheet">
 
         <style>
@@ -47,14 +44,12 @@
 
         <div class="container min-vh-100 d-flex flex-column justify-content-center align-items-center py-5 animate-fade-up">
 
-            <!-- Brand Logo -->
             <div class="text-center mb-4 mt-4">
                 <a class="text-dark text-decoration-none fw-bold fs-3 tracking-tight d-inline-block transition-hover">
                     <i class="bi bi-vinyl-fill me-2"></i>EliteAuto
                 </a>
             </div>
 
-            <!-- Registration Card Container -->
             <div class="bg-white p-4 p-sm-5 rounded-4 shadow-sm border border-light transition-hover delay-1" style="max-width: 600px; width: 100%;">
 
                 <div class="text-center mb-4 pb-2">
@@ -65,7 +60,6 @@
                     </p>
                 </div>
 
-                <!-- Alerts -->
                 <%
                     String error = (String) request.getAttribute("error");
                     if (error != null) {
@@ -98,7 +92,6 @@
                 <form action="MainController" method="post" class="needs-validation">
                     <input type="hidden" name="action" value="register">
 
-                    <!-- Personal Information -->
                     <h6 class="text-uppercase fw-bold text-dark tracking-wider small mb-3">Personal Information</h6>
 
                     <div class="row g-3 mb-3">
@@ -106,11 +99,11 @@
                             <label class="small text-muted mb-2 fw-medium">First Name <span class="text-danger">*</span></label>
                             <input type="text" name="firstName" value="${param.firstName}" 
                                    class="form-control form-control-lg border-0 bg-light shadow-sm rounded-3 transition-hover" 
-                                   placeholder="John" required pattern="[A-Za-zÀ-ỹ\s]+">
+                                   placeholder="John" required pattern=".*[A-Za-zÀ-ỹ].*" title="Please enter a valid first name (cannot be empty spaces)">
                         </div>
                         <div class="col-sm-6">
                             <label class="small text-muted mb-2 fw-medium">Last Name <span class="text-danger">*</span></label>
-                            <input type="text" name="lastName" value="${param.lastName}" pattern="[A-Za-zÀ-ỹ\s]+" 
+                            <input type="text" name="lastName" value="${param.lastName}" pattern=".*[A-Za-zÀ-ỹ].*" title="Please enter a valid last name (cannot be empty spaces)" 
                                    class="form-control form-control-lg border-0 bg-light shadow-sm rounded-3 transition-hover" 
                                    placeholder="Doe" required>
                         </div>
@@ -118,10 +111,9 @@
 
                     <div class="mb-4">
                         <label class="small text-muted mb-2 fw-medium">Phone <span class="text-danger">*</span></label>
-                        <input type="text" name="phone" value="${param.phone}" pattern="^[0-9]{10}$" class="form-control form-control-lg border-0 bg-light shadow-sm rounded-3 transition-hover" placeholder="0901234567" required>
+                        <input type="text" name="phone" value="${param.phone}" pattern="^(0|\+84)[0-9]{9}$" title="Phone number must be a valid format (e.g. 0901234567)" class="form-control form-control-lg border-0 bg-light shadow-sm rounded-3 transition-hover" placeholder="0901234567" required>
                     </div>
 
-                    <!-- Account Information -->
                     <h6 class="text-uppercase fw-bold text-dark tracking-wider small mb-3 border-top pt-4">Account Information</h6>
 
                     <div class="mb-3">
@@ -156,38 +148,48 @@
                         </div>
                     </div>
 
-                    <!-- Doanh nghiệp Checkbox (Đã thiết kế lại giống nút Terms) -->
                     <div class="form-check mb-4 text-start d-flex align-items-center">
-                        <input class="form-check-input border-secondary-subtle me-2 cursor-pointer" type="checkbox" id="isBusiness" name="isBusiness" value="true" onchange="toggleBusinessForm()">
+                        <input class="form-check-input border-secondary-subtle me-2 cursor-pointer" type="checkbox" id="isBusiness" name="isBusiness" value="true" onchange="toggleBusinessForm()" ${param.isBusiness != null ? 'checked' : ''}>
                         <label class="form-check-label small text-muted cursor-pointer mb-0 pt-1" for="isBusiness">
                             Register as a Business?
                         </label>
                     </div>
 
-                    <!-- Business Additional Fields (Mặc định ẩn) -->
                     <div id="businessFields" class="d-none">
                         <div class="p-4 bg-light rounded-4 mb-4 border">
                             <h6 class="text-uppercase fw-bold text-dark tracking-wider small mb-3">Business Information</h6>
 
                             <div class="mb-3">
                                 <label class="small text-muted mb-2 fw-medium">Company Name <span class="text-danger">*</span></label>
-                                <input type="text" id="companyName" name="companyName" class="form-control form-control-lg border-0 shadow-sm rounded-3" placeholder="Enter company name">
+                                <input type="text" id="companyName" name="companyName" 
+                                       value="${param.companyName}"
+                                       class="form-control form-control-lg border-0 shadow-sm rounded-3" 
+                                       placeholder="Enter company name"
+                                       pattern=".*\S.*" title="Company name cannot be only spaces">
                             </div>
 
                             <div class="row g-3 mb-3">
                                 <div class="col-sm-6">
                                     <label class="small text-muted mb-2 fw-medium">Tax Code <span class="text-danger">*</span></label>
-                                    <input type="text" id="taxCode" name="taxCode" class="form-control form-control-lg border-0 shadow-sm rounded-3" placeholder="e.g. 0312345678">
+                                    <input type="text" id="taxCode" name="taxCode" 
+                                           value="${param.taxCode}"
+                                           class="form-control form-control-lg border-0 shadow-sm rounded-3" 
+                                           placeholder="e.g. 0312345678"
+                                           pattern="\d{10}|\d{10}-\d{3}">
                                 </div>
                                 <div class="col-sm-6">
                                     <label class="small text-muted mb-2 fw-medium">Company Address <span class="text-danger">*</span></label>
-                                    <input type="text" id="companyAddress" name="companyAddress" class="form-control form-control-lg border-0 shadow-sm rounded-3" placeholder="City, District...">
+                                    <input type="text" id="companyAddress" 
+                                           name="companyAddress" 
+                                           value="${param.companyAddress}"
+                                           class="form-control form-control-lg border-0 shadow-sm rounded-3" 
+                                           placeholder="City, District..."
+                                           pattern=".*\S.*" title="Address cannot be only spaces">
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Terms Checkbox -->
                     <div class="form-check mb-4 text-start d-flex align-items-center">
                         <input class="form-check-input border-secondary-subtle me-2 cursor-pointer" type="checkbox" name="agreeTerms" id="agreeTerms" required>
                         <label class="form-check-label small text-muted mb-0 pt-1" for="agreeTerms">
@@ -195,7 +197,6 @@
                         </label>
                     </div>
 
-                    <!-- Submit Button -->
                     <div class="btn-area">
                         <button type="submit" class="btn btn-black w-100 rounded-pill py-3 fw-bold tracking-wide transition-hover mb-3">
                             CREATE ACCOUNT
@@ -205,28 +206,64 @@
             </div>
         </div>
 
-        <!-- Terms Modal -->
         <div class="modal fade" id="termsModal" tabindex="-1" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
                 <div class="modal-content border-0 rounded-4 shadow-lg overflow-hidden animate-fade-up">
-                    <div class="modal-header border-bottom border-light px-4 py-3">
-                        <h5 class="modal-title fw-bold tracking-tight">Auto Wash System Terms & Conditions</h5>
+                    <div class="modal-header border-bottom border-light px-4 py-3 bg-light">
+                        <h5 class="modal-title fw-bold tracking-tight text-dark">Auto Wash System Terms & Conditions</h5>
                         <button type="button" class="btn-close shadow-none" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
+
                     <div class="modal-body p-4 text-muted small" style="line-height: 1.6;">
-                        <p>Please read these terms carefully before creating your member account...</p>
+                        <p class="fw-medium text-dark mb-4">Please read these mandatory terms carefully before creating your account. By registering and using Elite Auto services, you strictly agree to comply with the following conditions:</p>
+
+                        <h6 class="fw-bold text-dark mt-4 mb-2"><i class="bi bi-person-badge me-2"></i>1. Account & Information Accuracy</h6>
+                        <ul class="mb-3 ps-3">
+                            <li class="mb-1">You must provide accurate and up-to-date personal and vehicle information (especially License Plate and Contact Number).</li>
+                            <li class="mb-1"><strong>Business Accounts:</strong> Must provide a valid Company Name and Tax Code. Falsifying business details will result in immediate account suspension.</li>
+                            <li>You are strictly responsible for maintaining the confidentiality of your account password.</li>
+                        </ul>
+
+                        <h6 class="fw-bold text-dark mt-4 mb-2"><i class="bi bi-calendar-x me-2"></i>2. Booking & Cancellation Policy</h6>
+                        <ul class="mb-3 ps-3">
+                            <li class="mb-1">Appointments must be modified or canceled at least <strong>2 hours</strong> prior to the scheduled time.</li>
+                            <li class="mb-1 text-danger fw-medium">Repeated "No-shows" (failing to arrive for a confirmed booking without prior notice) will lead to temporary freezing of your account and loss of loyalty points.</li>
+                            <li>We reserve the right to reschedule your booking in case of severe weather or technical system failures.</li>
+                        </ul>
+
+                        <h6 class="fw-bold text-dark mt-4 mb-2"><i class="bi bi-car-front me-2"></i>3. Service & Vehicle Liability</h6>
+                        <ul class="mb-3 ps-3">
+                            <li class="mb-1"><strong>Valuables:</strong> Please remove all valuable personal belongings from your vehicle before handing it over to our staff. Elite Auto is not responsible for any lost or damaged personal items.</li>
+                            <li class="mb-1">Any pre-existing damage, scratches, or technical issues with the vehicle must be declared to our staff before the service begins.</li>
+                            <li>We reserve the right to refuse service if the vehicle poses a safety or health hazard to our staff or equipment.</li>
+                        </ul>
+
+                        <h6 class="fw-bold text-dark mt-4 mb-2"><i class="bi bi-star me-2"></i>4. Promotions & Loyalty Tiers</h6>
+                        <ul class="mb-0 ps-3">
+                            <li class="mb-1">Loyalty points, tier benefits, and promotional vouchers are non-transferable and cannot be exchanged for cash.</li>
+                            <li>Elite Auto reserves the right to modify or terminate promotional campaigns and tier rules at any time without prior notice.</li>
+                        </ul>
                     </div>
-                    <div class="modal-footer border-top border-light px-4 py-3 bg-light bg-opacity-50 justify-content-center">
-                        <button type="button" class="btn btn-black rounded-pill px-5 small transition-hover shadow-sm" data-bs-dismiss="modal" onclick="agreeTerms()">I Understand</button>
+
+                    <div class="modal-footer border-top border-light px-4 py-3 bg-light justify-content-between align-items-center">
+                        <div class="small text-muted">
+                            <i class="bi bi-info-circle me-1"></i> Scroll to read all terms
+                        </div>
+                        <button type="button" class="btn btn-black rounded-pill px-5 small transition-hover shadow-sm" data-bs-dismiss="modal" onclick="agreeTerms()">I Agree & Understand</button>
                     </div>
                 </div>
             </div>
         </div>
-
-        <!-- Script -->
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
         <script>
-                            // Logic bật/tắt form doanh nghiệp
+                            // YÊU CẦU 3: Giữ trạng thái hiển thị của form Business khi reload do lỗi submit
+                            window.onload = function () {
+                                if (document.getElementById("isBusiness").checked) {
+                                    toggleBusinessForm();
+                                }
+                            };
+
+                            // Logic bật/tắt form doanh nghiệp (Đã sửa để thêm/xóa required bằng JS)
                             function toggleBusinessForm() {
                                 const isBusiness = document.getElementById("isBusiness").checked;
                                 const businessFields = document.getElementById("businessFields");
@@ -241,7 +278,8 @@
                                     // Bỏ bắt buộc nhập nếu không phải doanh nghiệp
                                     inputs.forEach(input => {
                                         input.removeAttribute("required");
-                                        input.value = ""; // Xóa dữ liệu cũ nếu họ tắt đi
+                                        // Tùy chọn: Xóa dữ liệu cũ nếu họ tắt đi, bỏ comment nếu bạn cần
+                                        // input.value = ""; 
                                     });
                                 }
                             }
@@ -274,7 +312,7 @@
                                 }
                                 setTimeout(function () {
                                     toastErrorAlert.style.setProperty("display", "none", "important");
-                                }, 2500);
+                                }, 3500);
                             }
 
                             var successToast = document.getElementById("successToast");
@@ -299,4 +337,4 @@
                             }
         </script>
     </body>
-</html> 
+</html>

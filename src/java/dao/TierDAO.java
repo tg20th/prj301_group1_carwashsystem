@@ -5,6 +5,8 @@ import dto.Tier;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.util.ArrayList;
+import java.util.List;
 
 public class TierDAO {
 
@@ -37,4 +39,52 @@ public class TierDAO {
         }
         return result;
     }
+    
+    public List<Tier> getAllTier() {
+        List<Tier> list = new ArrayList<>();
+        Connection cn = null;
+
+        try {
+            cn = DBUtils.getConnection();
+            String sql = "SELECT t.[TierID], t.[TierName], [MinSpend]\n"
+                    + ",[PointMultiplier]\n"
+                    + ",[BenefitDescription]\n"
+                    + ",[IsActive], ISNULL(COUNT(c.CustomerID), 0) AS NumOfCus\n"
+                    + "FROM [dbo].[LoyaltyTiers] t LEFT JOIN [dbo].[Customers] c\n"
+                    + "ON t.TierID = c.TierID\n"
+                    + "GROUP BY t.TierID, t.TierName, [MinSpend]\n"
+                    + ",[PointMultiplier]\n"
+                    + ",[BenefitDescription]\n"
+                    + ",[IsActive]";
+
+            PreparedStatement st = cn.prepareStatement(sql);
+            ResultSet table = st.executeQuery();
+
+            while (table.next()) {
+                int id = table.getInt("TierID");
+                String name = table.getString("TierName");
+                int minSpend = table.getInt("MinSpend");
+                double pointMultiplier = table.getDouble("PointMultiplier");
+                String description = table.getString("BenefitDescription");
+                boolean status = table.getBoolean("IsActive");
+                int totalCus = table.getInt("NumOfCus");
+
+                Tier t = new Tier(id, name, minSpend, pointMultiplier, description, status, totalCus);
+                list.add(t);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (cn != null) {
+                    cn.close();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return list;
+    }
+
 }

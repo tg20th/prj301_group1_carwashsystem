@@ -12,7 +12,7 @@ public class Account {
     private String password;
     private String phone;
     private String email;
-    private boolean status;
+    private String status;
     private Date createAt;
     private java.sql.Timestamp lastLoginAt; 
 
@@ -39,7 +39,7 @@ public class Account {
     }
     
 
-    public Account(int accountID, int roleID, String firstName, String lastName, String password, String phone, String email, boolean status, Date createAt) {
+    public Account(int accountID, int roleID, String firstName, String lastName, String password, String phone, String email, String status, Date createAt) {
         this.accountID = accountID;
         this.roleID = roleID;
         this.firstName = firstName;
@@ -51,7 +51,7 @@ public class Account {
         this.createAt = createAt;
     }
 
-    public Account(int roleID, String firstName, String lastName, String password, String phone, String email, boolean status, Date createAt) {
+    public Account(int roleID, String firstName, String lastName, String password, String phone, String email, String status, Date createAt) {
         this.roleID = roleID;
         this.firstName = firstName;
         this.lastName = lastName;
@@ -62,7 +62,7 @@ public class Account {
         this.createAt = createAt;
     }
 
-    public Account(String firstName, String lastName, String password, String phone, String email, boolean status, Date createAt) {
+    public Account(String firstName, String lastName, String password, String phone, String email, String status, Date createAt) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.password = password;
@@ -105,11 +105,11 @@ public class Account {
         this.roleID = roleID;
     }
 
-    public boolean isStatus() {
+    public String isStatus() {
         return status;
     }
 
-    public void setStatus(boolean status) {
+    public void setStatus(String status) {
         this.status = status;
     }
 
