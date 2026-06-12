@@ -57,7 +57,7 @@ public class MainController extends HttpServlet {
                     url = "index.jsp";
                     break;
                 case "register_page":
-                    url = "register.jsp";
+                    url = "/register.jsp";
                     break;
                 case "register":
                     url = "RegisterController";
