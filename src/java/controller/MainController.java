@@ -7,6 +7,8 @@ package controller;
 import dao.VehicleBrandDAO;
 import dao.VehicleDAO;
 import dao.VehicleModelDAO;
+import dto.Account;
+import dao.VehicleModelDAO;
 import dto.Vehicle;
 import dto.VehicleBrand;
 import dto.VehicleModel;
@@ -67,14 +69,22 @@ public class MainController extends HttpServlet {
                     url = "LogoutController";
                     break;
                 case "dashboard":
-                    url = "CustomerDashBoardController";
+                    Account acc = (Account) request.getSession().getAttribute("ACCOUNT");
+                    if (acc == null) {
+                        url = "index.jsp";
+                        break;
+                    }
+                    if (acc.getRoleID() == 3) {
+                        url = "BusinessDashboardController";
+                    } else if (acc.getRoleID() == 1) {
+                        url = "admin_dashbroad.jsp";
+                    } else {
+                        url = "CustomerDashBoardController";
+                    }
                     break;
                 case "AddVehicle_page":
                     url = "addVehicle.jsp";
                     break;
-                case "getVehicleData":
-                    response.setContentType("application/json;charset=UTF-8");
-                    try (PrintWriter out = response.getWriter()) {
                         VehicleBrandDAO brandDAO = new VehicleBrandDAO();
                         VehicleModelDAO modelDAO = new VehicleModelDAO();
 
@@ -118,7 +128,13 @@ public class MainController extends HttpServlet {
                         int vehicleID = Integer.parseInt(vIDStr);
                         VehicleDAO dao = new VehicleDAO();
                         Vehicle v = dao.getVehicleByID(vehicleID);
+                        VehicleBrandDAO brandDAO = new VehicleBrandDAO();
+                        VehicleModelDAO modelDAO = new VehicleModelDAO();
+                        ArrayList<VehicleBrand> brandList = brandDAO.getAllBrands();
+                        ArrayList<VehicleModel> modelList = modelDAO.getAllModels();
                         request.setAttribute("VEHICLE", v);
+                        request.setAttribute("BRAND_LIST", brandList);
+                        request.setAttribute("MODEL_LIST", modelList);
                         url = "updateVehicle.jsp";
                     } else {
                         url = "CustomerDashBoardController";
@@ -133,6 +149,16 @@ public class MainController extends HttpServlet {
                 case "saveaccount":
                     url = "SaveAccountController";
                     break;
+                case "BusinessDashboard":
+                    url = "BusinessDashboardController";
+                    break;
+                case "AddBusinessVehicle_page":
+                    url = "addBusinessVehicle.jsp";
+                    break;
+                case "AddBusinessVehicles":
+                    url = "AddBusinessVehiclesController";
+                    break;
+
                 default:
                     url = "index.jsp";
                     break;

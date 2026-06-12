@@ -59,6 +59,7 @@ public class AccountDAO {
                 ResultSet table = st.executeQuery();
                 while (table.next()) {
                     int accID = table.getInt("AccountID");
+                    int roleID = table.getInt("RoleID");
                     String password = table.getString("Password");
                     String phone = table.getString("Phone");
                     String email = table.getString("Email");
@@ -67,6 +68,7 @@ public class AccountDAO {
                     Date createAt = table.getDate("CreatedAt");
 
                     result = new Account(accID, firstName, lastName, password, phone, email, createAt);
+                    result.setRoleID(roleID); 
                 }
             }
         } catch (Exception e) {
@@ -84,7 +86,7 @@ public class AccountDAO {
     }
 
     public Account getAccountByEmail(String email) {
-        String sql = "select [AccountID], "
+        String sql = "select [AccountID], [RoleID],"
                 + "[FirstName], [LastName], "
                 + "[Password], [Phone],"
                 + "[Email],[CreatedAt]\n"
@@ -94,7 +96,7 @@ public class AccountDAO {
     }
 
     public Account getAccountByPhone(String phone) {
-        String sql = "select [AccountID], "
+        String sql = "select [AccountID],[RoleID], "
                 + "[FirstName], [LastName], "
                 + "[Password], [Phone],"
                 + "[Email],[CreatedAt]\n"

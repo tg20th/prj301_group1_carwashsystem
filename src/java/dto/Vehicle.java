@@ -32,6 +32,17 @@ public class Vehicle {
         this.status = status;
     }
 
+    public Vehicle(int vehicleID, int customerID, int modelID, String licensePlate, String color, Integer manufactureYear, String imageURL, String status) {
+        this.vehicleID = vehicleID;
+        this.customerID = customerID;
+        this.modelID = modelID;
+        this.licensePlate = licensePlate;
+        this.color = color;
+        this.manufactureYear = manufactureYear;
+        this.imageURL = imageURL;
+        this.status = status;
+    }
+
 
     public int getVehicleID() {
         return vehicleID;
