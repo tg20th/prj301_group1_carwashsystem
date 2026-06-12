@@ -3,12 +3,19 @@
     Created on : Jun 11, 2026, 2:41:21 PM
     Author     : PC
 --%>
+<%@page import="java.util.List"%>
+<%@page import="java.util.List"%>
+<%@page import="java.util.ArrayList"%>
+<%@page import="java.util.ArrayList"%>
+<%@page import="dto.Vehicle"%>
+<%@page import="dto.Vehicle"%>
 <%@page import="dto.Account"%>
 <%
     Account acc = (Account) request.getSession().getAttribute("ACCOUNT");
     if (acc == null) {
         response.sendRedirect("MainController");
     } else {
+    List<Vehicle> vehicleList = (ArrayList) request.getSession().getAttribute("VEHICLELIST");
 %>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <!DOCTYPE html>

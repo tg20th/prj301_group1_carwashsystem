@@ -1,22 +1,17 @@
-
 package dto;
 
 import java.sql.Date;
 import java.time.LocalDateTime;
 
 public class Booking {
+
     private int bookingID;
     private int customerID;
-    private String cusName;
-    private String licensePlate;
-    private String service;
     private Date bookingDate;
     private LocalDateTime appointmentTime;
     private String status;
     private int washBayId;
     private Integer timeSlotID;
-
-    // Additional fields for createBooking
     private int vehicleID;
     private int serviceID;
     private int invoiceID;
@@ -24,6 +19,12 @@ public class Booking {
     private double priceAtOrder;
     private int durationAtOrder;
     private String notes;
+    
+    //Cho admin
+    private String cusName;
+    private String licensePlate;
+    private String service;
+    private TimeSlot timeslot;
 
     public Booking(int id, String cusName, String licensePlate, String service, Date bookingDate, LocalDateTime appointmentTime, String status) {
         this.bookingID = id;
@@ -34,8 +35,6 @@ public class Booking {
         this.appointmentTime = appointmentTime;
         this.status = status;
     }
-    
-    
 
     public Booking(int id, String cusName, String licensePlate, String service, LocalDateTime appointmentTime, String status, int washBayId) {
         this.bookingID = id;
@@ -74,8 +73,6 @@ public class Booking {
         this.appointmentTime = appointmentTime;
         this.status = status;
     }
-    
-    
 
     public int getId() {
         return bookingID;
@@ -205,8 +202,5 @@ public class Booking {
     public void setNotes(String notes) {
         this.notes = notes;
     }
-    
+
 }
-
-
-
