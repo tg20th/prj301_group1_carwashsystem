@@ -136,51 +136,6 @@ public class VehicleDAO {
         return false;
     }
 
-    public int updateVehicle(Vehicle v) {
-        String sql;
-        if (v.getImageURL() != null) {
-            sql = "UPDATE Vehicles "
-                    + "SET "
-                    + "ModelID = ?, "
-                    + "LicensePlate = ?, "
-                    + "Color = ?, "
-                    + "ManufactureYear = ?, "
-                    + "ImageURL = ? "
-                    + "WHERE VehicleID = ?";
-        } else {
-            sql
-                    = "UPDATE Vehicles "
-                    + "SET "
-                    + "ModelID = ?, "
-                    + "LicensePlate = ?, "
-                    + "Color = ?, "
-                    + "ManufactureYear = ? "
-                    + "WHERE VehicleID = ?";
-        }
-        try {
-            Connection con = DBUtils.getConnection();
-            PreparedStatement st = con.prepareStatement(sql);
-            st.setInt(1, v.getModelID());
-            st.setString(2, v.getLicensePlate());
-            st.setString(3, v.getColor());
-            if (v.getManufactureYear() == null) {
-                st.setNull(4, java.sql.Types.INTEGER);
-            } else {
-                st.setInt(4, v.getManufactureYear());
-            }
-            if (v.getImageURL() != null) {
-                st.setString(5, v.getImageURL());
-                st.setInt(6, v.getVehicleID());
-            } else {
-                st.setInt(5, v.getVehicleID());
-            }
-            return st.executeUpdate();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return 0;
-    }
-
     public Vehicle getVehicleByID(int vehicleID) {
         String sql = "SELECT v.*, " + "vm.ModelName, " + "vb.BrandName " + "FROM Vehicles v " + "JOIN VehicleModels vm " + "ON v.ModelID = vm.ModelID " + "JOIN VehicleBrands vb " + "ON vm.BrandID = vb.BrandID " + "WHERE v.VehicleID = ?";
         try {
@@ -211,11 +166,45 @@ public class VehicleDAO {
         return null;
     }
 
+    public int updateVehicle(Vehicle v){
+        int result = 0;
+        String sql = "UPDATE Vehicles "
+                + "SET ModelID = ?, "
+                + "LicensePlate = ?, "
+                + "Color = ?, "
+                + "ManufactureYear = ?, "
+                + "ImageURL = ?, "
+                + "Status = ? "
+                + "WHERE VehicleID = ?";
+        try {
+            Connection cn = DBUtils.getConnection();
+            PreparedStatement st = cn.prepareStatement(sql);
+            st.setInt(1, v.getModelID());
+            st.setString(2, v.getLicensePlate());
+            st.setString(3, v.getColor());
+            if (v.getManufactureYear() != null) {
+                st.setInt(4, v.getManufactureYear());
+            } else {
+                st.setNull(4, java.sql.Types.INTEGER);
+            }
+            st.setString(5, v.getImageURL());
+            st.setString(6, v.getStatus());
+            st.setInt(7, v.getVehicleID());
+            result = st.executeUpdate();
+            cn.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return result;
+    }
+
     public int deleteVehicle(int vehicleID) {
         String sql
                 = "UPDATE Vehicles "
                 + "SET Status = 'Frozen' "
-                + "WHERE VehicleID = ?";
+                + "WHERE VehicleID = ? "
+                + "AND (Status = 'Active' "
+                + "OR Status = 'Pending')";
         try {
             Connection con = DBUtils.getConnection();
             PreparedStatement st = con.prepareStatement(sql);
@@ -232,7 +221,7 @@ public class VehicleDAO {
                 + "FROM Vehicles v\n"
                 + "JOIN VehicleModels vm ON v.ModelID = vm.ModelID\n"
                 + "JOIN VehicleBrands vb ON vm.BrandID = vb.BrandID\n"
-                + "WHERE v.CustomerID = ?";
+                + "WHERE v.CustomerID = ? AND v.Status <> 'Frozen'";
         List<Vehicle> list = new ArrayList<>();
 
         try ( Connection con = DBUtils.getConnection()) {
@@ -259,5 +248,8 @@ public class VehicleDAO {
         }
         return list;
     }
+<<<<<<< HEAD
+=======
 
+>>>>>>> 05091a098f8c2a0615752cea531209c3d2549bd5
 }
