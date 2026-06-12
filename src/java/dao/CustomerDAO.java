@@ -50,7 +50,6 @@ public class CustomerDAO {
                     customer.setAccID(rs.getInt("AccountID"));
                     customer.setTierID(rs.getInt("TierID"));
                     customer.setJoinedAt(rs.getDate("JoinedAt"));
-                    customer.setTotalPoint(rs.getInt("TotalPoints"));
 
                     return customer;
                 }
@@ -67,16 +66,24 @@ public class CustomerDAO {
         Connection cn = null;
         try {
             cn = DBUtils.getConnection();
-            String sql = "SELECT [TotalPoints]\n"
-                    + "FROM [dbo].[Customers]\n"
-                    + "WHERE [AccountID] = ?";
+            String sql = "SELECT a.AccountID,\n"
+                    + "c.TierID,\n"
+                    + "ISNULL(SUM(pt.PointChange), 0) AS CurrentPoints\n"
+                    + "FROM Accounts a\n"
+                    + "INNER JOIN Customers c ON a.AccountID = c.AccountID\n"
+                    + "LEFT JOIN PointTransactions pt ON c.CustomerID = pt.CustomerID \n"
+                    + "AND pt.TransactionDate >= DATEADD(MONTH, -12, GETDATE())\n"
+                    + "WHERE a.AccountID = ?\n"
+                    + "GROUP BY \n"
+                    + "a.AccountID, \n"
+                    + "c.TierID; ";
 
             PreparedStatement st = cn.prepareStatement(sql);
             st.setInt(1, accountId);
             ResultSet table = st.executeQuery();
 
             if (table.next()) {
-                pointBalance = (Integer) table.getInt("TotalPoints");
+                pointBalance = (Integer) table.getInt("CurrentPoints");
             }
 
         } catch (Exception e) {

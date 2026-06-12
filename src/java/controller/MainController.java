@@ -4,16 +4,19 @@
  */
 package controller;
 
+import dao.VehicleBrandDAO;
 import dao.VehicleDAO;
-<<<<<<< Updated upstream
-=======
 import dao.VehicleModelDAO;
 import dto.Account;
->>>>>>> Stashed changes
+import dao.VehicleModelDAO;
 import dto.Vehicle;
+import dto.VehicleBrand;
+import dto.VehicleModel;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import javax.servlet.ServletException;
+import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -24,6 +27,11 @@ import javax.servlet.http.HttpServletResponse;
  * @author Lan
  */
 @WebServlet("/MainController")
+@MultipartConfig(
+        fileSizeThreshold = 1024 * 1024,
+        maxFileSize = 1024 * 1024 * 10,
+        maxRequestSize = 1024 * 1024 * 50
+)
 public class MainController extends HttpServlet {
 
     /**
@@ -77,11 +85,6 @@ public class MainController extends HttpServlet {
                 case "AddVehicle_page":
                     url = "addVehicle.jsp";
                     break;
-<<<<<<< Updated upstream
-=======
-                case "getVehicleData":
-                    response.setContentType("application/json;charset=UTF-8");
-                    try ( PrintWriter out = response.getWriter()) {
                         VehicleBrandDAO brandDAO = new VehicleBrandDAO();
                         VehicleModelDAO modelDAO = new VehicleModelDAO();
 
@@ -95,10 +98,8 @@ public class MainController extends HttpServlet {
                             VehicleBrand b = brands.get(i);
                             String name = b.getBrandName().replace("\"", "\\\"");
                             json.append("{\"brandID\":").append(b.getBrandID())
-                                    .append(",\"brandName\":\"").append(name).append("\"}");
-                            if (i < brands.size() - 1) {
-                                json.append(",");
-                            }
+                                .append(",\"brandName\":\"").append(name).append("\"}");
+                            if (i < brands.size() - 1) json.append(",");
                         }
                         json.append("],\"models\":[");
 
@@ -106,18 +107,15 @@ public class MainController extends HttpServlet {
                             VehicleModel m = models.get(i);
                             String name = m.getModelName().replace("\"", "\\\"");
                             json.append("{\"modelID\":").append(m.getModelID())
-                                    .append(",\"brandID\":").append(m.getBrandID())
-                                    .append(",\"modelName\":\"").append(name).append("\"}");
-                            if (i < models.size() - 1) {
-                                json.append(",");
-                            }
+                                .append(",\"brandID\":").append(m.getBrandID())
+                                .append(",\"modelName\":\"").append(name).append("\"}");
+                            if (i < models.size() - 1) json.append(",");
                         }
                         json.append("]}");
 
                         out.print(json.toString());
                     }
                     return; // prevent forward, we already wrote JSON response
->>>>>>> Stashed changes
                 case "AddVehicle":
                     url = "AddVehicleController";
                     break;

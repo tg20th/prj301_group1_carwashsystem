@@ -172,7 +172,7 @@ public class AccountDAO {
                         table.getString("Password"),
                         table.getString("Phone"),
                         table.getString("Email"),
-                        table.getBoolean("IsActive"),
+                        table.getString("IsActive"),
                         table.getDate("CreatedAt")
                 );
             }
