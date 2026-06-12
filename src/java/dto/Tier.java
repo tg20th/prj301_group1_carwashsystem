@@ -4,27 +4,77 @@ package dto;
 public class Tier {
     private int tierID;
     private String tierName;
-    private int minWash;
-    private double minSpend;
+    private int minSpend;
     private double pointRate;
+    private String desciption;
+    private boolean status;
+    private int totalCus;
+
+    public Tier(int tierID, String tierName, int totalCus) {
+        this.tierID = tierID;
+        this.tierName = tierName;
+        this.totalCus = totalCus;
+    }
+
+    public Tier(int tierID, String tierName, int minSpend, double pointRate, String desciption, boolean status, int totalCus) {
+        this.tierID = tierID;
+        this.tierName = tierName;
+        this.minSpend = minSpend;
+        this.pointRate = pointRate;
+        this.desciption = desciption;
+        this.status = status;
+        this.totalCus = totalCus;
+    }
+
+    public Tier(String tierName, int minSpend, double pointRate, String desciption, boolean status) {
+        this.tierName = tierName;
+        this.minSpend = minSpend;
+        this.pointRate = pointRate;
+        this.desciption = desciption;
+        this.status = status;
+    }
+
+    
+    
+    public Tier(int tierID, String tierName, int minSpend, double pointRate, boolean status, int totalCus) {
+        this.tierID = tierID;
+        this.tierName = tierName;
+        this.minSpend = minSpend;
+        this.pointRate = pointRate;
+        this.status = status;
+        this.totalCus = totalCus;
+    }
+
+    public String getDesciption() {
+        return desciption;
+    }
+
+    public void setDesciption(String desciption) {
+        this.desciption = desciption;
+    }
+    
+    
+
+    public boolean isStatus() {
+        return status;
+    }
+
+    public void setStatus(boolean status) {
+        this.status = status;
+    }
+
+    public int getTotalCus() {
+        return totalCus;
+    }
+
+    public void setTotalCus(int totalCus) {
+        this.totalCus = totalCus;
+    }
+    
 
     public Tier() {
     }
 
-    public Tier(String tierName, int minWash, double minSpend, double pointRate) {
-        this.tierName = tierName;
-        this.minWash = minWash;
-        this.minSpend = minSpend;
-        this.pointRate = pointRate;
-    }
-
-    public Tier(int tierID, String tierName, int minWash, double minSpend, double pointRate) {
-        this.tierID = tierID;
-        this.tierName = tierName;
-        this.minWash = minWash;
-        this.minSpend = minSpend;
-        this.pointRate = pointRate;
-    }
 
     public int getTierID() {
         return tierID;
@@ -42,19 +92,12 @@ public class Tier {
         this.tierName = tierName;
     }
 
-    public int getMinWash() {
-        return minWash;
-    }
 
-    public void setMinWash(int minWash) {
-        this.minWash = minWash;
-    }
-
-    public double getMinSpend() {
+    public int getMinSpend() {
         return minSpend;
     }
 
-    public void setMinSpend(double minSpend) {
+    public void setMinSpend(int minSpend) {
         this.minSpend = minSpend;
     }
 
