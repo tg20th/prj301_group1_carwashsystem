@@ -8,10 +8,7 @@ import dao.VehicleBrandDAO;
 import dao.VehicleDAO;
 import dao.VehicleModelDAO;
 import dto.Account;
-<<<<<<< HEAD
-=======
 import dao.VehicleModelDAO;
->>>>>>> 05091a098f8c2a0615752cea531209c3d2549bd5
 import dto.Vehicle;
 import dto.VehicleBrand;
 import dto.VehicleModel;
@@ -88,12 +85,9 @@ public class MainController extends HttpServlet {
                 case "AddVehicle_page":
                     url = "addVehicle.jsp";
                     break;
-<<<<<<< HEAD
                 case "getVehicleData":
                     response.setContentType("application/json;charset=UTF-8");
                     try ( PrintWriter out = response.getWriter()) {
-=======
->>>>>>> 05091a098f8c2a0615752cea531209c3d2549bd5
                         VehicleBrandDAO brandDAO = new VehicleBrandDAO();
                         VehicleModelDAO modelDAO = new VehicleModelDAO();
 
@@ -107,15 +101,8 @@ public class MainController extends HttpServlet {
                             VehicleBrand b = brands.get(i);
                             String name = b.getBrandName().replace("\"", "\\\"");
                             json.append("{\"brandID\":").append(b.getBrandID())
-<<<<<<< HEAD
-                                    .append(",\"brandName\":\"").append(name).append("\"}");
-                            if (i < brands.size() - 1) {
-                                json.append(",");
-                            }
-=======
                                 .append(",\"brandName\":\"").append(name).append("\"}");
                             if (i < brands.size() - 1) json.append(",");
->>>>>>> 05091a098f8c2a0615752cea531209c3d2549bd5
                         }
                         json.append("],\"models\":[");
 
@@ -123,17 +110,9 @@ public class MainController extends HttpServlet {
                             VehicleModel m = models.get(i);
                             String name = m.getModelName().replace("\"", "\\\"");
                             json.append("{\"modelID\":").append(m.getModelID())
-<<<<<<< HEAD
-                                    .append(",\"brandID\":").append(m.getBrandID())
-                                    .append(",\"modelName\":\"").append(name).append("\"}");
-                            if (i < models.size() - 1) {
-                                json.append(",");
-                            }
-=======
                                 .append(",\"brandID\":").append(m.getBrandID())
                                 .append(",\"modelName\":\"").append(name).append("\"}");
                             if (i < models.size() - 1) json.append(",");
->>>>>>> 05091a098f8c2a0615752cea531209c3d2549bd5
                         }
                         json.append("]}");
 
