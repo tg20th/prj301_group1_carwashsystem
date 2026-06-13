@@ -2,6 +2,7 @@
 package dto;
 
 import java.sql.Date;
+import java.sql.Timestamp;
 
 public class Account {
     private int accountID;
@@ -13,6 +14,7 @@ public class Account {
     private String email;
     private String status;
     private Date createAt;
+    private java.sql.Timestamp lastLoginAt; 
 
     public Account() {
     }
@@ -157,6 +159,14 @@ public class Account {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public Timestamp getLastLoginAt() {
+        return lastLoginAt;
+    }
+
+    public void setLastLoginAt(Timestamp lastLoginAt) {
+        this.lastLoginAt = lastLoginAt;
     }
     
 }
