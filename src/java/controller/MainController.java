@@ -4,6 +4,7 @@
  */
 package controller;
 
+import dao.BusinessDAO;
 import dao.VehicleBrandDAO;
 import dao.VehicleDAO;
 import dao.VehicleModelDAO;
@@ -74,10 +75,8 @@ public class MainController extends HttpServlet {
                         url = "index.jsp";
                         break;
                     }
-                    if (acc.getRoleID() == 3) {
-                        url = "BusinessDashboardController";
-                    } else if (acc.getRoleID() == 1) {
-                        url = "admin_dashbroad.jsp";
+                    if (acc.getRoleID() == 1) {
+                        url = "AdminDashboardController";
                     } else {
                         url = "CustomerDashBoardController";
                     }
@@ -101,8 +100,10 @@ public class MainController extends HttpServlet {
                             VehicleBrand b = brands.get(i);
                             String name = b.getBrandName().replace("\"", "\\\"");
                             json.append("{\"brandID\":").append(b.getBrandID())
-                                .append(",\"brandName\":\"").append(name).append("\"}");
-                            if (i < brands.size() - 1) json.append(",");
+                                    .append(",\"brandName\":\"").append(name).append("\"}");
+                            if (i < brands.size() - 1) {
+                                json.append(",");
+                            }
                         }
                         json.append("],\"models\":[");
 
@@ -110,9 +111,11 @@ public class MainController extends HttpServlet {
                             VehicleModel m = models.get(i);
                             String name = m.getModelName().replace("\"", "\\\"");
                             json.append("{\"modelID\":").append(m.getModelID())
-                                .append(",\"brandID\":").append(m.getBrandID())
-                                .append(",\"modelName\":\"").append(name).append("\"}");
-                            if (i < models.size() - 1) json.append(",");
+                                    .append(",\"brandID\":").append(m.getBrandID())
+                                    .append(",\"modelName\":\"").append(name).append("\"}");
+                            if (i < models.size() - 1) {
+                                json.append(",");
+                            }
                         }
                         json.append("]}");
 
