@@ -45,10 +45,10 @@ public class PromotionDAO {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-import java.sql.*;
-import java.util.*;
+        }
+        return list;
+    }
 
-public class PromotionDAO {
 
     public List<Promotion> getApplicablePromotions(int customerID, int tierID) {
         List<Promotion> list = new ArrayList<>();

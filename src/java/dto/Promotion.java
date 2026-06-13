@@ -31,6 +31,14 @@ public class Promotion {
         this.isActive = isActive;
     }
 
+    public Promotion(String promotionName, Date endDate, String description) {
+        this.promotionName = promotionName;
+        this.endDate = endDate;
+        this.description = description;
+    }
+    
+    
+
     public int getPromotionID() {
         return promotionID;
     }
