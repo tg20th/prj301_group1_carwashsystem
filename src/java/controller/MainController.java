@@ -5,11 +5,14 @@
 package controller;
 
 import dao.BusinessDAO;
+import dao.CustomerDAO;
 import dao.VehicleBrandDAO;
 import dao.VehicleDAO;
 import dao.VehicleModelDAO;
 import dto.Account;
 import dao.VehicleModelDAO;
+import dto.Business;
+import dto.Customer;
 import dto.Vehicle;
 import dto.VehicleBrand;
 import dto.VehicleModel;
@@ -74,11 +77,6 @@ public class MainController extends HttpServlet {
                     if (acc == null) {
                         url = "index.jsp";
                         break;
-                    }
-                    if (acc.getRoleID() == 1) {
-                        url = "AdminDashboardController";
-                    } else {
-                        url = "CustomerDashBoardController";
                     }
                     break;
                 case "AddVehicle_page":
