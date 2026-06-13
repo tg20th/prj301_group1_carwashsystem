@@ -58,7 +58,7 @@ public class BusinessDashboardController extends HttpServlet {
             Customer customer = cusDAO.getCustomerByAccountID(account.getAccountID());
             if (customer != null) {
                 int pointBalance = cusDAO.getPointBalance(account.getAccountID());
-                request.setAttribute("BUSINESS", bizDAO.getBussinessByID(String.valueOf(customer.getCusID())));
+                request.setAttribute("BUSINESS", bizDAO.getBussinessByID(customer.getCusID()));
                 request.setAttribute("VEHICLE_LIST", vDao.getVehiclesByCustomerID(customer.getCusID()));
                 request.setAttribute("PROMO_LIST", promoDAO.getApplicablePromotions(customer.getCusID(), customer.getTierID()));
                 request.setAttribute("POINT_BALANCE", pointBalance);
