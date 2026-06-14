@@ -19,7 +19,7 @@ public class AccountDAO {
                     + "[Password],"
                     + "[FirstName],[LastName],"
                     + "[Phone],[Email],"
-                    + "[IsActive],[CreatedAt]) \n"
+                    + "[Status],[CreatedAt]) \n"
                     + "values (?,?,?,?,?,?,?,?)";
 
             PreparedStatement st = cn.prepareStatement(sql);
@@ -29,7 +29,7 @@ public class AccountDAO {
             st.setString(4, a.getLastName());
             st.setString(5, a.getPhone());
             st.setString(6, a.getEmail());
-            st.setBoolean(7, true);
+            st.setString(7, a.isStatus());
             st.setDate(8, new Date(System.currentTimeMillis()));
 
             result = st.executeUpdate();
@@ -59,6 +59,7 @@ public class AccountDAO {
                 ResultSet table = st.executeQuery();
                 while (table.next()) {
                     int accID = table.getInt("AccountID");
+                    int roleID = table.getInt("RoleID");
                     String password = table.getString("Password");
                     String phone = table.getString("Phone");
                     String email = table.getString("Email");
@@ -67,6 +68,7 @@ public class AccountDAO {
                     Date createAt = table.getDate("CreatedAt");
 
                     result = new Account(accID, firstName, lastName, password, phone, email, createAt);
+                    result.setRoleID(roleID); 
                 }
             }
         } catch (Exception e) {
@@ -84,7 +86,7 @@ public class AccountDAO {
     }
 
     public Account getAccountByEmail(String email) {
-        String sql = "select [AccountID], "
+        String sql = "select [AccountID], [RoleID],"
                 + "[FirstName], [LastName], "
                 + "[Password], [Phone],"
                 + "[Email],[CreatedAt]\n"
@@ -94,7 +96,7 @@ public class AccountDAO {
     }
 
     public Account getAccountByPhone(String phone) {
-        String sql = "select [AccountID], "
+        String sql = "select [AccountID],[RoleID], "
                 + "[FirstName], [LastName], "
                 + "[Password], [Phone],"
                 + "[Email],[CreatedAt]\n"
@@ -103,11 +105,11 @@ public class AccountDAO {
         return getAccountField(sql, phone);
     }
 
-    public int updateAccount(int accID, String firstName, String lastName, 
+    public int updateAccount(int accID, String firstName, String lastName,
             String email, String phone, String password) {
         int result = 0;
         Connection cn = null;
-        
+
         try {
             cn = DBUtils.getConnection();
             if (cn != null) {
@@ -125,17 +127,17 @@ public class AccountDAO {
                 st.setString(4, email);
                 st.setString(5, password);
                 st.setInt(6, accID);
-                
+
                 result = st.executeUpdate();
             }
-        }catch(Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
         } finally {
             try {
                 if (cn != null) {
                     cn.close();
                 }
-            } catch(Exception e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }
@@ -170,11 +172,42 @@ public class AccountDAO {
                         table.getString("Password"),
                         table.getString("Phone"),
                         table.getString("Email"),
-                        table.getBoolean("IsActive"),
+                        table.getString("Status"),
                         table.getDate("CreatedAt")
                 );
             }
 
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (cn != null) {
+                    cn.close();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        return result;
+    }
+
+    public int getTotalPendingAccount() {
+        int result = 0;
+        Connection cn = null;
+
+        try {
+            cn = DBUtils.getConnection();
+            String sql = "SELECT ISNULL(COUNT(*), 0) AS [NumOfPending]\n"
+                    + "FROM [AutoWashProDB].[dbo].[Accounts] WHERE [Status] = 'Pending'";
+            
+            PreparedStatement st = cn.prepareStatement(sql);
+            
+            ResultSet table = st.executeQuery();
+            while(table.next()) {
+                result = table.getInt("NumOfPending");
+            }
+            
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
