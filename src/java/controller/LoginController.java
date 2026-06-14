@@ -75,19 +75,20 @@ public class LoginController extends HttpServlet {
             request.setAttribute("error", "Password is incorrect!");
             request.setAttribute("email", email);
             request.getRequestDispatcher("MainController?action=home").forward(request, response);
-return;
-        }
-
-        //tung: 14/6 check status tài khoản 
-        String status = account.isStatus();
-        if ("Rejected".equalsIgnoreCase(status)) {
-            request.getRequestDispatcher("MainController?action=pending_page").forward(request, response);
-        }
-        else if ("Pending".equalsIgnoreCase(status)) {
-            request.getRequestDispatcher("ResubmitRegistController").forward(request, response);
             return;
         }
 
+        // check status tài khoản 
+        String status = account.isStatus();
+        if ("Pending".equalsIgnoreCase(status)) {
+            request.setAttribute("error", "Account is pending...");
+            request.setAttribute("email", email);
+            request.getRequestDispatcher("MainController?action=home").forward(request, response);
+            return;
+        }
+
+        // otp: Chặn Frozen
+        // if ("Frozen".equalsIgnoreCase(status)) 
         // update thời gian đăng nhập
         accountDAO.updateLastLogin(account.getAccountID());
 
@@ -104,17 +105,19 @@ return;
             return;
         }
 
-        // phan luong cho business da duoc approve
+        // Kiểm tra Business
         CustomerDAO customerDAO = new CustomerDAO();
         Customer customer = customerDAO.getCustomerByAccountID(account.getAccountID());
         BusinessDAO businessDAO = new BusinessDAO();
-        Business business = businessDAO.getBussinessByCusID(customer.getCusID());
+        Business business = businessDAO.getBussinessByID(customer.getCusID());
         request.getSession().setAttribute("BUS", business);
         if (business != null) {
-            request.getRequestDispatcher("BusinessDashboardController").forward(request, response);
+            request.getRequestDispatcher("BusinessDashboardController")
+                    .forward(request, response);
             return;
         }
-        request.getRequestDispatcher("CustomerDashBoardController").forward(request, response);
+        request.getRequestDispatcher("CustomerDashBoardController")
+                .forward(request, response);
     }
 
     /**
