@@ -266,26 +266,18 @@ public class AccountDAO {
 
         return result;
     }
-
-
+  
     public int getTotalPendingAccount() {
         int result = 0;
         Connection cn = null;
-
-
         try {
             cn = DBUtils.getConnection();
             String sql = "SELECT ISNULL(COUNT(*), 0) AS [NumOfPending]\n"
                     + "FROM [AutoWashProDB].[dbo].[Accounts] WHERE [Status] = 'Pending'";
-            
-            PreparedStatement st = cn.prepareStatement(sql);
-            
-            ResultSet table = st.executeQuery();
-            while(table.next()) {
-                result = table.getInt("NumOfPending");
-            }
-            
 
+            PreparedStatement st = cn.prepareStatement(sql);
+
+            ResultSet table = st.executeQuery();
             while (table.next()) {
                 result = table.getInt("NumOfPending");
             }

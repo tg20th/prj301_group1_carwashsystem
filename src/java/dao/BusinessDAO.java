@@ -103,6 +103,29 @@ public class BusinessDAO {
                     String address = table.getString("CompanyAddress");
 
                     result = new Business(cusName, email, phone, busName, taxCode, address);
+    public Business getBussinessByID(int id) {
+        Connection cn = null;
+        Business result = null;
+
+        try {
+            cn = DBUtils.getConnection();
+            if (cn != null) {
+                String sql = "SELECT  [CompanyName]\n"
+                + "      ,[TaxCode]\n"
+                + "      ,[CompanyAddress]\n"
+                + "  FROM [AutoWashProDB].[dbo].[BusinessCustomers] \n"
+                + "  WHERE [CustomerID] = ?";
+
+                PreparedStatement st = cn.prepareStatement(sql);
+                st.setInt(1, id);
+                
+                ResultSet table = st.executeQuery();
+                while (table.next()) {
+                    String busName = table.getString("CompanyName");
+                    String taxCode = table.getString("TaxCode");
+                    String address = table.getString("CompanyAddress");
+
+                    result = new Business(id, busName, taxCode, address);
                 }
             }
         } catch (Exception e) {

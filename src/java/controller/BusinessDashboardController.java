@@ -54,7 +54,7 @@ public class BusinessDashboardController extends HttpServlet {
             PromotionDAO promoDAO = new PromotionDAO();
             TierDAO tierDAO = new TierDAO();
             RewardDAO rewardDAO = new RewardDAO();
-            
+
             Customer customer = cusDAO.getCustomerByAccountID(account.getAccountID());
             if (customer != null) {
                 int pointBalance = cusDAO.getPointBalance(account.getAccountID());
@@ -87,7 +87,14 @@ public class BusinessDashboardController extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        processRequest(request, response);
+        HttpSession session = request.getSession();
+
+        if (session != null && session.getAttribute("BUS") == null) {
+            request.getRequestDispatcher("MainController?action=dashboard").forward(request, response);
+            return;
+        }
+
+        request.getRequestDispatcher("index.jsp").forward(request, response);
     }
 
     /**
