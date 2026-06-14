@@ -99,4 +99,35 @@ public class CustomerDAO {
         }
         return pointBalance;
     }
+    
+    public int getTotalCustomer() {
+        int result = 0;
+        Connection cn = null;
+
+        try {
+            cn = DBUtils.getConnection();
+            String sql = "SELECT ISNULL(COUNT(*), 0) AS [NumOfCus]\n"
+                    + "  FROM [AutoWashProDB].[dbo].[Customers]";
+
+            PreparedStatement st = cn.prepareStatement(sql);
+
+            ResultSet table = st.executeQuery();
+            while (table.next()) {
+                result = table.getInt("NumOfCus");
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (cn != null) {
+                    cn.close();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        return result;
+    }
 }

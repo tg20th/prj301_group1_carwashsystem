@@ -248,5 +248,66 @@ public class VehicleDAO {
         }
         return list;
     }
+    
+    public int getTotalVehicle() {
+        int result = 0;
+        Connection cn = null;
 
+        try {
+            cn = DBUtils.getConnection();
+            String sql = "SELECT ISNULL(COUNT(*), 0) AS NumOfVehicle\n"
+                    + "  FROM [AutoWashProDB].[dbo].[Vehicles]";
+
+            PreparedStatement st = cn.prepareStatement(sql);
+
+            ResultSet table = st.executeQuery();
+            while (table.next()) {
+                result = table.getInt("NumOfVehicle");
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (cn != null) {
+                    cn.close();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        return result;
+    }
+    
+    public int getTotalVehiclePending() {
+        int result = 0;
+        Connection cn = null;
+
+        try {
+            cn = DBUtils.getConnection();
+            String sql = "SELECT ISNULL(COUNT(*), 0) AS NumOfVehicle\n"
+                    + "  FROM [AutoWashProDB].[dbo].[Vehicles] WHERE Status = 'Pending'";
+
+            PreparedStatement st = cn.prepareStatement(sql);
+
+            ResultSet table = st.executeQuery();
+            while (table.next()) {
+                result = table.getInt("NumOfVehicle");
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (cn != null) {
+                    cn.close();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        return result;
+    }
 }

@@ -4,17 +4,12 @@
  */
 package controller;
 
+import dao.BusinessDAO;
 import dao.CustomerDAO;
-import dao.RewardDAO;
-import dao.TierDAO;
-import dao.VehicleDAO;
-import dto.Account;
+import dto.Business;
 import dto.Customer;
-import dto.Reward;
-import dto.Tier;
-import dto.Vehicle;
 import java.io.IOException;
-import java.util.List;
+import java.io.PrintWriter;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -23,10 +18,10 @@ import javax.servlet.http.HttpServletResponse;
 
 /**
  *
- * @author PC
+ * @author Lan
  */
-@WebServlet(name = "CustomerDashBoardController", urlPatterns = {"/CustomerDashBoardController"})
-public class CustomerDashBoardController extends HttpServlet {
+@WebServlet(name = "RejectBusinessController", urlPatterns = {"/RejectBusinessController"})
+public class RejectBusinessController extends HttpServlet {
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -37,47 +32,39 @@ public class CustomerDashBoardController extends HttpServlet {
      * @throws ServletException if a servlet-specific error occurs
      * @throws IOException if an I/O error occurs
      */
-    protected void processRequest(HttpServletRequest request,
-            HttpServletResponse response)
+    protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        //lấy thông tin admin nhập
+        int id = Integer.parseInt(request.getParameter("id"));
+        String description = request.getParameter("reason");
 
-        Account account = (Account) request.getSession().getAttribute("ACCOUNT");
+        //lấy ra customer cần chỉnh sửa
+        CustomerDAO cd = new CustomerDAO();
+        Customer findCus = cd.getCustomerByAccountID(id);
 
-        if (account == null) {
-            response.sendRedirect("MainController?action=home");
-            return;
+        int result = 0;
+
+        BusinessDAO bd = new BusinessDAO();
+
+        //update trạng thái account
+        result = bd.rejectBusinessRequire(id);
+
+        if (result < 1) {
+            request.setAttribute("error", "Cannot reject right now. Please try again!");
+        } else {
+            result = bd.descripReasonReject(findCus.getCusID(), description);
+
+            if (result < 1) {
+                request.setAttribute("error", "Cannot update reject reason. Please try again!");
+            } else {
+                request.setAttribute("success", "Reject successfully!");    
+            }
+
         }
+        request.getRequestDispatcher("BusinessRequestsController").forward(request, response);
 
-        CustomerDAO cusDAO = new CustomerDAO();
-        Customer customer = cusDAO.getCustomerByAccountID(account.getAccountID());
-        int pointBalance = cusDAO.getPointBalance(account.getAccountID());
-        if (customer == null) {
-            response.sendError(HttpServletResponse.SC_NOT_FOUND,
-                    "Customer not found");
-            return;
-        }
-
-        TierDAO tierDAO = new TierDAO();
-        Tier customerTier = tierDAO.getTier(customer.getTierID());
-
-        VehicleDAO vehicleDAO = new VehicleDAO();
-        List<Vehicle> vehicleList = vehicleDAO.getVehiclesByCustomerID(customer.getCusID());
-
-        RewardDAO rewardDAO = new RewardDAO();
-
-        Reward nextReward = rewardDAO.getNextReward(pointBalance);
-
-        request.getSession().setAttribute("CUSTOMER", customer);
-        request.setAttribute("ACCOUNT", account);
-        request.setAttribute("CUSTOMER", customer);
-        request.setAttribute("TIER", customerTier);
-        request.setAttribute("VEHICLES", vehicleList);
-        request.setAttribute("NEXTREWARD", nextReward);
-        request.setAttribute("POINT_BALANCE", pointBalance);
-
-        request.getRequestDispatcher("customer-dashboard.jsp")
-                .forward(request, response);
     }
+
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
     /**

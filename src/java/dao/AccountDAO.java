@@ -19,7 +19,7 @@ public class AccountDAO {
                     + "[Password],"
                     + "[FirstName],[LastName],"
                     + "[Phone],[Email],"
-                    + "[IsActive],[CreatedAt]) \n"
+                    + "[Status],[CreatedAt]) \n"
                     + "values (?,?,?,?,?,?,?,?)";
 
             PreparedStatement st = cn.prepareStatement(sql);
@@ -29,7 +29,7 @@ public class AccountDAO {
             st.setString(4, a.getLastName());
             st.setString(5, a.getPhone());
             st.setString(6, a.getEmail());
-            st.setBoolean(7, true);
+            st.setString(7, a.isStatus());
             st.setDate(8, new Date(System.currentTimeMillis()));
 
             result = st.executeUpdate();
@@ -69,6 +69,7 @@ public class AccountDAO {
 
                     result = new Account(accID, firstName, lastName, password, phone, email, createAt);
                     result.setRoleID(roleID); 
+
                 }
             }
         } catch (Exception e) {
@@ -105,11 +106,11 @@ public class AccountDAO {
         return getAccountField(sql, phone);
     }
 
-    public int updateAccount(int accID, String firstName, String lastName, 
+    public int updateAccount(int accID, String firstName, String lastName,
             String email, String phone, String password) {
         int result = 0;
         Connection cn = null;
-        
+
         try {
             cn = DBUtils.getConnection();
             if (cn != null) {
@@ -127,17 +128,91 @@ public class AccountDAO {
                 st.setString(4, email);
                 st.setString(5, password);
                 st.setInt(6, accID);
-                
+
                 result = st.executeUpdate();
             }
-        }catch(Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
         } finally {
             try {
                 if (cn != null) {
                     cn.close();
                 }
-            } catch(Exception e) {
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return result;
+    }
+
+    public Account getFullAccountByEmail(String email) {
+        Account result = null;
+        Connection cn = null;
+
+        try {
+            cn = DBUtils.getConnection();
+            if (cn != null) {
+                String sql = "SELECT [AccountID], [RoleID], "
+                        + "[FirstName], [LastName], [Password], [Phone], "
+                        + "[Email], [Status], [CreatedAt], [LastLoginAt] "
+                        + "FROM Accounts WHERE Email = ?";
+
+                PreparedStatement st = cn.prepareStatement(sql);
+                st.setString(1, email);
+
+                ResultSet rs = st.executeQuery();
+
+                if (rs.next()) {
+                    result = new Account(
+                            rs.getInt("AccountID"),
+                            rs.getInt("RoleID"),
+                            rs.getString("FirstName"),
+                            rs.getString("LastName"),
+                            rs.getString("Password"),
+                            rs.getString("Phone"),
+                            rs.getString("Email"),
+                            rs.getString("Status"),
+                            rs.getDate("CreatedAt")
+                    );
+                    result.setLastLoginAt(rs.getTimestamp("LastLoginAt"));
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (cn != null) {
+                    cn.close();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return result;
+    }
+
+    public int updateLastLogin(int accountID) {
+        int result = 0;
+        Connection cn = null;
+
+        try {
+            cn = DBUtils.getConnection();
+            if (cn != null) {
+                // Dùng GETDATE() của SQL Server để lấy thời gian chính xác trên DB server
+                String sql = "UPDATE Accounts SET [LastLoginAt] = GETDATE() WHERE [AccountID] = ?";
+                PreparedStatement st = cn.prepareStatement(sql);
+                st.setInt(1, accountID);
+
+                result = st.executeUpdate();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (cn != null) {
+                    cn.close();
+                }
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }
@@ -172,7 +247,7 @@ public class AccountDAO {
                         table.getString("Password"),
                         table.getString("Phone"),
                         table.getString("Email"),
-                        table.getString("IsActive"),
+                        table.getString("Status"),
                         table.getDate("CreatedAt")
                 );
             }
@@ -191,4 +266,85 @@ public class AccountDAO {
 
         return result;
     }
+
+
+<<<<<<< Updated upstream
+//
+//    public int getTotalPendingAccount() {
+//        int result = 0;
+//        Connection cn = null;
+//
+//        try {
+//            cn = DBUtils.getConnection();
+//            String sql = "SELECT ISNULL(COUNT(*), 0) AS [NumOfPending]\n"
+//                    + "FROM [AutoWashProDB].[dbo].[Accounts] WHERE [Status] = 'Pending'";
+//
+//            PreparedStatement st = cn.prepareStatement(sql);
+//
+//            ResultSet table = st.executeQuery();
+//            while (table.next()) {
+//                result = table.getInt("NumOfPending");
+//            }
+//
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        } finally {
+//            try {
+//                if (cn != null) {
+//                    cn.close();
+//                }
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//            }
+//        }
+//
+//        return result;
+//    }
+=======
+<<<<<<< Updated upstream
+=======
+
+    public int getTotalPendingAccount() {
+        int result = 0;
+        Connection cn = null;
+
+>>>>>>> Stashed changes
+        try {
+            cn = DBUtils.getConnection();
+            String sql = "SELECT ISNULL(COUNT(*), 0) AS [NumOfPending]\n"
+                    + "FROM [AutoWashProDB].[dbo].[Accounts] WHERE [Status] = 'Pending'";
+<<<<<<< Updated upstream
+            
+            PreparedStatement st = cn.prepareStatement(sql);
+            
+            ResultSet table = st.executeQuery();
+            while(table.next()) {
+                result = table.getInt("NumOfPending");
+            }
+            
+=======
+
+            PreparedStatement st = cn.prepareStatement(sql);
+
+            ResultSet table = st.executeQuery();
+            while (table.next()) {
+                result = table.getInt("NumOfPending");
+            }
+
+>>>>>>> Stashed changes
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (cn != null) {
+                    cn.close();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        return result;
+    }
+>>>>>>> Stashed changes
 }

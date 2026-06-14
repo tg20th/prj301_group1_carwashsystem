@@ -192,6 +192,17 @@ CREATE TABLE WashBays (
 );
 
 -- =====================================================
+-- 12.5. TIME SLOTS (for customer booking / availability management)
+-- =====================================================
+CREATE TABLE TimeSlots (
+    TimeSlotID INT IDENTITY(1,1) PRIMARY KEY,
+    StartTime DATETIME NOT NULL,     -- Local datetime (app treats as local time)
+    EndTime DATETIME NOT NULL,       -- Local datetime (app treats as local time)
+    IsAvailable BIT NOT NULL DEFAULT 1
+);
+GO
+
+-- =====================================================
 -- 13. PROMOTIONS (UPGRADED FOR TARGETED MARKETING)
 -- =====================================================
 CREATE TABLE Promotions (
@@ -336,7 +347,7 @@ FOREIGN KEY (InvoiceID) REFERENCES Invoices(InvoiceID);
 GO
 
 -- =====================================================
--- 18. BOOKINGS (Mỗi booking chỉ 1 dịch vụ, 1 invoice chứa nhiều booking)
+-- 18. BOOKINGS (Mỗi booking chỉ 1 dịch vụ, 1 invoice chứa nhiều booking, liên kết TimeSlot)
 -- =====================================================
 CREATE TABLE Bookings (
     BookingID INT IDENTITY(1,1) PRIMARY KEY,
@@ -344,6 +355,7 @@ CREATE TABLE Bookings (
     VehicleID INT NOT NULL,
     ServiceID INT NOT NULL,           -- Thêm: Mỗi booking 1 dịch vụ
     WashBayID INT NULL,
+    TimeSlotID INT NULL,              -- Liên kết đến khung giờ đặt trước (TimeSlots)
     InvoiceID INT NULL,               -- 1 Invoice có thể chứa nhiều Booking
 
     Quantity INT NOT NULL DEFAULT 1,
@@ -359,6 +371,7 @@ CREATE TABLE Bookings (
     CONSTRAINT FK_Bookings_Vehicles FOREIGN KEY(VehicleID) REFERENCES Vehicles(VehicleID),
     CONSTRAINT FK_Bookings_Services FOREIGN KEY(ServiceID) REFERENCES Services(ServiceID),
     CONSTRAINT FK_Bookings_WashBays FOREIGN KEY(WashBayID) REFERENCES WashBays(WashBayID),
+    CONSTRAINT FK_Bookings_TimeSlots FOREIGN KEY(TimeSlotID) REFERENCES TimeSlots(TimeSlotID),
     CONSTRAINT FK_Bookings_Invoices FOREIGN KEY(InvoiceID) REFERENCES Invoices(InvoiceID),
     CONSTRAINT CK_Bookings_Status CHECK (Status IN ('Pending', 'Confirmed', 'InProgress', 'Completed', 'Cancelled', 'NoShow'))
 );

@@ -117,6 +117,37 @@ INSERT INTO WashBays (BayName, Description, IsActive) VALUES
 GO
 
 -- =====================================================
+-- 12.5. TIME SLOTS (Sample availability - local datetime)
+-- =====================================================
+INSERT INTO TimeSlots (StartTime, EndTime, IsAvailable) VALUES
+-- 2026-06-15
+('2026-06-15 08:00:00','2026-06-15 08:30:00',1),
+('2026-06-15 08:30:00','2026-06-15 09:00:00',1),
+('2026-06-15 09:00:00','2026-06-15 09:30:00',0),   -- linked to first booking
+('2026-06-15 09:30:00','2026-06-15 10:00:00',1),
+('2026-06-15 10:00:00','2026-06-15 10:30:00',1),
+('2026-06-15 14:00:00','2026-06-15 14:30:00',1),
+-- 2026-06-16
+('2026-06-16 09:00:00','2026-06-16 09:30:00',1),
+('2026-06-16 10:00:00','2026-06-16 10:30:00',1),
+('2026-06-16 10:30:00','2026-06-16 11:00:00',0),   -- linked to booking
+('2026-06-16 11:00:00','2026-06-16 11:30:00',1),
+-- 2026-06-17
+('2026-06-17 14:00:00','2026-06-17 14:30:00',1),
+-- 2026-06-18
+('2026-06-18 08:00:00','2026-06-18 08:30:00',1),
+-- 2026-06-19
+('2026-06-19 11:00:00','2026-06-19 11:30:00',1),
+-- 2026-06-20 (pending booking)
+('2026-06-20 09:00:00','2026-06-20 09:30:00',1),
+('2026-06-20 09:30:00','2026-06-20 10:00:00',1),   -- linked to pending booking
+-- 2026-06-21
+('2026-06-21 15:00:00','2026-06-21 15:30:00',1),
+-- 2026-06-22
+('2026-06-22 13:00:00','2026-06-22 13:30:00',1);
+GO
+
+-- =====================================================
 -- 13. PROMOTIONS
 -- =====================================================
 INSERT INTO Promotions (PromoCode, PromotionName, TargetType, DiscountPercent, StartDate, EndDate, Description, IsActive) VALUES 
@@ -188,20 +219,20 @@ GO
 -- =====================================================
 -- 18. BOOKINGS (Mỗi booking chỉ 1 dịch vụ)
 -- =====================================================
-INSERT INTO Bookings (CustomerID, VehicleID, ServiceID, WashBayID, InvoiceID, 
+INSERT INTO Bookings (CustomerID, VehicleID, ServiceID, WashBayID, TimeSlotID, InvoiceID, 
                       Quantity, PriceAtOrder, DurationAtOrder, 
                       AppointmentTime, Status, Notes) 
 VALUES 
-(1,1,1,1,1, 1,150000,30, '2026-06-15 09:00:00','Completed','Regular wash'),           -- Exterior Wash
-(1,1,2,1,1, 1,250000,45, '2026-06-15 09:45:00','Completed','Interior'),               -- Thêm booking cùng invoice
+(1,1,1,1, 3 ,1, 1,150000,30, '2026-06-15 09:00:00','Completed','Regular wash'),           -- Exterior Wash (TimeSlot 3)
+(1,1,2,1, NULL,1, 1,250000,45, '2026-06-15 09:45:00','Completed','Interior'),               -- Thêm booking cùng invoice (no matching slot yet)
 
-(2,2,3,3,2, 1,1200000,150,'2026-06-16 10:30:00','Completed','Full service'),
-(3,3,1,2,3, 1,200000,40, '2026-06-17 14:00:00','Completed',''),
-(4,4,8,4,4, 1,2500000,180,'2026-06-18 08:00:00','Completed','VIP service'),
-(5,5,1,7,5, 5,200000,40, '2026-06-19 11:00:00','Completed','Fleet wash'),            -- 5 xe
-(6,6,1,1,NULL,1,180000,35,'2026-06-20 09:30:00','Pending',''),
-(7,7,3,5,7, 1,950000,130,'2026-06-21 15:00:00','Completed',''),
-(8,8,4,8,8, 1,300000,40, '2026-06-22 13:00:00','Completed','');
+(2,2,3,3, 9 ,2, 1,1200000,150,'2026-06-16 10:30:00','Completed','Full service'),           -- TimeSlot 9
+(3,3,1,2,11 ,3, 1,200000,40, '2026-06-17 14:00:00','Completed',''),                         -- TimeSlot 11
+(4,4,8,4,12 ,4, 1,2500000,180,'2026-06-18 08:00:00','Completed','VIP service'),            -- TimeSlot 12
+(5,5,1,7,13 ,5, 5,200000,40, '2026-06-19 11:00:00','Completed','Fleet wash'),              -- 5 xe, TimeSlot 13
+(6,6,1,1,15 ,NULL,1,180000,35,'2026-06-20 09:30:00','Pending',''),                         -- TimeSlot 15 (pending)
+(7,7,3,5,16 ,7, 1,950000,130,'2026-06-21 15:00:00','Completed',''),                        -- TimeSlot 16
+(8,8,4,8,17 ,8, 1,300000,40, '2026-06-22 13:00:00','Completed','');                        -- TimeSlot 17
 GO
 
 -- =====================================================
@@ -215,4 +246,3 @@ INSERT INTO BookingDetails (BookingID, ServiceID, Quantity, PriceAtOrder, Durati
 (8,4,1,300000,40);
 GO
 
-GO

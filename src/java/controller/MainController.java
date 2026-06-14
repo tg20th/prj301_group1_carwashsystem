@@ -4,6 +4,7 @@
  */
 package controller;
 
+import dao.BusinessDAO;
 import dao.VehicleBrandDAO;
 import dao.VehicleDAO;
 import dao.VehicleModelDAO;
@@ -57,7 +58,7 @@ public class MainController extends HttpServlet {
                     url = "index.jsp";
                     break;
                 case "register_page":
-                    url = "register.jsp";
+                    url = "/register.jsp";
                     break;
                 case "register":
                     url = "RegisterController";
@@ -74,23 +75,22 @@ public class MainController extends HttpServlet {
                         url = "index.jsp";
                         break;
                     }
-<<<<<<< Updated upstream
-                    if (acc.getRoleID() == 3) {
-                        url = "BusinessDashboardController";
-                    } else if (acc.getRoleID() == 1) {
-                        url = "admin_dashbroad.jsp";
-=======
                     Business bus = (Business) request.getSession().getAttribute("BUS");
                     if (bus != null) {
                         url = "BusinessDashboardController";
->>>>>>> Stashed changes
                     } else {
                         url = "CustomerDashBoardController";
                     }
                     break;
+                case "pending_page":
+                    url = "pending_page,jsp";
+                    break;
                 case "AddVehicle_page":
                     url = "addVehicle.jsp";
                     break;
+                case "getVehicleData":
+                    response.setContentType("application/json;charset=UTF-8");
+                    try ( PrintWriter out = response.getWriter()) {
                         VehicleBrandDAO brandDAO = new VehicleBrandDAO();
                         VehicleModelDAO modelDAO = new VehicleModelDAO();
 
@@ -104,8 +104,10 @@ public class MainController extends HttpServlet {
                             VehicleBrand b = brands.get(i);
                             String name = b.getBrandName().replace("\"", "\\\"");
                             json.append("{\"brandID\":").append(b.getBrandID())
-                                .append(",\"brandName\":\"").append(name).append("\"}");
-                            if (i < brands.size() - 1) json.append(",");
+                                    .append(",\"brandName\":\"").append(name).append("\"}");
+                            if (i < brands.size() - 1) {
+                                json.append(",");
+                            }
                         }
                         json.append("],\"models\":[");
 
@@ -113,9 +115,11 @@ public class MainController extends HttpServlet {
                             VehicleModel m = models.get(i);
                             String name = m.getModelName().replace("\"", "\\\"");
                             json.append("{\"modelID\":").append(m.getModelID())
-                                .append(",\"brandID\":").append(m.getBrandID())
-                                .append(",\"modelName\":\"").append(name).append("\"}");
-                            if (i < models.size() - 1) json.append(",");
+                                    .append(",\"brandID\":").append(m.getBrandID())
+                                    .append(",\"modelName\":\"").append(name).append("\"}");
+                            if (i < models.size() - 1) {
+                                json.append(",");
+                            }
                         }
                         json.append("]}");
 

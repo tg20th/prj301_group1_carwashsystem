@@ -5,7 +5,11 @@
 package controller;
 
 import dao.AccountDAO;
+import dao.BusinessDAO;
+import dao.CustomerDAO;
 import dto.Account;
+import dto.Business;
+import dto.Customer;
 import java.io.IOException;
 import java.io.PrintWriter;
 import javax.servlet.ServletException;
@@ -58,8 +62,8 @@ public class LoginController extends HttpServlet {
         String email = request.getParameter("email");
         String password = request.getParameter("password");
 
-        AccountDAO dao = new AccountDAO();
-        Account account = dao.getAccountByEmail(email);
+        AccountDAO accountDAO = new AccountDAO();
+        Account account = accountDAO.getFullAccountByEmail(email);
 
         if (account == null) {
             request.setAttribute("error", "Email is not exist!");
@@ -74,9 +78,35 @@ public class LoginController extends HttpServlet {
             return;
         }
 
+        // check status tài khoản 
+        String status = account.isStatus();
+        if ("Pending".equalsIgnoreCase(status)) {
+            request.setAttribute("error", "Account is pending...");
+            request.setAttribute("email", email);
+            request.getRequestDispatcher("MainController?action=home").forward(request, response);
+            return;
+        }
+
+        // otp: Chặn Frozen
+        // if ("Frozen".equalsIgnoreCase(status)) 
+        // update thời gian đăng nhập
+        accountDAO.updateLastLogin(account.getAccountID());
+
+        // Lưu account vào session
         HttpSession session = request.getSession();
         session.setAttribute("ACCOUNT", account);
+        
+        // Phân luồng theo role
+        int roleID = account.getRoleID();
 
+<<<<<<< Updated upstream
+        if (roleID == 1) {
+            // Admin
+            request.getRequestDispatcher("AdminDashboardController").forward(request, response);
+            return;
+        }
+=======
+<<<<<<< Updated upstream
         // THÊM ĐOẠN PHÂN QUYỀN NÀY VÀO:
         if (account.getRoleID() == 1) {
             // 1 là Admin
@@ -88,6 +118,42 @@ public class LoginController extends HttpServlet {
             // Mặc định (2) là Khách hàng cá nhân
             request.getRequestDispatcher("CustomerDashBoardController").forward(request, response);
         }
+=======
+        if (roleID == 1) {
+            // Admin
+            request.getRequestDispatcher("MainController?action=dashboard").forward(request, response);
+            return;
+        }
+>>>>>>> Stashed changes
+
+        // Kiểm tra Business
+        CustomerDAO customerDAO = new CustomerDAO();
+        Customer customer = customerDAO.getCustomerByAccountID(account.getAccountID());
+
+        if (customer != null) {
+            BusinessDAO businessDAO = new BusinessDAO();
+<<<<<<< Updated upstream
+            Business business = businessDAO.getBussinessByID(String.valueOf(customer.getCusID()));
+            if (business != null) {
+                // forward ve trang cua busi
+                request.getRequestDispatcher("BusinessDashboardController").forward(request, response);
+                return;
+            }
+        }
+
+        request.getRequestDispatcher("CustomerDashBoardController").forward(request, response);
+=======
+            Business business = businessDAO.getBussinessByID(customer.getCusID());
+            if (business != null) {
+                // forward ve trang cua busi
+                request.getRequestDispatcher("MainController?action=dashboard").forward(request, response);
+                return;
+            } //
+        }
+
+        request.getRequestDispatcher("MainController?action=dashboard").forward(request, response);
+>>>>>>> Stashed changes
+>>>>>>> Stashed changes
     }
 
     /**
