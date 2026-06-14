@@ -74,15 +74,42 @@ public class BusinessDAO {
         return result;
     }
 
-    public Business getBussinessByID(String id) {
+    public Business getBussinessByID(int id) {
+        Connection cn = null;
         Business result = null;
-        String sql = "SELECT [CompanyName]\n"
+
+        try {
+            cn = DBUtils.getConnection();
+            if (cn != null) {
+                String sql = "SELECT  [CompanyName]\n"
                 + "      ,[TaxCode]\n"
                 + "      ,[CompanyAddress]\n"
                 + "  FROM [AutoWashProDB].[dbo].[BusinessCustomers] \n"
                 + "  WHERE [CustomerID] = ?";
 
-        result = getBussinessField(sql, id);
+                PreparedStatement st = cn.prepareStatement(sql);
+                st.setInt(1, id);
+                
+                ResultSet table = st.executeQuery();
+                while (table.next()) {
+                    String busName = table.getString("CompanyName");
+                    String taxCode = table.getString("TaxCode");
+                    String address = table.getString("CompanyAddress");
+
+                    result = new Business(id, busName, taxCode, address);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (cn != null) {
+                    cn.close();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
         return result;
     }
 

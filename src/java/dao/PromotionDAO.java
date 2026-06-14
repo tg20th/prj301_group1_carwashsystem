@@ -1,5 +1,7 @@
 package dao;
 
+import java.sql.*;
+import java.util.*;
 import dbutils.DBUtils;
 import dto.Promotion;
 import java.sql.Connection;
@@ -48,7 +50,6 @@ public class PromotionDAO {
         }
         return list;
     }
-
 
     public List<Promotion> getApplicablePromotions(int customerID, int tierID) {
         List<Promotion> list = new ArrayList<>();
