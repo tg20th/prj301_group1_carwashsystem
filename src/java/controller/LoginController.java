@@ -75,34 +75,38 @@ public class LoginController extends HttpServlet {
             request.setAttribute("error", "Password is incorrect!");
             request.setAttribute("email", email);
             request.getRequestDispatcher("MainController?action=home").forward(request, response);
-return;
-        }
-
-        //tung: 14/6 check status tài khoản 
-        String status = account.isStatus();
-        if ("Rejected".equalsIgnoreCase(status)) {
-            request.getRequestDispatcher("MainController?action=pending_page").forward(request, response);
-        }
-        else if ("Pending".equalsIgnoreCase(status)) {
-            request.getRequestDispatcher("ResubmitRegistController").forward(request, response);
             return;
         }
 
+        // check status tài khoản 
+        String status = account.isStatus();
+        if ("Pending".equalsIgnoreCase(status)) {
+            request.setAttribute("error", "Account is pending...");
+            request.setAttribute("email", email);
+            request.getRequestDispatcher("MainController?action=home").forward(request, response);
+            return;
+        }
+
+        // otp: Chặn Frozen
+        // if ("Frozen".equalsIgnoreCase(status)) 
         // update thời gian đăng nhập
         accountDAO.updateLastLogin(account.getAccountID());
 
         // Lưu account vào session
         HttpSession session = request.getSession();
         session.setAttribute("ACCOUNT", account);
-
+        
         // Phân luồng theo role
         int roleID = account.getRoleID();
 
+<<<<<<< Updated upstream
         if (roleID == 1) {
             // Admin
             request.getRequestDispatcher("AdminDashboardController").forward(request, response);
             return;
         }
+=======
+<<<<<<< Updated upstream
         // THÊM ĐOẠN PHÂN QUYỀN NÀY VÀO:
         if (account.getRoleID() == 1) {
             // 1 là Admin
@@ -114,21 +118,21 @@ return;
             // Mặc định (2) là Khách hàng cá nhân
             request.getRequestDispatcher("CustomerDashBoardController").forward(request, response);
         }
+=======
         if (roleID == 1) {
             // Admin
             request.getRequestDispatcher("MainController?action=dashboard").forward(request, response);
             return;
         }
+>>>>>>> Stashed changes
 
-        // phan luong cho business da duoc approve
+        // Kiểm tra Business
         CustomerDAO customerDAO = new CustomerDAO();
         Customer customer = customerDAO.getCustomerByAccountID(account.getAccountID());
-        BusinessDAO businessDAO = new BusinessDAO();
-        Business business = businessDAO.getBussinessByCusID(customer.getCusID());
-        request.getSession().setAttribute("BUS", business);
-        if (business != null) {
-            request.getRequestDispatcher("BusinessDashboardController").forward(request, response);
-            return;
+
+        if (customer != null) {
+            BusinessDAO businessDAO = new BusinessDAO();
+<<<<<<< Updated upstream
             Business business = businessDAO.getBussinessByID(String.valueOf(customer.getCusID()));
             if (business != null) {
                 // forward ve trang cua busi
@@ -136,7 +140,9 @@ return;
                 return;
             }
         }
+
         request.getRequestDispatcher("CustomerDashBoardController").forward(request, response);
+=======
             Business business = businessDAO.getBussinessByID(customer.getCusID());
             if (business != null) {
                 // forward ve trang cua busi
@@ -146,6 +152,8 @@ return;
         }
 
         request.getRequestDispatcher("MainController?action=dashboard").forward(request, response);
+>>>>>>> Stashed changes
+>>>>>>> Stashed changes
     }
 
     /**
