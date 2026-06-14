@@ -39,6 +39,7 @@ public class LoginController extends HttpServlet {
         }
     }
 
+
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -51,6 +52,7 @@ public class LoginController extends HttpServlet {
 
         request.getRequestDispatcher("index.jsp").forward(request, response);
     }
+
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
@@ -76,18 +78,12 @@ public class LoginController extends HttpServlet {
 
         HttpSession session = request.getSession();
         session.setAttribute("ACCOUNT", account);
-
-        // THÊM ĐOẠN PHÂN QUYỀN NÀY VÀO:
-        if (account.getRoleID() == 1) {
-            // 1 là Admin
+        
+        if(account.getRoleID() == 1) {
             request.getRequestDispatcher("admin_dashbroad.jsp").forward(request, response);
-        } else if (account.getRoleID() == 3) {
-            // 3 là Doanh Nghiệp -> Đẩy về trang Business
-            response.sendRedirect("MainController?action=BusinessDashboard");
-        } else {
-            // Mặc định (2) là Khách hàng cá nhân
-            request.getRequestDispatcher("CustomerDashBoardController").forward(request, response);
         }
+
+        request.getRequestDispatcher("CustomerDashBoardController").forward(request, response);
     }
 
     /**

@@ -5,8 +5,6 @@
 package controller;
 
 import dao.VehicleDAO;
-import dto.Account;
-import dto.Vehicle;
 import java.io.IOException;
 import java.io.PrintWriter;
 import javax.servlet.ServletException;
@@ -14,7 +12,6 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 
 /**
  *
@@ -34,27 +31,17 @@ public class RemoveVehicleController extends HttpServlet {
      */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        try {
-            int vehicleID = Integer.parseInt(request.getParameter("vehicleID"));
-            VehicleDAO dao = new VehicleDAO();
-            Vehicle vehicle = dao.getVehicleByID(vehicleID);
-            int result = dao.deleteVehicle(vehicleID);
-            if (result > 0) {
-                request.setAttribute("SUCCESS", "Remove vehicle successful!");
-            } else {
-                request.setAttribute("ERROR", "Remove vehicle failed!");
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            request.setAttribute("ERROR", "System error: " + e.getMessage());
-        }
-        Account acc = (Account) request.getSession().getAttribute("ACCOUNT");
-        if (acc != null && acc.getRoleID() == 3) {
-            request.getRequestDispatcher("BusinessDashboardController").forward(request, response);
+        int vehicleId = Integer.parseInt(request.getParameter("vehicleID"));
+        VehicleDAO vehicleDAO = new VehicleDAO();
+        int result = vehicleDAO.deleteVehicle(vehicleId);
+        String message = "";
+        if(result==0){
+            message = "Remove vehicle fail!";
         } else {
-           
-            request.getRequestDispatcher("CustomerDashBoardController").forward(request, response);
+            message = "Remove vehicle successful!";
         }
+        request.setAttribute("MESSAGE", message);
+        request.getRequestDispatcher("CustomerDashBoardController").forward(request, response);
     }
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
