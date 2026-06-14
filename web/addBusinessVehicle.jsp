@@ -19,7 +19,17 @@
     </head>
 
     <body style="background:#f4f6f9;">
+        <div class="position-absolute top-0 start-0 p-4">
 
+            <a href="BusinessDashboardController"
+               class="btn btn-light shadow rounded-pill px-4">
+
+                <i class="bi bi-arrow-left"></i>
+                Back Dashboard
+
+            </a>
+
+        </div>
         <div class="container py-5">
 
             <div class="row justify-content-center">
@@ -66,29 +76,29 @@
                                         = (String) request.getAttribute("ERROR");
                             %>
 
-                            <% if(success != null){ %>
+                            <% if (success != null) {%>
 
                             <div class="alert alert-success rounded-3">
 
                                 <i class="bi bi-check-circle-fill me-2"></i>
 
-                                <%= success %>
+                                <%= success%>
 
                             </div>
 
                             <% } %>
 
-                            <% if(error != null){ %>
+                            <% if (error != null) {%>
 
                             <div class="alert alert-danger rounded-3">
 
                                 <i class="bi bi-exclamation-triangle-fill me-2"></i>
 
-                                <%= error %>
+                                <%= error%>
 
                             </div>
 
-                            <% } %>
+                            <% }%>
 
                             <!-- FORM -->
                             <form action="MainController"
@@ -154,11 +164,11 @@
 
                                     </h6>
 
-<pre class="mb-0">
+                                    <pre class="mb-0">
 LicensePlate,Brand,Model,Color,Year,Image
 51A12345,Toyota,Vios,Black,2022,51A12345.jpg
 59B88888,Honda,City,White,2023,59B88888.png
-</pre>
+                                    </pre>
 
                                 </div>
 

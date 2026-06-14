@@ -45,7 +45,7 @@ public class BusinessDashboardController extends HttpServlet {
         try {
             Account account = (Account) request.getSession().getAttribute("ACCOUNT");
             if (account == null) {
-                response.sendRedirect("login.jsp");
+                response.sendRedirect("MainController?action=home");
                 return;
             }
             CustomerDAO cusDAO = new CustomerDAO();
@@ -87,6 +87,24 @@ public class BusinessDashboardController extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+<<<<<<< Updated upstream
+=======
+        HttpSession session = request.getSession(false);
+
+        // chưa login
+        if (session == null || session.getAttribute("ACCOUNT") == null) {
+            response.sendRedirect("index.jsp");
+            return;
+        }
+
+        // không phải business
+        if (session.getAttribute("BUS") == null) {
+            response.sendRedirect("MainController?action=dashboard");
+            return;
+        }
+
+        // đúng business account
+>>>>>>> Stashed changes
         processRequest(request, response);
     }
 
