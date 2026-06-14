@@ -68,7 +68,7 @@ public class AccountDAO {
                     Date createAt = table.getDate("CreatedAt");
 
                     result = new Account(accID, firstName, lastName, password, phone, email, createAt);
-                    result.setRoleID(roleID); 
+                    result.setRoleID(roleID);
 
                 }
             }
@@ -267,36 +267,67 @@ public class AccountDAO {
         return result;
     }
 
+    public int getTotalPendingAccount() {
+        int result = 0;
+        Connection cn = null;
+
+        try {
+            cn = DBUtils.getConnection();
+            String sql = "SELECT ISNULL(COUNT(*), 0) AS [NumOfPending]\n"
+                    + "FROM [AutoWashProDB].[dbo].[Accounts] WHERE [Status] = 'Pending'";
+
+            PreparedStatement st = cn.prepareStatement(sql);
+
+            ResultSet table = st.executeQuery();
+            while (table.next()) {
+                result = table.getInt("NumOfPending");
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (cn != null) {
+                    cn.close();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        return result;
+    }
 
 
-   public int getTotalPendingAccount() {
-       int result = 0;
-       Connection cn = null;
+    public int updateStatusOfAccount(int id, String status, String reason) {
+        int result = 0;
+        Connection cn = null;
 
-       try {
-           cn = DBUtils.getConnection();
-           String sql = "SELECT ISNULL(COUNT(*), 0) AS [NumOfPending]\n"
-                   + "FROM [AutoWashProDB].[dbo].[Accounts] WHERE [Status] = 'Pending'";
+        try {
+            cn = DBUtils.getConnection();
+            String sql = "  UPDATE Accounts SET Status = ?, [RejectReason] = ? WHERE AccountID = ?";
 
-           PreparedStatement st = cn.prepareStatement(sql);
+            PreparedStatement st = cn.prepareStatement(sql);
+            st.setString(1, status);
+            st.setString(2, reason);
+            st.setInt(3, id);
 
-           ResultSet table = st.executeQuery();
-           while (table.next()) {
-               result = table.getInt("NumOfPending");
-           }
+            result = st.executeUpdate();
 
-       } catch (Exception e) {
-           e.printStackTrace();
-       } finally {
-           try {
-               if (cn != null) {
-                   cn.close();
-               }
-           } catch (Exception e) {
-               e.printStackTrace();
-           }
-       }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (cn != null) {
+                    cn.close();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
 
-       return result;
-   }
+        return result;
+    }
+    
+
 }

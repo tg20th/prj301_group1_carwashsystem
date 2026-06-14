@@ -4,10 +4,14 @@
  */
 package controller;
 
-import dao.AccountDAO;
 import dao.BusinessDAO;
+import dao.CustomerDAO;
+import dto.Account;
+import dto.Business;
+import dto.Customer;
 import java.io.IOException;
 import java.io.PrintWriter;
+import javax.jms.JMSContext;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -18,8 +22,8 @@ import javax.servlet.http.HttpServletResponse;
  *
  * @author Lan
  */
-@WebServlet(name = "ApproveBusinessController", urlPatterns = {"/ApproveBusinessController"})
-public class ApproveBusinessController extends HttpServlet {
+@WebServlet(name = "ResubmitRegistController", urlPatterns = {"/ResubmitRegistController"})
+public class ResubmitRegistController extends HttpServlet {
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -32,30 +36,34 @@ public class ApproveBusinessController extends HttpServlet {
      */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        int id = Integer.parseInt(request.getParameter("id"));
-        AccountDAO ad = new AccountDAO();
-        
-        int result = 0;
-        result = ad.updateStatusOfAccount(id, "Active", null);
-        if(result < 1) {
-            request.setAttribute("error", "Approve fail. Please try again!");
-        } else {
-            request.setAttribute("success", "Approve successfully!");
+        Account a = (Account) request.getSession().getAttribute("ACCOUNT");
+        if (a == null) {
+            request.getRequestDispatcher("index.jsp").forward(request, response);
+            return;
         }
-        request.getRequestDispatcher("BusinessRequestsController").forward(request, response);
+
+        CustomerDAO cd = new CustomerDAO();
+        Customer c = cd.getCustomerByAccountID(a.getAccountID());
+
+        BusinessDAO bd = new BusinessDAO();
+        Business b = bd.getBussinessByCusID(c.getCusID());
+
+        request.setAttribute("business", b);
+        request.getRequestDispatcher("resubmit_registration.jsp").forward(request, response);
     }
 
-    // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
-    /**
-     * Handles the HTTP <code>GET</code> method.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
-    @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+
+// <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
+/**
+ * Handles the HTTP <code>GET</code> method.
+ *
+ * @param request servlet request
+ * @param response servlet response
+ * @throws ServletException if a servlet-specific error occurs
+ * @throws IOException if an I/O error occurs
+ */
+@Override
+protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         processRequest(request, response);
     }
@@ -69,7 +77,7 @@ public class ApproveBusinessController extends HttpServlet {
      * @throws IOException if an I/O error occurs
      */
     @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         processRequest(request, response);
     }
@@ -80,7 +88,7 @@ public class ApproveBusinessController extends HttpServlet {
      * @return a String containing servlet description
      */
     @Override
-    public String getServletInfo() {
+public String getServletInfo() {
         return "Short description";
     }// </editor-fold>
 

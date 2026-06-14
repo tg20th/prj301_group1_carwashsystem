@@ -166,7 +166,9 @@ public class MainController extends HttpServlet {
                 case "AddBusinessVehicles":
                     url = "AddBusinessVehiclesController";
                     break;
-
+                case "resubmit_registration":
+                    url = "UpdateRegistrationController";
+                    break;
                 default:
                     url = "index.jsp";
                     break;

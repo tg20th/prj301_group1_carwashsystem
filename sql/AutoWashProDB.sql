@@ -39,6 +39,7 @@ CREATE TABLE Accounts (
     LastName NVARCHAR(50) NOT NULL,
 
     Status NVARCHAR(30) NOT NULL DEFAULT 'Pending',
+    RejectReason NVARCHAR(255) NULL, -- Thêm vào đây: Lưu lý do từ chối (e.g., "Invalid Tax Code", "Spam account")
 
     LastLoginAt DATETIME NULL,
     CreatedAt DATETIME NOT NULL DEFAULT GETDATE(),
@@ -46,6 +47,7 @@ CREATE TABLE Accounts (
     CONSTRAINT FK_Accounts_Roles FOREIGN KEY(RoleID) REFERENCES Roles(RoleID),
     CONSTRAINT CK_Accounts_Status CHECK (Status IN ('Pending', 'Active', 'Frozen', 'Rejected'))
 );
+GO
 
 -- =====================================================
 -- 3. LOYALTY TIERS
@@ -363,7 +365,6 @@ CREATE TABLE Bookings (
     DurationAtOrder INT NOT NULL,
 
     BookingDate DATETIME NOT NULL DEFAULT GETDATE(),
-    AppointmentTime DATETIME NOT NULL,
     Status NVARCHAR(30) NOT NULL DEFAULT 'Pending',
     Notes NVARCHAR(255),
 
