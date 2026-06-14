@@ -5,6 +5,10 @@
 package controller;
 
 import dao.BusinessDAO;
+import dao.CustomerDAO;
+import dbutils.EmailUtils;
+import dto.Business;
+import dto.Customer;
 import java.io.IOException;
 import java.io.PrintWriter;
 import javax.servlet.ServletException;
@@ -34,12 +38,24 @@ public class ApproveBusinessController extends HttpServlet {
         int id = Integer.parseInt(request.getParameter("id"));
         BusinessDAO bd = new BusinessDAO();
         
+        //lấy ra customer cần chỉnh sửa
+        CustomerDAO cd = new CustomerDAO();
+        Customer findCus = cd.getCustomerByAccountID(id);
+
         int result = 0;
+
+
+        //update trạng thái account
+
         result = bd.approveBusRequire(id);
+        
         if(result < 1) {
             request.setAttribute("error", "Approve fail. Please try again!");
         } else {
             request.setAttribute("success", "Approve successfully!");
+            Business b = bd.getBussinessByCusID(findCus.getCusID());
+            EmailUtils.sendApproveEmail(b.getEmail(), b.getBusinessName());
+            
         }
         request.getRequestDispatcher("BusinessRequestsController").forward(request, response);
     }

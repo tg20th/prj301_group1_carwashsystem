@@ -266,63 +266,14 @@ public class AccountDAO {
 
         return result;
     }
-
-
-<<<<<<< Updated upstream
-//
-//    public int getTotalPendingAccount() {
-//        int result = 0;
-//        Connection cn = null;
-//
-//        try {
-//            cn = DBUtils.getConnection();
-//            String sql = "SELECT ISNULL(COUNT(*), 0) AS [NumOfPending]\n"
-//                    + "FROM [AutoWashProDB].[dbo].[Accounts] WHERE [Status] = 'Pending'";
-//
-//            PreparedStatement st = cn.prepareStatement(sql);
-//
-//            ResultSet table = st.executeQuery();
-//            while (table.next()) {
-//                result = table.getInt("NumOfPending");
-//            }
-//
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        } finally {
-//            try {
-//                if (cn != null) {
-//                    cn.close();
-//                }
-//            } catch (Exception e) {
-//                e.printStackTrace();
-//            }
-//        }
-//
-//        return result;
-//    }
-=======
-<<<<<<< Updated upstream
-=======
-
+  
     public int getTotalPendingAccount() {
         int result = 0;
         Connection cn = null;
-
->>>>>>> Stashed changes
         try {
             cn = DBUtils.getConnection();
             String sql = "SELECT ISNULL(COUNT(*), 0) AS [NumOfPending]\n"
                     + "FROM [AutoWashProDB].[dbo].[Accounts] WHERE [Status] = 'Pending'";
-<<<<<<< Updated upstream
-            
-            PreparedStatement st = cn.prepareStatement(sql);
-            
-            ResultSet table = st.executeQuery();
-            while(table.next()) {
-                result = table.getInt("NumOfPending");
-            }
-            
-=======
 
             PreparedStatement st = cn.prepareStatement(sql);
 
@@ -331,7 +282,6 @@ public class AccountDAO {
                 result = table.getInt("NumOfPending");
             }
 
->>>>>>> Stashed changes
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
@@ -346,5 +296,4 @@ public class AccountDAO {
 
         return result;
     }
->>>>>>> Stashed changes
 }
