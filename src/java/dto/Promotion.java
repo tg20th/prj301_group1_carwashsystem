@@ -36,7 +36,9 @@ public class Promotion {
         this.endDate = endDate;
         this.description = description;
     }
-  
+    
+    
+
     public int getPromotionID() {
         return promotionID;
     }
