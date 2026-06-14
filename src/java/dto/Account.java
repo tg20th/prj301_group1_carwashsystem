@@ -11,7 +11,7 @@ public class Account {
     private String password;
     private String phone;
     private String email;
-    private String status;
+    private boolean status;
     private Date createAt;
 
     public Account() {
@@ -37,7 +37,7 @@ public class Account {
     }
     
 
-    public Account(int accountID, int roleID, String firstName, String lastName, String password, String phone, String email, String status, Date createAt) {
+    public Account(int accountID, int roleID, String firstName, String lastName, String password, String phone, String email, boolean status, Date createAt) {
         this.accountID = accountID;
         this.roleID = roleID;
         this.firstName = firstName;
@@ -49,7 +49,7 @@ public class Account {
         this.createAt = createAt;
     }
 
-    public Account(int roleID, String firstName, String lastName, String password, String phone, String email, String status, Date createAt) {
+    public Account(int roleID, String firstName, String lastName, String password, String phone, String email, boolean status, Date createAt) {
         this.roleID = roleID;
         this.firstName = firstName;
         this.lastName = lastName;
@@ -60,7 +60,7 @@ public class Account {
         this.createAt = createAt;
     }
 
-    public Account(String firstName, String lastName, String password, String phone, String email, String status, Date createAt) {
+    public Account(String firstName, String lastName, String password, String phone, String email, boolean status, Date createAt) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.password = password;
@@ -103,11 +103,11 @@ public class Account {
         this.roleID = roleID;
     }
 
-    public String isStatus() {
+    public boolean isStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(boolean status) {
         this.status = status;
     }
 

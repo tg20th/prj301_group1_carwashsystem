@@ -50,6 +50,7 @@ public class CustomerDAO {
                     customer.setAccID(rs.getInt("AccountID"));
                     customer.setTierID(rs.getInt("TierID"));
                     customer.setJoinedAt(rs.getDate("JoinedAt"));
+                    customer.setTotalPoint(rs.getInt("TotalPoints"));
 
                     return customer;
                 }
@@ -66,24 +67,16 @@ public class CustomerDAO {
         Connection cn = null;
         try {
             cn = DBUtils.getConnection();
-            String sql = "SELECT a.AccountID,\n"
-                    + "c.TierID,\n"
-                    + "ISNULL(SUM(pt.PointChange), 0) AS CurrentPoints\n"
-                    + "FROM Accounts a\n"
-                    + "INNER JOIN Customers c ON a.AccountID = c.AccountID\n"
-                    + "LEFT JOIN PointTransactions pt ON c.CustomerID = pt.CustomerID \n"
-                    + "AND pt.TransactionDate >= DATEADD(MONTH, -12, GETDATE())\n"
-                    + "WHERE a.AccountID = ?\n"
-                    + "GROUP BY \n"
-                    + "a.AccountID, \n"
-                    + "c.TierID; ";
+            String sql = "SELECT [TotalPoints]\n"
+                    + "FROM [dbo].[Customers]\n"
+                    + "WHERE [AccountID] = ?";
 
             PreparedStatement st = cn.prepareStatement(sql);
             st.setInt(1, accountId);
             ResultSet table = st.executeQuery();
 
             if (table.next()) {
-                pointBalance = (Integer) table.getInt("CurrentPoints");
+                pointBalance = (Integer) table.getInt("TotalPoints");
             }
 
         } catch (Exception e) {
@@ -98,36 +91,5 @@ public class CustomerDAO {
             }
         }
         return pointBalance;
-    }
-    
-    public int getTotalCustomer() {
-        int result = 0;
-        Connection cn = null;
-
-        try {
-            cn = DBUtils.getConnection();
-            String sql = "SELECT ISNULL(COUNT(*), 0) AS [NumOfCus]\n"
-                    + "  FROM [AutoWashProDB].[dbo].[Customers]";
-
-            PreparedStatement st = cn.prepareStatement(sql);
-
-            ResultSet table = st.executeQuery();
-            while (table.next()) {
-                result = table.getInt("NumOfCus");
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                if (cn != null) {
-                    cn.close();
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-
-        return result;
     }
 }

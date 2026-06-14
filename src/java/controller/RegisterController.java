@@ -1,13 +1,12 @@
 package controller;
 
 import dao.AccountDAO;
-import dao.BusinessDAO;
 import dao.CustomerDAO;
 import dto.Account;
-import dto.Business;
 import dto.Customer;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.List;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -43,29 +42,25 @@ public class RegisterController extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        //lay noi dung nguoi dung da nhap (Account)
+        //lay noi dung nguoi dung da nhap
+
         String firstName = request.getParameter("firstName").trim();
         String lastName = request.getParameter("lastName").trim();
         String email = request.getParameter("email");
         String password = request.getParameter("password");
         String phone = request.getParameter("phone");
-        String status = "Active";
-
-        //lay noi dung nguoi dung nhap (Bussiness)
-        String busName = null;
-        String tax = null;
-        String address = null;
 
         //Tao bien in ra thong bao
         String msg = "";
-
         //kiem tra ten co bi trong hay khong
-        if (firstName.length() == 0 || lastName.length() == 0) {
+        if(firstName.length() == 0 || lastName.length() == 0) {
             msg = "The name cannot be left blank. Please try again!";
             showError(request, response, msg);
             return;
         }
-
+        
+        //tao ra account
+        Account a = new Account(firstName, lastName, password, phone, email);
         AccountDAO d = new AccountDAO();
 
         //kiem tra email nay co ton tai hay chua
@@ -84,40 +79,9 @@ public class RegisterController extends HttpServlet {
             return;
         }
 
-        //ktra cus do co phai la doanh nghiep khong
-        BusinessDAO bd = new BusinessDAO();
-        String isBusiness = request.getParameter("isBusiness");
-        if (isBusiness != null && isBusiness.equals("true")) {
-            status = "Pending";
-
-            //lay thong tin dang ki
-            busName = request.getParameter("companyName");
-            tax = request.getParameter("taxCode");
-            address = request.getParameter("companyAddress");
-
-            //Kiem tra ten cty co bi trung khong
-            Business findName = bd.getBussinessByName(busName);
-            if (findName != null) {
-                msg = "Company name already exists!";
-                showError(request, response, msg);
-                return;
-            }
-
-            Business findTax = bd.getBussinessByTax(tax);
-            if (findTax != null) {
-                msg = "Company tax already exists!";
-                showError(request, response, msg);
-                return;
-            }
-        }
-
-        //tao ra account
-        Account a = new Account(firstName, lastName, password, phone, email);
-        a.setStatus(status);
-
+        //tao ra account moi
         int result = 0;
         result = d.createAccount(a);
-
         //kiem tra account co duoc tao ra hay chưa
         if (result < 1) {
             msg = "Failed to create account. Please try again.";
@@ -129,7 +93,7 @@ public class RegisterController extends HttpServlet {
         Account createdAccount = d.getAccountByEmail(email);
 
         //tao ra mot customer moi dua tren account vua lay duoc
-        Customer c = new Customer(createdAccount.getAccountID(), 1, createdAccount.getCreateAt());
+        Customer c = new Customer(createdAccount.getAccountID(), 1, createdAccount.getCreateAt(), 0);
 
         //them customer do vao DB
         CustomerDAO cd = new CustomerDAO();
@@ -140,19 +104,6 @@ public class RegisterController extends HttpServlet {
             msg = "Account created but customer profile creation failed.";
             showError(request, response, msg);
             return;
-        }
-
-        if (isBusiness != null && isBusiness.equals("true")) {
-
-            Customer createdCus = cd.getCustomerByAccountID(createdAccount.getAccountID());
-            Business b = new Business(createdCus.getCusID(), busName, tax, address);
-
-            result = bd.creatBussiness(b);
-            if (result < 1) {
-                msg = "Account created but customer bussiness profile creation failed.";
-                showError(request, response, msg);
-                return;
-            }
         }
 
         msg = "Register successfully!";

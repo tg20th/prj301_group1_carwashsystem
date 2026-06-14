@@ -1,24 +1,18 @@
+package controller;
+
 /*
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
  */
-package controller;
-
-import dao.VehicleBrandDAO;
 import dao.VehicleDAO;
-import dao.VehicleModelDAO;
-import dto.Account;
 import dto.Vehicle;
-import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.nio.file.Paths;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.Part;
 
 /**
  *
@@ -39,99 +33,40 @@ public class UpdateVehicleController extends HttpServlet {
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
-        Account acc = (Account) request.getSession().getAttribute("ACCOUNT");
-        String url;
         try {
             int vehicleID = Integer.parseInt(request.getParameter("vehicleID"));
-            int modelID = Integer.parseInt(request.getParameter("modelID"));
-            String licensePlate = request.getParameter("licensePlate").trim().toUpperCase();
+            String licensePlate = request.getParameter("licensePlate").toUpperCase();
+            String brand = request.getParameter("brand");
+            String model = request.getParameter("model");
             String color = request.getParameter("color");
-            Integer manufactureYear = null;
-            String yearStr = request.getParameter("manufactureYear");
-            if (yearStr != null && !yearStr.trim().isEmpty()) {
-                manufactureYear = Integer.parseInt(yearStr);
-            }
+
+            Vehicle v = new Vehicle();
+            v.setVehicleID(vehicleID);
+            v.setLicensePlate(licensePlate);
+            v.setBrand(brand);
+            v.setModel(model);
+            v.setColor(color);
+
             VehicleDAO dao = new VehicleDAO();
             Vehicle oldVehicle = dao.getVehicleByID(vehicleID);
-            boolean exists = dao.isLicensePlateExistsForOther(licensePlate, vehicleID);
-            if (exists) {
-                VehicleBrandDAO brandDAO = new VehicleBrandDAO();
-                VehicleModelDAO modelDAO = new VehicleModelDAO();
-                request.setAttribute("ERROR", "License plate already exists.");
+            if (dao.isLPExist(licensePlate, vehicleID)) {
+                request.setAttribute("ERROR", "License plate already exists!");
                 request.setAttribute("VEHICLE", oldVehicle);
-                request.setAttribute("BRAND_LIST", brandDAO.getAllBrands());
-                request.setAttribute("MODEL_LIST", modelDAO.getAllModels());
                 request.getRequestDispatcher("updateVehicle.jsp").forward(request, response);
                 return;
             }
-            String imageURL = oldVehicle.getImageURL();
-            Part imagePart = request.getPart("vehicleImage");
-            if (imagePart != null && imagePart.getSize() > 0) {
-                String uploadPath = getServletContext().getRealPath("/") + "vehicleImages";
-                File uploadDir = new File(uploadPath);
-                if (!uploadDir.exists()) {
-                    uploadDir.mkdir();
-                }
-                String fileName = Paths.get(imagePart.getSubmittedFileName()).getFileName().toString();
-                String uniqueFileName = System.currentTimeMillis() + "_" + fileName;
-                imagePart.write(uploadPath + File.separator + uniqueFileName);
-                imageURL = "vehicleImages/" + uniqueFileName;
-            }
-            Vehicle updatedVehicle = new Vehicle();
-            updatedVehicle.setVehicleID(vehicleID);
-            updatedVehicle.setCustomerID(oldVehicle.getCustomerID());
-            updatedVehicle.setModelID(modelID);
-            updatedVehicle.setLicensePlate(licensePlate);
-            updatedVehicle.setColor(color);
-            updatedVehicle.setManufactureYear(manufactureYear);
-            updatedVehicle.setImageURL(imageURL);
-            updatedVehicle.setStatus("Pending");
-            int result = dao.updateVehicle(updatedVehicle);
-
-            if (result <= 0) {
-                VehicleBrandDAO brandDAO = new VehicleBrandDAO();
-                VehicleModelDAO modelDAO = new VehicleModelDAO();
-                request.setAttribute("ERROR", "Cannot update vehicle.");
-                request.setAttribute("VEHICLE", oldVehicle);
-                request.setAttribute("BRAND_LIST", brandDAO.getAllBrands());
-                request.setAttribute("MODEL_LIST", modelDAO.getAllModels());
-
-                request.getRequestDispatcher("updateVehicle.jsp").forward(request, response);
-                return;
-            }
-            request.setAttribute("SUCCESS", "Vehicle updated successfully.");
-            if (acc != null && acc.getRoleID() == 3) {
-                url = "BusinessDashboardController";
+            int rs = dao.updateVehicle(v);
+            if (rs > 0) {
+                request.getRequestDispatcher("CustomerDashBoardController").forward(request, response);
             } else {
-                url = "CustomerDashBoardController";
+                request.setAttribute("ERROR", "Update failed");
+                request.setAttribute("VEHICLE", oldVehicle);
+                request.getRequestDispatcher("updateVehicle.jsp").forward(request, response);
             }
-            request.getRequestDispatcher(url).forward(request, response);
         } catch (Exception e) {
             e.printStackTrace();
-            request.setAttribute("ERROR", "System error: " + e.getMessage());
-
-            try {
-                VehicleDAO dao = new VehicleDAO();
-                int vehicleID = Integer.parseInt(request.getParameter("vehicleID"));
-                Vehicle oldVehicle = dao.getVehicleByID(vehicleID);
-
-                VehicleBrandDAO brandDAO = new VehicleBrandDAO();
-                VehicleModelDAO modelDAO = new VehicleModelDAO();
-
-                request.setAttribute("VEHICLE", oldVehicle);
-                request.setAttribute("BRAND_LIST", brandDAO.getAllBrands());
-                request.setAttribute("MODEL_LIST", modelDAO.getAllModels());
-
-                request.getRequestDispatcher("updateVehicle.jsp").forward(request, response);
-
-            } catch (Exception ex) {
-                if (acc != null && acc.getRoleID() == 3) {
-                    url = "BusinessDashboardController";
-                } else {
-                    url = "CustomerDashBoardController";
-                }
-                request.getRequestDispatcher(url).forward(request, response);
-            }
+            request.setAttribute("ERROR", "Error: " + e.getMessage());
+            request.getRequestDispatcher("updateVehicle.jsp").forward(request, response);
         }
     }
 

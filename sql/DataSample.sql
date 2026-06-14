@@ -1,248 +1,129 @@
 ﻿USE AutoWashProDB;
 GO
 
--- =====================================================
--- 1. ROLES (Chỉ 2 role)
--- =====================================================
-INSERT INTO Roles (RoleName) VALUES 
-('Admin'), ('Customer');
+-- =========================================================================
+-- [DỌN DẸP DỮ LIỆU CŨ ĐỂ ĐỒNG BỘ ID TỪ 1]
+-- LƯU Ý: Không xóa bảng Brand, Type, Model vì đã có dữ liệu chuẩn ở bước trước
+-- =========================================================================
+DELETE FROM InvoiceDetails;
+DELETE FROM PointTransactions;
+DELETE FROM Invoices;
+DELETE FROM CustomerRewards;
+DELETE FROM Rewards;
+DELETE FROM Promotions;
+DELETE FROM WashBays;
+DELETE FROM ServicePrices;
+DELETE FROM Services;
+DELETE FROM Vehicles;
+DELETE FROM BusinessCustomers;
+DELETE FROM Customers;
+DELETE FROM LoyaltyTiers;
+DELETE FROM Accounts;
+DELETE FROM Roles;
 GO
 
--- =====================================================
--- 2. ACCOUNTS
--- =====================================================
-INSERT INTO Accounts (RoleID, Email, Phone, Password, FirstName, LastName, Status) VALUES 
-(1, 'admin@autowashpro.com', '0901234567', 'AdminPass123!', 'John', 'Admin', 'Active'),
-(2, 'customer1@gmail.com', '0911123456', 'CustPass101@', 'Michael', 'Johnson', 'Active'),
-(2, 'customer2@gmail.com', '0912234567', 'EmmaPass202#', 'Emma', 'Williams', 'Active'),
-(2, 'customer3@gmail.com', '0913345678', 'DavidPass303$', 'David', 'Jones', 'Active'),
-(2, 'customer4@gmail.com', '0914456789', 'SophiaPass404!', 'Sophia', 'Garcia', 'Active'),
-(2, 'business1@company.com', '0921123456', 'BizAdmin505#', 'James', 'Miller', 'Active'),
-(2, 'customer5@gmail.com', '0915567890', 'OliviaPass606@', 'Olivia', 'Davis', 'Active'),
-(2, 'customer6@gmail.com', '0916678901', 'LiamPass808!', 'Liam', 'Moore', 'Active'),
-(2, 'customer7@gmail.com', '0917789012', 'IsabellaPass909#', 'Isabella', 'Taylor', 'Active'),
-(2, 'customer8@gmail.com', '0918890123', 'NoahPass1111$', 'Noah', 'Thomas', 'Active'),
-(2, 'customer9@gmail.com', '0919901234', 'AvaPass1212!', 'Ava', 'Jackson', 'Active');
+DBCC CHECKIDENT ('InvoiceDetails', RESEED, 0);
+DBCC CHECKIDENT ('PointTransactions', RESEED, 0);
+DBCC CHECKIDENT ('Invoices', RESEED, 0);
+DBCC CHECKIDENT ('CustomerRewards', RESEED, 0);
+DBCC CHECKIDENT ('Rewards', RESEED, 0);
+DBCC CHECKIDENT ('Promotions', RESEED, 0);
+DBCC CHECKIDENT ('WashBays', RESEED, 0);
+DBCC CHECKIDENT ('Services', RESEED, 0);
+DBCC CHECKIDENT ('Vehicles', RESEED, 0);
+DBCC CHECKIDENT ('Customers', RESEED, 0);
+DBCC CHECKIDENT ('Accounts', RESEED, 0);
+DBCC CHECKIDENT ('LoyaltyTiers', RESEED, 0);
+DBCC CHECKIDENT ('Roles', RESEED, 0);
 GO
 
--- =====================================================
--- 3. LOYALTY TIERS (4 hạng)
--- =====================================================
-INSERT INTO LoyaltyTiers (TierName, MinSpend, PointMultiplier, BenefitDescription, IsActive) VALUES 
-('Member', 0, 1.00, 'Basic member with standard points earning', 1),
-('Silver', 5000000, 1.25, '5% discount on services and faster processing', 1),
-('Gold', 15000000, 1.50, '10% discount, priority booking and free wax', 1),
-('Platinum', 30000000, 2.00, '15% discount, VIP bays and complimentary detailing', 1);
+-- =========================================================================
+-- 1. BẢNG PHÂN QUYỀN (ROLES)
+-- =========================================================================
+INSERT INTO Roles (RoleName) VALUES ('Admin'), ('Customer');
 GO
 
--- =====================================================
--- 4. CUSTOMERS
--- =====================================================
-INSERT INTO Customers (AccountID, TierID, JoinedAt) VALUES 
-(2,1,'2025-01-15 08:30:00'),  -- CustomerID = 1
-(3,2,'2025-02-20 10:15:00'),  -- 2
-(4,1,'2025-03-10 14:45:00'),  -- 3
-(5,3,'2025-04-05 09:20:00'),  -- 4
-(6,2,'2025-05-12 11:00:00'),  -- 5
-(7,1,'2025-06-18 16:30:00'),  -- 6
-(8,4,'2025-07-22 08:45:00'),  -- 7
-(9,2,'2025-08-30 13:10:00'),  -- 8
-(10,3,'2025-09-14 10:25:00'), -- 9
-(11,1,'2025-10-05 15:50:00'); -- 10
-GO
-
--- =====================================================
--- 5. BUSINESS CUSTOMERS
--- =====================================================
-INSERT INTO BusinessCustomers (CustomerID, CompanyName, TaxCode, CompanyAddress) VALUES 
-(5, 'Tech Solutions Ltd', '0101234567', '123 District 1, Ho Chi Minh City'),
-(8, 'Logistics Express', '0209876543', '456 District 7, Ho Chi Minh City'),
-(6, 'Auto Fleet Management', '0405566778', '101 District 9, Ho Chi Minh City');
-GO
-
--- =====================================================
--- 9. VEHICLES (Bỏ Brands, Types, Models)
--- =====================================================
-INSERT INTO Vehicles (CustomerID, ModelID, LicensePlate, Color, ManufactureYear, Status) VALUES 
-(1,1,'51A-12345','White',2022,'Active'),
-(2,2,'51B-23456','Black',2021,'Active'),
-(3,3,'51C-34567','Silver',2023,'Active'),
-(4,4,'51D-45678','Blue',2020,'Active'),
-(5,5,'51E-56789','Red',2022,'Active'),
-(6,6,'51F-67890','Gray',2019,'Active'),
-(7,7,'51G-78901','White',2023,'Active'),
-(8,8,'51H-89012','Black',2021,'Active'),
-(9,9,'51K-90123','Blue',2022,'Active'),
-(10,10,'51L-01234','Silver',2020,'Active');
-GO
-
--- =====================================================
--- 10. SERVICES
--- =====================================================
-INSERT INTO Services (ServiceName, Description, IsActive) VALUES 
-('Exterior Wash','Basic car wash with foam and rinse',1),
-('Interior Cleaning','Vacuum and wipe interior surfaces',1),
-('Full Detailing','Complete interior + exterior detailing',1),
-('Engine Wash','Clean engine bay',1),
-('Wax & Polish','Apply protective wax and polish',1),
-('Headlight Restoration','Restore clarity to headlights',1),
-('Tire & Wheel Cleaning','Deep clean tires and rims',1),
-('Ceramic Coating','Long-term paint protection',1),
-('Underbody Wash','Clean undercarriage',1),
-('Air Freshener Service','Premium scent application',1);
-GO
-
--- =====================================================
--- 11. SERVICE PRICES (Chỉ dùng VehicleTypeID có sẵn)
--- =====================================================
-INSERT INTO ServicePrices (ServiceID, VehicleTypeID, Price, DurationMinutes) VALUES 
-(1,1,150000,30),(1,2,200000,40),
-(2,1,250000,45),(2,2,300000,60),
-(3,1,800000,120),(3,2,1200000,150),
-(4,1,300000,40),(5,1,400000,60),
-(6,1,350000,45),(7,2,250000,35),
-(8,1,2500000,180),(9,2,450000,50),
-(10,1,80000,10);
-GO
-
--- =====================================================
--- 12. WASH BAYS
--- =====================================================
-INSERT INTO WashBays (BayName, Description, IsActive) VALUES 
-('Bay A1','Standard bay near entrance',1),('Bay A2','Standard bay',1),
-('Bay B1','Premium detailing bay',1),('Bay B2','Premium bay with lift',1),
-('Bay C1','Express wash bay',1),('Bay C2','Express wash bay',1),
-('Bay VIP1','VIP customer bay',1),('Bay VIP2','VIP customer bay',1),
-('Bay D1','Large vehicle bay',1),('Bay D2','Electric vehicle compatible bay',1);
-GO
-
--- =====================================================
--- 12.5. TIME SLOTS (Sample availability - local datetime)
--- =====================================================
-INSERT INTO TimeSlots (StartTime, EndTime, IsAvailable) VALUES
--- 2026-06-15
-('2026-06-15 08:00:00','2026-06-15 08:30:00',1),
-('2026-06-15 08:30:00','2026-06-15 09:00:00',1),
-('2026-06-15 09:00:00','2026-06-15 09:30:00',0),   -- linked to first booking
-('2026-06-15 09:30:00','2026-06-15 10:00:00',1),
-('2026-06-15 10:00:00','2026-06-15 10:30:00',1),
-('2026-06-15 14:00:00','2026-06-15 14:30:00',1),
--- 2026-06-16
-('2026-06-16 09:00:00','2026-06-16 09:30:00',1),
-('2026-06-16 10:00:00','2026-06-16 10:30:00',1),
-('2026-06-16 10:30:00','2026-06-16 11:00:00',0),   -- linked to booking
-('2026-06-16 11:00:00','2026-06-16 11:30:00',1),
--- 2026-06-17
-('2026-06-17 14:00:00','2026-06-17 14:30:00',1),
--- 2026-06-18
-('2026-06-18 08:00:00','2026-06-18 08:30:00',1),
--- 2026-06-19
-('2026-06-19 11:00:00','2026-06-19 11:30:00',1),
--- 2026-06-20 (pending booking)
-('2026-06-20 09:00:00','2026-06-20 09:30:00',1),
-('2026-06-20 09:30:00','2026-06-20 10:00:00',1),   -- linked to pending booking
--- 2026-06-21
-('2026-06-21 15:00:00','2026-06-21 15:30:00',1),
--- 2026-06-22
-('2026-06-22 13:00:00','2026-06-22 13:30:00',1);
-GO
-
--- =====================================================
--- 13. PROMOTIONS
--- =====================================================
-INSERT INTO Promotions (PromoCode, PromotionName, TargetType, DiscountPercent, StartDate, EndDate, Description, IsActive) VALUES 
-('SUMMER25','Summer Special','All',25,'2026-06-01','2026-08-31','25% off all services',1),
-('FIRST10','First Time Discount','Customer',15,'2026-01-01','2026-12-31','15% for new customers',1),
-('GOLDVIP','Gold Member Bonus','Tier',20,'2026-01-01','2026-12-31','Extra 20% for Gold tier',1),
-('FLEET30','Business Fleet','All',30,'2026-01-01','2026-12-31','30% for business customers',1),
-('WEEKEND15','Weekend Special','All',15,'2026-06-01','2026-12-31','15% off on weekends',1),
-(NULL,'Referral Bonus','Customer',10,'2026-01-01','2026-12-31','10% for referred customers',1),
-('PLATINUM50','Platinum Exclusive','Tier',50,'2026-05-01','2026-07-31','50% off for Platinum',1),
-('ECO10','Eco Friendly','All',10,'2026-06-01','2026-12-31','10% for electric vehicles',1);
-GO
-
-INSERT INTO PromotionTiers (PromotionID, TierID) VALUES 
-(3,3),(3,4),(7,4);
-GO
-
-INSERT INTO PromotionCustomers (PromotionID, CustomerID) VALUES 
-(2,1),(2,2),(6,3),(6,4);
-GO
-
--- =====================================================
--- 14. REWARDS
--- =====================================================
-INSERT INTO Rewards (RewardName, RewardType, PointsRequired, DiscountPercent, DiscountAmount, StockQuantity, ExpiryDays, IsActive) VALUES 
-('Free Exterior Wash','Voucher',500,100,NULL,100,30,1),
-('Interior Cleaning Voucher','Voucher',800,100,NULL,80,45,1),
-('10% Off Next Service','Voucher',1200,10,NULL,150,60,1),
-('Free Car Air Freshener','Gift',300,NULL,NULL,200,90,1),
-('Premium Wax Voucher','Voucher',2000,NULL,500000,50,30,1),
-('Full Detailing Voucher','Voucher',5000,100,NULL,30,30,1);
-GO
-
--- =====================================================
--- 15. POINT TRANSACTIONS
--- =====================================================
-INSERT INTO PointTransactions (CustomerID, PointChange, TransactionType, Note) VALUES 
-(1,250,'Earn','First service points'),
-(2,450,'Earn','Monthly wash'),
-(3,1200,'Earn','Full detailing'),
-(4,600,'Earn','Business fleet wash'),
-(5,350,'Earn','Regular service'),
-(6,900,'Earn','VIP service'),
-(1,800,'Earn','Referral bonus');
-GO
-
--- =====================================================
--- 16. CUSTOMER REWARDS
--- =====================================================
-INSERT INTO CustomerRewards (CustomerID, RewardID, Status) VALUES 
-(1,1,'Available'),(2,2,'Available'),(3,3,'Available'),
-(4,4,'Available'),(5,5,'Available'),(6,6,'Available');
-GO
-
--- =====================================================
--- 17. INVOICES
--- =====================================================
-INSERT INTO Invoices (CustomerID, PromotionID, SubTotal, DiscountAmount, FinalAmount, PaymentStatus, PaymentMethod) VALUES 
-(1,1,800000,200000,600000,'Paid','Cash'),
-(2,NULL,1200000,120000,1080000,'Paid','BankTransfer'),
-(3,5,450000,67500,382500,'Paid','Momo'),
-(4,NULL,2500000,0,2500000,'Paid','CreditCard'),
-(5,4,3500000,1050000,2450000,'Paid','BankTransfer'),
-(6,NULL,600000,0,600000,'Unpaid',NULL),
-(7,8,900000,90000,810000,'Paid','Momo'),
-(8,NULL,1800000,0,1800000,'Paid','Cash');
-GO
-
--- =====================================================
--- 18. BOOKINGS (Mỗi booking chỉ 1 dịch vụ)
--- =====================================================
-INSERT INTO Bookings (CustomerID, VehicleID, ServiceID, WashBayID, TimeSlotID, InvoiceID, 
-                      Quantity, PriceAtOrder, DurationAtOrder, 
-                      AppointmentTime, Status, Notes) 
+-- =========================================================================
+-- 2. BẢNG HẠNG THÀNH VIÊN (LOYALTY TIERS) - (Theo đúng File Docx)
+-- =========================================================================
+INSERT INTO LoyaltyTiers (TierName, MinSpend, PointMultiplier, BookingWindowDays, PriorityLevel, BenefitDescription, IsActive)
 VALUES 
-(1,1,1,1, 3 ,1, 1,150000,30, '2026-06-15 09:00:00','Completed','Regular wash'),           -- Exterior Wash (TimeSlot 3)
-(1,1,2,1, NULL,1, 1,250000,45, '2026-06-15 09:45:00','Completed','Interior'),               -- Thêm booking cùng invoice (no matching slot yet)
-
-(2,2,3,3, 9 ,2, 1,1200000,150,'2026-06-16 10:30:00','Completed','Full service'),           -- TimeSlot 9
-(3,3,1,2,11 ,3, 1,200000,40, '2026-06-17 14:00:00','Completed',''),                         -- TimeSlot 11
-(4,4,8,4,12 ,4, 1,2500000,180,'2026-06-18 08:00:00','Completed','VIP service'),            -- TimeSlot 12
-(5,5,1,7,13 ,5, 5,200000,40, '2026-06-19 11:00:00','Completed','Fleet wash'),              -- 5 xe, TimeSlot 13
-(6,6,1,1,15 ,NULL,1,180000,35,'2026-06-20 09:30:00','Pending',''),                         -- TimeSlot 15 (pending)
-(7,7,3,5,16 ,7, 1,950000,130,'2026-06-21 15:00:00','Completed',''),                        -- TimeSlot 16
-(8,8,4,8,17 ,8, 1,300000,40, '2026-06-22 13:00:00','Completed','');                        -- TimeSlot 17
+('Member', 0, 1.00, 7, 1, N'1 point = 1,000 VND spent', 1),
+('Silver', 2000000, 1.10, 10, 2, N'+10% points, priority slot', 1),
+('Gold', 6000000, 1.20, 12, 3, N'+20% points, free upgrade monthly', 1),
+('Platinum', 15000000, 1.30, 14, 4, N'+30% points, free wash monthly', 1);
 GO
 
--- =====================================================
--- 19. BOOKING DETAILS
--- =====================================================
-INSERT INTO BookingDetails (BookingID, ServiceID, Quantity, PriceAtOrder, DurationAtOrder) VALUES 
-(1,1,1,150000,30),(1,2,1,250000,45),
-(2,3,1,1200000,150),(3,1,1,200000,40),
-(4,8,1,2500000,180),(5,1,5,200000,40),
-(6,1,1,180000,35),(7,3,1,950000,130),
-(8,4,1,300000,40);
+-- =========================================================================
+-- 3. BẢNG TÀI KHOẢN (ACCOUNTS)
+-- =========================================================================
+INSERT INTO Accounts (RoleID, Email, Phone, PasswordHash, FirstName, LastName, Status)
+VALUES 
+-- ADMIN (ID 1 -> 2)
+(1, 'admin1@autowash.com', '0900000001', 'hashed_pw', 'System', 'Admin', 'Active'),
+(1, 'manager@autowash.com', '0900000002', 'hashed_pw', 'Store', 'Manager', 'Active'),
+
+-- CUSTOMERS CÁ NHÂN (ID 3 -> 12)
+(2, 'nguyenvana@gmail.com', '0911111111', 'hashed_pw', 'Nguyen', 'Van A', 'Active'),
+(2, 'tranthib@gmail.com', '0922222222', 'hashed_pw', 'Tran', 'Thi B', 'Active'),
+(2, 'lehoangc@gmail.com', '0933333333', 'hashed_pw', 'Le', 'Hoang C', 'Active'),
+(2, 'phamvand@gmail.com', '0944444444', 'hashed_pw', 'Pham', 'Van D', 'Active'),
+(2, 'vuongthie@gmail.com', '0955555555', 'hashed_pw', 'Vuong', 'Thi E', 'Pending'), -- Chờ duyệt
+(2, 'hoangvanf@gmail.com', '0966666666', 'hashed_pw', 'Hoang', 'Van F', 'Frozen'),  -- Đóng băng
+(2, 'ngothig@gmail.com', '0977777777', 'hashed_pw', 'Ngo', 'Thi G', 'Active'),
+(2, 'doanh@gmail.com', '0988888888', 'hashed_pw', 'Do', 'Anh H', 'Active'),
+(2, 'dangvani@gmail.com', '0999999999', 'hashed_pw', 'Dang', 'Van I', 'Active'),
+(2, 'lythik@gmail.com', '0910101010', 'hashed_pw', 'Ly', 'Thi K', 'Active'),
+
+-- CUSTOMERS DOANH NGHIỆP (ID 13 -> 15)
+(2, 'contact@fpt.com.vn', '0287300111', 'hashed_pw', 'Nguyen', 'Dai Dien FPT', 'Active'),
+(2, 'admin@vinasun.vn', '0287300222', 'hashed_pw', 'Tran', 'Dai Dien Vinasun', 'Active'),
+(2, 'transport@logistics.vn', '0287300333', 'hashed_pw', 'Le', 'Dai Dien Logistics', 'Active');
 GO
 
+-- =========================================================================
+-- 4. BẢNG KHÁCH HÀNG (CUSTOMERS)
+-- =========================================================================
+INSERT INTO Customers (AccountID, TierID)
+VALUES 
+-- Khách cá nhân (ID 1 -> 10)
+(3, 4), -- Nguyễn Văn A (Platinum)
+(4, 3), -- Trần Thị B (Gold)
+(5, 2), -- Lê Hoàng C (Silver)
+(6, 1), (7, 1), (8, 1), (9, 2), (10, 3), (11, 1), (12, 1),
+
+-- Khách doanh nghiệp (ID 11 -> 13)
+(13, 4), -- FPT (Platinum)
+(14, 4), -- Vinasun (Platinum)
+(15, 3); -- Logistics (Gold)
+GO
+
+-- =========================================================================
+-- 4.1. BẢNG KHÁCH DOANH NGHIỆP (BUSINESS CUSTOMERS)
+-- =========================================================================
+INSERT INTO BusinessCustomers (CustomerID, CompanyName, TaxCode, CompanyAddress)
+VALUES 
+(11, 'Cong ty Co phan FPT', '0101248141', N'Khu Công nghệ cao, TP. Thủ Đức, TP.HCM'),
+(12, 'Cong ty Co phan Anh Duong (Vinasun)', '0302731736', N'Quận 1, TP.HCM'),
+(13, 'Giao Hang Nhanh Logistics', '0311907295', N'Quận 7, TP.HCM');
+GO
+
+-- =========================================================================
+-- 5. BẢNG KHOANG RỬA XE (WASH BAYS)
+-- =========================================================================
+INSERT INTO WashBays (BayName, Description, IsActive)
+VALUES 
+('Bay 1 - Standard', N'Khoang rửa tiêu chuẩn số 1', 1),
+('Bay 2 - Standard', N'Khoang rửa tiêu chuẩn số 2', 1),
+('Bay 3 - Express', N'Khoang rửa nhanh (Dưới 15 phút)', 1),
+('Bay 4 - VIP', N'Khoang rửa ưu tiên cho hạng Silver trở lên', 1),
+('Bay 5 - Detailing', N'Khoang chăm sóc chuyên sâu (Đánh bóng, Phủ Ceramic)', 1);
+GO
+
+-- =========================================================================
+-- 6. BẢNG DỊCH VỤ GỐC (SERVICES)
+-- =========================================================================
+INSERT INTO Services (ServiceName, Description, IsActive)
+VALUES 
+(N'Rửa xe cơ bản (Basic Wash)', N'Rửa bọt tuyết, xịt gầm, lau khô', 1),
+(N'Rửa xe cao cấp (Premium Wash)', N'Rửa bọt tuyết, x
