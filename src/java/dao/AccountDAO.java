@@ -268,35 +268,40 @@ public class AccountDAO {
     }
 
 
-//
-//    public int getTotalPendingAccount() {
-//        int result = 0;
-//        Connection cn = null;
-//
-//        try {
-//            cn = DBUtils.getConnection();
-//            String sql = "SELECT ISNULL(COUNT(*), 0) AS [NumOfPending]\n"
-//                    + "FROM [AutoWashProDB].[dbo].[Accounts] WHERE [Status] = 'Pending'";
-//
-//            PreparedStatement st = cn.prepareStatement(sql);
-//
-//            ResultSet table = st.executeQuery();
-//            while (table.next()) {
-//                result = table.getInt("NumOfPending");
-//            }
-//
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        } finally {
-//            try {
-//                if (cn != null) {
-//                    cn.close();
-//                }
-//            } catch (Exception e) {
-//                e.printStackTrace();
-//            }
-//        }
-//
-//        return result;
-//    }
+    public int getTotalPendingAccount() {
+        int result = 0;
+        Connection cn = null;
+
+
+        try {
+            cn = DBUtils.getConnection();
+            String sql = "SELECT ISNULL(COUNT(*), 0) AS [NumOfPending]\n"
+                    + "FROM [AutoWashProDB].[dbo].[Accounts] WHERE [Status] = 'Pending'";
+            
+            PreparedStatement st = cn.prepareStatement(sql);
+            
+            ResultSet table = st.executeQuery();
+            while(table.next()) {
+                result = table.getInt("NumOfPending");
+            }
+            
+
+            while (table.next()) {
+                result = table.getInt("NumOfPending");
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (cn != null) {
+                    cn.close();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        return result;
+    }
 }

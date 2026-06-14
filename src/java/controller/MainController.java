@@ -82,9 +82,13 @@ public class MainController extends HttpServlet {
                         url = "CustomerDashBoardController";
                     }
                     break;
+                //tung: 14/6
+                case "pending_page":
+                    url = "pending_page.jsp";
+                    break;
                 case "AddVehicle_page":
                     url = "addVehicle.jsp";
-                    break;
+                    break;    
                 case "getVehicleData":
                     response.setContentType("application/json;charset=UTF-8");
                     try ( PrintWriter out = response.getWriter()) {

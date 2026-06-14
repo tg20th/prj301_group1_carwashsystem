@@ -75,27 +75,26 @@ public class LoginController extends HttpServlet {
             request.setAttribute("error", "Password is incorrect!");
             request.setAttribute("email", email);
             request.getRequestDispatcher("MainController?action=home").forward(request, response);
-            return;
+return;
         }
 
-        // check status tài khoản 
+        //tung: 14/6 check status tài khoản 
         String status = account.isStatus();
-        if ("Pending".equalsIgnoreCase(status)) {
-            request.setAttribute("error", "Account is pending...");
-            request.setAttribute("email", email);
-            request.getRequestDispatcher("MainController?action=home").forward(request, response);
+        if ("Rejected".equalsIgnoreCase(status)) {
+            request.getRequestDispatcher("MainController?action=pending_page").forward(request, response);
+        }
+        else if ("Pending".equalsIgnoreCase(status)) {
+            request.getRequestDispatcher("ResubmitRegistController").forward(request, response);
             return;
         }
 
-        // otp: Chặn Frozen
-        // if ("Frozen".equalsIgnoreCase(status)) 
         // update thời gian đăng nhập
         accountDAO.updateLastLogin(account.getAccountID());
 
         // Lưu account vào session
         HttpSession session = request.getSession();
         session.setAttribute("ACCOUNT", account);
-        
+
         // Phân luồng theo role
         int roleID = account.getRoleID();
 
@@ -105,20 +104,16 @@ public class LoginController extends HttpServlet {
             return;
         }
 
-        // Kiểm tra Business
+        // phan luong cho business da duoc approve
         CustomerDAO customerDAO = new CustomerDAO();
         Customer customer = customerDAO.getCustomerByAccountID(account.getAccountID());
-
-        if (customer != null) {
-            BusinessDAO businessDAO = new BusinessDAO();
-            Business business = businessDAO.getBussinessByID(String.valueOf(customer.getCusID()));
-            if (business != null) {
-                // forward ve trang cua busi
-                request.getRequestDispatcher("BusinessDashboardController").forward(request, response);
-                return;
-            }
+        BusinessDAO businessDAO = new BusinessDAO();
+        Business business = businessDAO.getBussinessByCusID(customer.getCusID());
+        request.getSession().setAttribute("BUS", business);
+        if (business != null) {
+            request.getRequestDispatcher("BusinessDashboardController").forward(request, response);
+            return;
         }
-
         request.getRequestDispatcher("CustomerDashBoardController").forward(request, response);
     }
 
