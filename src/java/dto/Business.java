@@ -60,6 +60,15 @@ public class Business {
         this.companyAddress = companyAddress;
     }
 
+    public Business(String cusName, String email, String phone, String busName, String taxCode, String address) {
+        this.contractName = cusName;
+        this.email = email;
+        this.phone= phone;
+        this.businessName = busName;
+        this.taxCode = taxCode;
+        this.companyAddress = address;
+    }
+
     
 
     public String getContractName() {
