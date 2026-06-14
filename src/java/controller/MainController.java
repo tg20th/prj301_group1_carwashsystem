@@ -82,11 +82,6 @@ public class MainController extends HttpServlet {
                 //tung: 14/6
                 case "pending_page":
                     url = "pending_page.jsp";
-                    if (acc.getRoleID() == 1) {
-                        url = "AdminDashboardController";
-                    } else {
-                        url = "CustomerDashBoardController";
-                    }
                     break;
                 case "AddVehicle_page":
                     url = "addVehicle.jsp";

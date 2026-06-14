@@ -103,22 +103,6 @@ return;
             request.getRequestDispatcher("AdminDashboardController").forward(request, response);
             return;
         }
-        // THÊM ĐOẠN PHÂN QUYỀN NÀY VÀO:
-        if (account.getRoleID() == 1) {
-            // 1 là Admin
-            request.getRequestDispatcher("admin_dashbroad.jsp").forward(request, response);
-        } else if (account.getRoleID() == 3) {
-            // 3 là Doanh Nghiệp -> Đẩy về trang Business
-            response.sendRedirect("MainController?action=BusinessDashboard");
-        } else {
-            // Mặc định (2) là Khách hàng cá nhân
-            request.getRequestDispatcher("CustomerDashBoardController").forward(request, response);
-        }
-        if (roleID == 1) {
-            // Admin
-            request.getRequestDispatcher("MainController?action=dashboard").forward(request, response);
-            return;
-        }
 
         // phan luong cho business da duoc approve
         CustomerDAO customerDAO = new CustomerDAO();
@@ -129,23 +113,8 @@ return;
         if (business != null) {
             request.getRequestDispatcher("BusinessDashboardController").forward(request, response);
             return;
-            Business business = businessDAO.getBussinessByID(String.valueOf(customer.getCusID()));
-            if (business != null) {
-                // forward ve trang cua busi
-                request.getRequestDispatcher("BusinessDashboardController").forward(request, response);
-                return;
-            }
         }
         request.getRequestDispatcher("CustomerDashBoardController").forward(request, response);
-            Business business = businessDAO.getBussinessByID(customer.getCusID());
-            if (business != null) {
-                // forward ve trang cua busi
-                request.getRequestDispatcher("MainController?action=dashboard").forward(request, response);
-                return;
-            } //
-        }
-
-        request.getRequestDispatcher("MainController?action=dashboard").forward(request, response);
     }
 
     /**
