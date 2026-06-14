@@ -133,7 +133,7 @@ public class UpdateVehicleController extends HttpServlet {
                 CustomerDAO customerDAO = new CustomerDAO();
                 Customer customer = customerDAO.getCustomerByAccountID(acc.getAccountID());
                 BusinessDAO d = new BusinessDAO();
-                Business business = d.getBussinessByID(customer.getCusID());
+                Business business = d.getBussinessByCusID(customer.getCusID());
                 if (business != null) {
                  
                     request.getRequestDispatcher("BusinessDashboardController").forward(request, response);
