@@ -49,7 +49,8 @@ public class LoginController extends HttpServlet {
         HttpSession session = request.getSession(false);
 
         if (session != null && session.getAttribute("ACCOUNT") != null) {
-            request.getRequestDispatcher("MainController?action=dashboard").forward(request, response);
+            // Sử dụng sendRedirect thay vì getRequestDispatcher với query string (tránh lỗi 500)
+            response.sendRedirect("MainController?action=dashboard");
             return;
         }
 
@@ -67,24 +68,27 @@ public class LoginController extends HttpServlet {
 
         if (account == null) {
             request.setAttribute("error", "Email is not exist!");
-            request.getRequestDispatcher("MainController?action=home").forward(request, response);
+            request.getRequestDispatcher("index.jsp").forward(request, response);
             return;
         }
 
         if (!account.getPassword().equals(password)) {
             request.setAttribute("error", "Password is incorrect!");
             request.setAttribute("email", email);
-            request.getRequestDispatcher("MainController?action=home").forward(request, response);
+            request.getRequestDispatcher("index.jsp").forward(request, response);
             return;
         }
 
-        //tung: 14/6 check status tài khoản 
+//tung: 14/6 check status tài khoản 
         String status = account.isStatus();
         if ("Rejected".equalsIgnoreCase(status)) {
-            request.getRequestDispatcher("MainController?action=pending_page").forward(request, response);
-        }
-        else if ("Pending".equalsIgnoreCase(status)) {
-            request.getRequestDispatcher("ResubmitRegistController").forward(request, response);
+            // Bắn thẳng đến trang pending thay vì qua MainController (tránh lỗi getRequestDispatcher sai cú pháp)
+            request.getRequestDispatcher("pending_page.jsp").forward(request, response);
+            return;
+        } else if ("Pending".equalsIgnoreCase(status)) {
+            // TODO: replace with direct forward to ResubmitRegistController once implemented
+            request.setAttribute("error", "Your business registration is pending approval. Please wait for admin review.");
+            request.getRequestDispatcher("pending_page.jsp").forward(request, response);
             return;
         }
 
@@ -104,17 +108,27 @@ public class LoginController extends HttpServlet {
             return;
         }
 
-        // phan luong cho business da duoc approve
+        // Kiểm tra an toàn trước khi lấy dữ liệu Customer
         CustomerDAO customerDAO = new CustomerDAO();
         Customer customer = customerDAO.getCustomerByAccountID(account.getAccountID());
-        BusinessDAO businessDAO = new BusinessDAO();
-        Business business = businessDAO.getBussinessByCusID(customer.getCusID());
-        request.getSession().setAttribute("BUS", business);
-        if (business != null) {
-            request.getRequestDispatcher("BusinessDashboardController").forward(request, response);
+
+        if (customer != null) {
+            BusinessDAO businessDAO = new BusinessDAO();
+            Business business = businessDAO.getBussinessByCusID(customer.getCusID());
+
+            if (business != null) {
+                request.getSession().setAttribute("BUS", business);
+                request.getRequestDispatcher("BusinessDashboardController").forward(request, response);
+                return;
+            }
+            // Nếu có customer nhưng không có business -> Đi tới Customer Dashboard
+            request.getRequestDispatcher("CustomerDashBoardController").forward(request, response);
             return;
         }
-        request.getRequestDispatcher("CustomerDashBoardController").forward(request, response);
+
+        // Trường hợp tài khoản hợp lệ nhưng không tìm thấy data Customer trong DB
+        request.setAttribute("error", "Your profile is incomplete. Please contact support.");
+        request.getRequestDispatcher("index.jsp").forward(request, response);
     }
 
     /**

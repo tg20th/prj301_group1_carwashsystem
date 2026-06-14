@@ -33,7 +33,13 @@ public class RemoveVehicleController extends HttpServlet {
             }
         } catch (Exception e) {
             e.printStackTrace();
-            request.setAttribute("ERROR", "System error: " + e.getMessage());
+            try {
+                request.setAttribute("ERROR", "System error: " + e.getMessage());
+                request.getRequestDispatcher("error_page.jsp").forward(request, response);
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+            return;
         }
 
         if (session.getAttribute("BUS") != null) {

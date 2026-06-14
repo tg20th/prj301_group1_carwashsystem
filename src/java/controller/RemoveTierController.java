@@ -44,7 +44,11 @@ public class RemoveTierController extends HttpServlet {
             showError(request, response, "Invalid tier ID format!");
         } catch (Exception e) {
             e.printStackTrace();
-            showError(request, response, "System error occurred!");
+            try {
+                showError(request, response, "System error occurred: " + e.getMessage());
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
         }
     }
 

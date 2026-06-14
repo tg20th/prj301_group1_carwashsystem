@@ -41,42 +41,52 @@ public class CustomerDashBoardController extends HttpServlet {
             HttpServletResponse response)
             throws ServletException, IOException {
 
-        Account account = (Account) request.getSession().getAttribute("ACCOUNT");
+        try {
+            Account account = (Account) request.getSession().getAttribute("ACCOUNT");
 
-        if (account == null) {
-            response.sendRedirect("MainController?action=home");
-            return;
+            if (account == null) {
+                response.sendRedirect("MainController?action=home");
+                return;
+            }
+
+            CustomerDAO cusDAO = new CustomerDAO();
+            Customer customer = cusDAO.getCustomerByAccountID(account.getAccountID());
+            int pointBalance = cusDAO.getPointBalance(account.getAccountID());
+            if (customer == null) {
+                response.sendError(HttpServletResponse.SC_NOT_FOUND,
+                        "Customer not found");
+                return;
+            }
+
+            TierDAO tierDAO = new TierDAO();
+            Tier customerTier = tierDAO.getTier(customer.getTierID());
+
+            VehicleDAO vehicleDAO = new VehicleDAO();
+            List<Vehicle> vehicleList = vehicleDAO.getVehiclesByCustomerID(customer.getCusID());
+
+            RewardDAO rewardDAO = new RewardDAO();
+
+            Reward nextReward = rewardDAO.getNextReward(pointBalance);
+
+            request.getSession().setAttribute("CUSTOMER", customer);
+            request.setAttribute("ACCOUNT", account);
+            request.setAttribute("CUSTOMER", customer);
+            request.setAttribute("TIER", customerTier);
+            request.setAttribute("VEHICLES", vehicleList);
+            request.setAttribute("NEXTREWARD", nextReward);
+            request.setAttribute("POINT_BALANCE", pointBalance);
+
+            request.getRequestDispatcher("customer-dashboard.jsp")
+                    .forward(request, response);
+        } catch (Exception e) {
+            e.printStackTrace();
+            try {
+                request.setAttribute("error", "Unable to load dashboard data: " + e.getMessage());
+                request.getRequestDispatcher("error_page.jsp").forward(request, response);
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
         }
-
-        CustomerDAO cusDAO = new CustomerDAO();
-        Customer customer = cusDAO.getCustomerByAccountID(account.getAccountID());
-        int pointBalance = cusDAO.getPointBalance(account.getAccountID());
-        if (customer == null) {
-            response.sendError(HttpServletResponse.SC_NOT_FOUND,
-                    "Customer not found");
-            return;
-        }
-
-        TierDAO tierDAO = new TierDAO();
-        Tier customerTier = tierDAO.getTier(customer.getTierID());
-
-        VehicleDAO vehicleDAO = new VehicleDAO();
-        List<Vehicle> vehicleList = vehicleDAO.getVehiclesByCustomerID(customer.getCusID());
-
-        RewardDAO rewardDAO = new RewardDAO();
-
-        Reward nextReward = rewardDAO.getNextReward(pointBalance);
-
-        request.getSession().setAttribute("CUSTOMER", customer);
-        request.setAttribute("ACCOUNT", account);
-        request.setAttribute("CUSTOMER", customer);
-        request.setAttribute("TIER", customerTier);
-        request.setAttribute("VEHICLES", vehicleList);
-        request.setAttribute("NEXTREWARD", nextReward);
-        request.setAttribute("POINT_BALANCE", pointBalance);
-
-        request.getRequestDispatcher("customer-dashboard.jsp")
-                .forward(request, response);
     }
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
