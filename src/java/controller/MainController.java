@@ -74,10 +74,16 @@ public class MainController extends HttpServlet {
                         url = "index.jsp";
                         break;
                     }
+<<<<<<< Updated upstream
                     if (acc.getRoleID() == 3) {
                         url = "BusinessDashboardController";
                     } else if (acc.getRoleID() == 1) {
                         url = "admin_dashbroad.jsp";
+=======
+                    Business bus = (Business) request.getSession().getAttribute("BUS");
+                    if (bus != null) {
+                        url = "BusinessDashboardController";
+>>>>>>> Stashed changes
                     } else {
                         url = "CustomerDashBoardController";
                     }
@@ -148,9 +154,6 @@ public class MainController extends HttpServlet {
                     break;
                 case "saveaccount":
                     url = "SaveAccountController";
-                    break;
-                case "BusinessDashboard":
-                    url = "BusinessDashboardController";
                     break;
                 case "AddBusinessVehicle_page":
                     url = "addBusinessVehicle.jsp";

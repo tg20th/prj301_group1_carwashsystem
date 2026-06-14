@@ -124,7 +124,7 @@
 
                             <a href="MainController?action=AddBusinessVehicle_page"
                                class="btn btn-dark btn-sm">
-                                + Add
+                                + Add Vehicles
                             </a>
                         </div>
 

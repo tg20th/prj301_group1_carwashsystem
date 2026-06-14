@@ -4,10 +4,14 @@
  */
 package controller;
 
+import dao.BusinessDAO;
+import dao.CustomerDAO;
 import dao.VehicleBrandDAO;
 import dao.VehicleDAO;
 import dao.VehicleModelDAO;
 import dto.Account;
+import dto.Business;
+import dto.Customer;
 import dto.Vehicle;
 import java.io.File;
 import java.io.IOException;
@@ -99,13 +103,14 @@ public class UpdateVehicleController extends HttpServlet {
                 request.getRequestDispatcher("updateVehicle.jsp").forward(request, response);
                 return;
             }
-            request.setAttribute("SUCCESS", "Vehicle updated successfully.");
-            if (acc != null && acc.getRoleID() == 3) {
-                url = "BusinessDashboardController";
-            } else {
-                url = "CustomerDashBoardController";
+            request.setAttribute("SUCCESS", "Vehicle updated successfully."); 
+            Business business = (Business)request.getSession().getAttribute("BUS");
+            if (business != null) {
+            
+                request.getRequestDispatcher("BusinessDashboardController").forward(request, response);
+                return;
             }
-            request.getRequestDispatcher(url).forward(request, response);
+            request.getRequestDispatcher("CustomerDashBoardController").forward(request, response);
         } catch (Exception e) {
             e.printStackTrace();
             request.setAttribute("ERROR", "System error: " + e.getMessage());
@@ -125,12 +130,16 @@ public class UpdateVehicleController extends HttpServlet {
                 request.getRequestDispatcher("updateVehicle.jsp").forward(request, response);
 
             } catch (Exception ex) {
-                if (acc != null && acc.getRoleID() == 3) {
-                    url = "BusinessDashboardController";
-                } else {
-                    url = "CustomerDashBoardController";
+                CustomerDAO customerDAO = new CustomerDAO();
+                Customer customer = customerDAO.getCustomerByAccountID(acc.getAccountID());
+                BusinessDAO d = new BusinessDAO();
+                Business business = d.getBussinessByID(customer.getCusID());
+                if (business != null) {
+                 
+                    request.getRequestDispatcher("BusinessDashboardController").forward(request, response);
+                    return;
                 }
-                request.getRequestDispatcher(url).forward(request, response);
+                request.getRequestDispatcher("CustomerDashBoardController").forward(request, response);
             }
         }
     }
