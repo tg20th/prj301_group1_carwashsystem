@@ -76,28 +76,33 @@ public class BusinessDAO {
         return result;
     }
 
-    public Business getBussinessByID(int id) {       
+    public Business getBussinessByCusID(int id) {
         Connection cn = null;
         Business result = null;
         try {
             cn = DBUtils.getConnection();
             if (cn != null) {
-                String sql = "SELECT [CompanyName]\n"
-                + "      ,[TaxCode]\n"
-                + "      ,[CompanyAddress]\n"
-                + "  FROM [AutoWashProDB].[dbo].[BusinessCustomers] \n"
-                + "  WHERE [CustomerID] = ?";
+                String sql = "SELECT a.AccountID, Email ,[Phone],[Password],\n"
+                        + "       [LastName] +' ' + [FirstName] AS FullName,[Status],\n"
+                        + "       b.CompanyName, b.TaxCode, b.CompanyAddress\n"
+                        + "  FROM [dbo].[Accounts] a JOIN Customers c\n"
+                        + "  ON c.AccountID = a.AccountID\n"
+                        + "  JOIN BusinessCustomers b ON b.CustomerID = c.CustomerID\n"
+                        + "  WHERE c.CustomerID = ?";
                 PreparedStatement st = cn.prepareStatement(sql);
                 st.setInt(1, id);
-                
+
                 ResultSet table = st.executeQuery();
                 while (table.next()) {
-                    int busID = table.getInt("CustomerID");
+                    String email = table.getString("Email");
+                    String phone = table.getString("Phone");
+                    String password = table.getString("Password");
+                    String cusName = table.getString("FullName");
                     String busName = table.getString("CompanyName");
                     String taxCode = table.getString("TaxCode");
                     String address = table.getString("CompanyAddress");
 
-                    result = new Business(busID, busName, taxCode, address);
+                    result = new Business(cusName, email, phone, busName, taxCode, address);
                 }
             }
         } catch (Exception e) {
