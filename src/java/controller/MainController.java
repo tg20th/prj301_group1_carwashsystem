@@ -59,7 +59,7 @@ public class MainController extends HttpServlet {
                     url = "index.jsp";
                     break;
                 case "register_page":
-                    url = "/register.jsp";
+                    url = "register.jsp";
                     break;
                 case "register":
                     url = "RegisterController";
@@ -84,7 +84,7 @@ public class MainController extends HttpServlet {
                     }
                     break;
                 case "pending_page":
-                    url = "pending_page,jsp";
+                    url = "pending_page.jsp";
                     break;
                 case "AddVehicle_page":
                     url = "addVehicle.jsp";
@@ -174,6 +174,11 @@ public class MainController extends HttpServlet {
             request.getRequestDispatcher(url).forward(request, response);
         } catch (Exception e) {
             e.printStackTrace();
+            try {
+                response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Internal server error: " + e.getMessage());
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
         }
     }
 

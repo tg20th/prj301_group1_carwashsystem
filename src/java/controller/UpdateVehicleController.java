@@ -113,33 +113,23 @@ public class UpdateVehicleController extends HttpServlet {
             request.getRequestDispatcher("CustomerDashBoardController").forward(request, response);
         } catch (Exception e) {
             e.printStackTrace();
-            request.setAttribute("ERROR", "System error: " + e.getMessage());
-
             try {
-                VehicleDAO dao = new VehicleDAO();
-                int vehicleID = Integer.parseInt(request.getParameter("vehicleID"));
-                Vehicle oldVehicle = dao.getVehicleByID(vehicleID);
-
-                VehicleBrandDAO brandDAO = new VehicleBrandDAO();
-                VehicleModelDAO modelDAO = new VehicleModelDAO();
-
-                request.setAttribute("VEHICLE", oldVehicle);
-                request.setAttribute("BRAND_LIST", brandDAO.getAllBrands());
-                request.setAttribute("MODEL_LIST", modelDAO.getAllModels());
-
-                request.getRequestDispatcher("updateVehicle.jsp").forward(request, response);
-
+                request.setAttribute("ERROR", "System error: " + e.getMessage());
+                request.getRequestDispatcher("error_page.jsp").forward(request, response);
             } catch (Exception ex) {
-                CustomerDAO customerDAO = new CustomerDAO();
-                Customer customer = customerDAO.getCustomerByAccountID(acc.getAccountID());
-                BusinessDAO d = new BusinessDAO();
-                Business business = d.getBussinessByCusID(customer.getCusID());
-                if (business != null) {
-                 
-                    request.getRequestDispatcher("BusinessDashboardController").forward(request, response);
-                    return;
-                }
-                request.getRequestDispatcher("CustomerDashBoardController").forward(request, response);
+                ex.printStackTrace();
+                // last resort recovery
+                try {
+                    CustomerDAO customerDAO = new CustomerDAO();
+                    Customer customer = customerDAO.getCustomerByAccountID(acc.getAccountID());
+                    BusinessDAO d = new BusinessDAO();
+                    Business business = d.getBussinessByCusID(customer.getCusID());
+                    if (business != null) {
+                        request.getRequestDispatcher("BusinessDashboardController").forward(request, response);
+                        return;
+                    }
+                    request.getRequestDispatcher("CustomerDashBoardController").forward(request, response);
+                } catch (Exception ignored) {}
             }
         }
     }

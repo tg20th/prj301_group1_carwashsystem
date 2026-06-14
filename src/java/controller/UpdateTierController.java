@@ -71,7 +71,11 @@ public class UpdateTierController extends HttpServlet {
             showError(request, response, "Invalid input format.");
         } catch (Exception e) {
             e.printStackTrace();
-            showError(request, response, "System error.");
+            try {
+                showError(request, response, "System error: " + e.getMessage());
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
         }
     }
 

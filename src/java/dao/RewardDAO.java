@@ -14,8 +14,11 @@ public class RewardDAO {
 
     public Reward getNextReward(int currentPoints) {
 
+        // Explicit columns that exist in current DB schema for Rewards table
+        // (no Description, no CreatedAt in DDL; avoid SQLException on * + get non-existing)
         String sql
-                = "SELECT TOP 1 * "
+                = "SELECT TOP 1 RewardID, RewardName, RewardType, PointsRequired, "
+                + "DiscountPercent, DiscountAmount, StockQuantity, ExpiryDays, IsActive "
                 + "FROM Rewards "
                 + "WHERE PointsRequired > ? "
                 + "AND IsActive = 1 "
@@ -35,25 +38,24 @@ public class RewardDAO {
 
                     reward.setRewardId(rs.getInt("RewardID"));
                     reward.setRewardName(rs.getString("RewardName"));
-                    reward.setDescription(rs.getString("Description"));
                     reward.setPointsRequired(rs.getInt("PointsRequired"));
                     reward.setRewardType(rs.getString("RewardType"));
 
-                    reward.setDiscountAmount(
-                            rs.getBigDecimal("DiscountAmount")
-                    );
+                    int dp = rs.getInt("DiscountPercent");
+                    if (!rs.wasNull()) {
+                        reward.setDiscountPercent(dp);
+                    }
 
-                    reward.setStockQuantity(
-                            rs.getInt("StockQuantity")
-                    );
+                    reward.setDiscountAmount(rs.getBigDecimal("DiscountAmount"));
 
-                    reward.setActive(
-                            rs.getBoolean("IsActive")
-                    );
+                    reward.setStockQuantity(rs.getInt("StockQuantity"));
 
-                    reward.setCreatedAt(
-                            rs.getTimestamp("CreatedAt")
-                    );
+                    int exp = rs.getInt("ExpiryDays");
+                    if (!rs.wasNull()) {
+                        reward.setExpiryDays(exp);
+                    }
+
+                    reward.setActive(rs.getBoolean("IsActive"));
 
                     return reward;
                 }

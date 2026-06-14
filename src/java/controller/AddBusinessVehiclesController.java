@@ -152,8 +152,13 @@ public class AddBusinessVehiclesController extends HttpServlet {
             request.setAttribute("SUCCESS", "Uploaded " + successCount + " vehicles successfully.");
         } catch (Exception e) {
             e.printStackTrace();
-            request.setAttribute("ERROR", "Upload failed");
-            request.getRequestDispatcher("addBusinessVehicle.jsp").forward(request, response);
+            try {
+                request.setAttribute("ERROR", "Upload failed: " + e.getMessage());
+                request.getRequestDispatcher("error_page.jsp").forward(request, response);
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+            return; // prevent double forward
         }
         request.getRequestDispatcher("MainController?action=BusinessDashboard").forward(request, response);
     } // ========================= // UNZIP METHOD // =========================

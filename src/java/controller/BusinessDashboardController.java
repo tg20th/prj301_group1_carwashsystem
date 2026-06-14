@@ -70,8 +70,12 @@ public class BusinessDashboardController extends HttpServlet {
             request.getRequestDispatcher("businessDashboard.jsp").forward(request, response);
         } catch (Exception e) {
             e.printStackTrace();
-            request.setAttribute("ERROR", "Unable to load dashboard data: " + e.getMessage());
-            request.getRequestDispatcher("businessDashboard.jsp").forward(request, response);
+            try {
+                request.setAttribute("ERROR", "Unable to load dashboard data: " + e.getMessage());
+                request.getRequestDispatcher("error_page.jsp").forward(request, response);
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
         }
     }
 
