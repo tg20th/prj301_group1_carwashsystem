@@ -87,8 +87,7 @@ public class BusinessDashboardController extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-<<<<<<< Updated upstream
-=======
+
         HttpSession session = request.getSession(false);
 
         // chưa login
@@ -104,7 +103,6 @@ public class BusinessDashboardController extends HttpServlet {
         }
 
         // đúng business account
->>>>>>> Stashed changes
         processRequest(request, response);
     }
 
