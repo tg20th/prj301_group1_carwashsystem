@@ -87,4 +87,95 @@ public class TierDAO {
         return list;
     }
 
+    public int createTier(Tier t) {
+        int result = 0;
+        Connection cn = null;
+        try {
+            cn = DBUtils.getConnection();
+            String sql = "INSERT INTO [dbo].[LoyaltyTiers] ([TierName], [MinSpend], "
+                    + "[PointMultiplier], [BenefitDescription],[IsActive])\n"
+                    + "VALUES (?, ?, ?, ?, ?)";
+
+            PreparedStatement st = cn.prepareStatement(sql);
+            st.setString(1, t.getTierName());
+            st.setInt(2, t.getMinSpend());
+            st.setDouble(3, t.getPointRate());
+            st.setString(4, t.getDesciption());
+            st.setBoolean(5, true);
+            result = st.executeUpdate();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (cn != null) {
+                    cn.close();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return result;
+    }
+
+    public int updateTier(int id, String name, int minSpend, double point, String des, boolean status) {
+        int result = 0;
+        Connection cn = null;
+        try {
+            cn = DBUtils.getConnection();
+            String sql = "UPDATE [dbo].[LoyaltyTiers] SET [TierName] = ?,[MinSpend] = ?, [PointMultiplier] = ?,\n"
+                    + "[BenefitDescription] = ?, [IsActive] = ?\n"
+                    + "WHERE [TierID] = ?";
+
+            PreparedStatement st = cn.prepareStatement(sql);
+            st.setString(1, name);
+            st.setInt(2, minSpend);
+            st.setDouble(3, point);
+            st.setString(4, des);
+            st.setBoolean(5, status);
+            st.setInt(6, id);
+
+            result = st.executeUpdate();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (cn != null) {
+                    cn.close();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return result;
+    }
+    
+    public int removeTierByID(int id) {
+        int result = 0;
+        Connection cn = null;
+        try {
+            cn = DBUtils.getConnection();
+            String sql = "UPDATE LoyaltyTiers SET [IsActive] = ?\n"
+                    + "WHERE [TierID] = ?";
+
+            PreparedStatement st = cn.prepareStatement(sql);
+            st.setBoolean(1, false);
+            st.setInt(2, id);
+
+            result = st.executeUpdate();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (cn != null) {
+                    cn.close();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return result;
+    }
 }

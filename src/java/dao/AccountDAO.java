@@ -266,13 +266,10 @@ public class AccountDAO {
 
         return result;
     }
-
-
-
+  
     public int getTotalPendingAccount() {
         int result = 0;
         Connection cn = null;
-
         try {
             cn = DBUtils.getConnection();
             String sql = "SELECT ISNULL(COUNT(*), 0) AS [NumOfPending]\n"
@@ -299,5 +296,4 @@ public class AccountDAO {
 
         return result;
     }
-
 }
