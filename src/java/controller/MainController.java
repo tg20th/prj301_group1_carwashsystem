@@ -5,14 +5,11 @@
 package controller;
 
 import dao.BusinessDAO;
-import dao.CustomerDAO;
 import dao.VehicleBrandDAO;
 import dao.VehicleDAO;
 import dao.VehicleModelDAO;
 import dto.Account;
 import dao.VehicleModelDAO;
-import dto.Business;
-import dto.Customer;
 import dto.Vehicle;
 import dto.VehicleBrand;
 import dto.VehicleModel;
@@ -78,10 +75,6 @@ public class MainController extends HttpServlet {
                         url = "index.jsp";
                         break;
                     }
-                    break;
-                //tung: 14/6
-                case "pending_page":
-                    url = "pending_page.jsp";
                     if (acc.getRoleID() == 1) {
                         url = "AdminDashboardController";
                     } else {
@@ -90,7 +83,7 @@ public class MainController extends HttpServlet {
                     break;
                 case "AddVehicle_page":
                     url = "addVehicle.jsp";
-                    break;    
+                    break;
                 case "getVehicleData":
                     response.setContentType("application/json;charset=UTF-8");
                     try ( PrintWriter out = response.getWriter()) {

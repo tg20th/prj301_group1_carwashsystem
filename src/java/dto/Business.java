@@ -17,15 +17,6 @@ public class Business {
 
     public Business() {
     }
-
-    public Business(String contractName, String email, String phone, String businessName, String taxCode, String companyAddress) {
-        this.contractName = contractName;
-        this.email = email;
-        this.phone = phone;
-        this.businessName = businessName;
-        this.taxCode = taxCode;
-        this.companyAddress = companyAddress;
-    }
     
     
 
