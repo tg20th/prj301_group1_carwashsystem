@@ -182,7 +182,13 @@ public class AddVehicleController extends HttpServlet {
             }
         } catch (Exception e) {
             e.printStackTrace();
-            request.setAttribute("ERROR", "Error processing request: " + e.getMessage());
+            try {
+                request.setAttribute("ERROR", "Error processing request: " + e.getMessage());
+                request.getRequestDispatcher("error_page.jsp").forward(request, response);
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+            return;
         }
         request.getRequestDispatcher("addVehicle.jsp").forward(request, response);
     }

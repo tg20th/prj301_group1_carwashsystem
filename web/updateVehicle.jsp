@@ -1,4 +1,5 @@
 
+<%@page import="dto.Business"%>
 <%@page import="dto.Account"%>
 <%@page import="dto.Account"%>
 <%@page import="dto.Vehicle"%>
@@ -8,7 +9,7 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 
 <%
-    if (session.getAttribute("ACCOUNT") == null && session.getAttribute("CUSTOMER") == null) {
+    if (session.getAttribute("ACCOUNT") == null) {
         response.sendRedirect("index.jsp");
         return;
     }
@@ -19,6 +20,15 @@
     }
     ArrayList<VehicleBrand> brandList = (ArrayList<VehicleBrand>) request.getAttribute("BRAND_LIST");
     ArrayList<VehicleModel> modelList = (ArrayList<VehicleModel>) request.getAttribute("MODEL_LIST");
+    Business bus = (Business) session.getAttribute("BUS");
+
+    String dashboardURL;
+
+    if (bus != null) {
+        dashboardURL = "BusinessDashboardController";
+    } else {
+        dashboardURL = "CustomerDashBoardController";
+    }
 %>
 
 <!DOCTYPE html>
@@ -32,7 +42,9 @@
     </head>
     <body style="background:#f5f7fa;">
         <div class="position-absolute top-0 start-0 p-4">
-            <a href="MainController?action=dashboard"class="btn btn-light shadow rounded-pill px-4">
+            <a href="<%= dashboardURL%>"
+               class="btn btn-light shadow rounded-pill px-4">
+
                 <i class="bi bi-arrow-left"></i>
                 Back Dashboard
             </a>

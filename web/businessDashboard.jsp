@@ -11,7 +11,7 @@
     Tier tier = (Tier) request.getAttribute("TIER");
     Reward nextReward = (Reward) request.getAttribute("NEXTREWARD");
     Integer pointBalance = (Integer) request.getAttribute("POINT_BALANCE");
-
+    Business business = (Business) session.getAttribute("BUS");
     if (account == null) {
         response.sendRedirect("login.jsp");
         return;
@@ -110,6 +110,85 @@
                             <div><b>Email:</b> <%= account.getEmail()%></div>
                             <div class="mt-2"><b>Phone:</b> <%= account.getPhone()%></div>
                         </div>
+                        <!-- EDIT PROFILE -->
+                        <form action="MainController"
+                              method="post"
+                              class="mt-4">
+
+                            <button type="submit"
+                                    name="action"
+                                    value="editprofile"
+                                    class="btn btn-outline-dark w-100 rounded-pill">
+
+                                <i class="bi bi-pencil-square me-2"></i>
+                                Edit Profile
+
+                            </button>
+
+                        </form>
+                    </div>
+                    <!-- BUSINESS INFO -->
+                    <div class="bg-white p-4 rounded shadow-sm mt-4">
+
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+
+                            <h5 class="m-0">
+                                <i class="bi bi-building me-2"></i>
+                                Business Info
+                            </h5>
+
+                        </div>
+
+                        <% if (business != null) {%>
+
+                        <div class="small">
+
+                            <div class="mb-3">
+
+                                <div class="text-muted">
+                                    Company Name
+                                </div>
+
+                                <div class="fw-semibold">
+                                    <%= business.getBusinessName()%>
+                                </div>
+
+                            </div>
+
+                            <div class="mb-3">
+
+                                <div class="text-muted">
+                                    Tax Code
+                                </div>
+
+                                <div class="fw-semibold">
+                                    <%= business.getTaxCode()%>
+                                </div>
+
+                            </div>
+
+                            <div class="mb-3">
+
+                                <div class="text-muted">
+                                    Company Address
+                                </div>
+
+                                <div class="fw-semibold">
+                                    <%= business.getCompanyAddress()%>
+                                </div>
+
+                            </div>
+
+                        </div>
+                        
+
+                        <% } else { %>
+
+                        <div class="text-muted small">
+                            Business information not found.
+                        </div>
+
+                        <% } %>
 
                     </div>
                 </div>
@@ -117,14 +196,14 @@
                 <!-- VEHICLES -->
                 <div class="col-lg-6">
 
-                    <div class="bg-white p-4 rounded shadow-sm">
+                   <div class="bg-white p-4 rounded shadow-sm w-100 h-100">
 
                         <div class="d-flex justify-content-between mb-3">
                             <h5 class="m-0">My Vehicles</h5>
 
                             <a href="MainController?action=AddBusinessVehicle_page"
                                class="btn btn-dark btn-sm">
-                                + Add
+                                + Add Vehicles
                             </a>
                         </div>
 
@@ -211,7 +290,7 @@
                 <!-- PROMOTION -->
                 <div class="col-lg-3">
 
-                    <div class="bg-white p-4 rounded shadow-sm">
+                <div class="bg-white p-4 rounded shadow-sm w-100 h-100">
 
                         <h5 class="mb-3">Promotions</h5>
 

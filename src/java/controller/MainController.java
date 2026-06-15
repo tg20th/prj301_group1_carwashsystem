@@ -4,11 +4,13 @@
  */
 package controller;
 
+import dao.BusinessDAO;
 import dao.VehicleBrandDAO;
 import dao.VehicleDAO;
 import dao.VehicleModelDAO;
 import dto.Account;
 import dao.VehicleModelDAO;
+import dto.Business;
 import dto.Vehicle;
 import dto.VehicleBrand;
 import dto.VehicleModel;
@@ -74,13 +76,15 @@ public class MainController extends HttpServlet {
                         url = "index.jsp";
                         break;
                     }
-                    if (acc.getRoleID() == 3) {
+                    Business bus = (Business) request.getSession().getAttribute("BUS");
+                    if (bus != null) {
                         url = "BusinessDashboardController";
-                    } else if (acc.getRoleID() == 1) {
-                        url = "admin_dashbroad.jsp";
                     } else {
                         url = "CustomerDashBoardController";
                     }
+                    break;
+                case "pending_page":
+                    url = "pending_page.jsp";
                     break;
                 case "AddVehicle_page":
                     url = "addVehicle.jsp";
@@ -101,8 +105,10 @@ public class MainController extends HttpServlet {
                             VehicleBrand b = brands.get(i);
                             String name = b.getBrandName().replace("\"", "\\\"");
                             json.append("{\"brandID\":").append(b.getBrandID())
-                                .append(",\"brandName\":\"").append(name).append("\"}");
-                            if (i < brands.size() - 1) json.append(",");
+                                    .append(",\"brandName\":\"").append(name).append("\"}");
+                            if (i < brands.size() - 1) {
+                                json.append(",");
+                            }
                         }
                         json.append("],\"models\":[");
 
@@ -110,9 +116,11 @@ public class MainController extends HttpServlet {
                             VehicleModel m = models.get(i);
                             String name = m.getModelName().replace("\"", "\\\"");
                             json.append("{\"modelID\":").append(m.getModelID())
-                                .append(",\"brandID\":").append(m.getBrandID())
-                                .append(",\"modelName\":\"").append(name).append("\"}");
-                            if (i < models.size() - 1) json.append(",");
+                                    .append(",\"brandID\":").append(m.getBrandID())
+                                    .append(",\"modelName\":\"").append(name).append("\"}");
+                            if (i < models.size() - 1) {
+                                json.append(",");
+                            }
                         }
                         json.append("]}");
 
@@ -152,16 +160,15 @@ public class MainController extends HttpServlet {
                 case "saveaccount":
                     url = "SaveAccountController";
                     break;
-                case "BusinessDashboard":
-                    url = "BusinessDashboardController";
-                    break;
                 case "AddBusinessVehicle_page":
                     url = "addBusinessVehicle.jsp";
                     break;
                 case "AddBusinessVehicles":
                     url = "AddBusinessVehiclesController";
                     break;
-
+                case "resubmit_registration":
+                    url = "UpdateRegistrationController";
+                    break;
                 default:
                     url = "index.jsp";
                     break;
@@ -169,6 +176,11 @@ public class MainController extends HttpServlet {
             request.getRequestDispatcher(url).forward(request, response);
         } catch (Exception e) {
             e.printStackTrace();
+            try {
+                response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Internal server error: " + e.getMessage());
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
         }
     }
 

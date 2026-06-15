@@ -101,6 +101,12 @@ public class SaveAccountController extends HttpServlet {
 
         } catch (Exception e) {
             e.printStackTrace();
+            try {
+                request.setAttribute("error", "System error occurred while saving account: " + e.getMessage());
+                request.getRequestDispatcher("error_page.jsp").forward(request, response);
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
         }
 
     }

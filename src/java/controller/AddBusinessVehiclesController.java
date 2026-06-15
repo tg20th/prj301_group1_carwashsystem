@@ -7,6 +7,7 @@ package controller;
 import dao.CustomerDAO;
 import dao.VehicleDAO;
 import dto.Account;
+import dto.Business;
 import dto.Customer;
 import dto.Vehicle;
 import java.io.BufferedOutputStream;
@@ -106,6 +107,12 @@ public class AddBusinessVehiclesController extends HttpServlet {
                 response.sendRedirect("MainController?action=home");
                 return;
             }
+            Business business = (Business) request.getSession().getAttribute("BUS");
+            if (business == null) {
+                response.sendRedirect("MainController?action=home");
+                return;
+            }
+            
             // --- THÊM MỚI: Lấy CustomerID từ Session ---
             // Load fresh Customer to get reliable cusID (more robust)
             CustomerDAO cusDAO = new CustomerDAO();
@@ -152,10 +159,15 @@ public class AddBusinessVehiclesController extends HttpServlet {
             request.setAttribute("SUCCESS", "Uploaded " + successCount + " vehicles successfully.");
         } catch (Exception e) {
             e.printStackTrace();
-            request.setAttribute("ERROR", "Upload failed");
-            request.getRequestDispatcher("addBusinessVehicle.jsp").forward(request, response);
+            try {
+                request.setAttribute("ERROR", "Upload failed: " + e.getMessage());
+                request.getRequestDispatcher("error_page.jsp").forward(request, response);
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+            return; // prevent double forward
         }
-        request.getRequestDispatcher("MainController?action=BusinessDashboard").forward(request, response);
+        response.sendRedirect("MainController?action=dashboard");
     } // ========================= // UNZIP METHOD // =========================
 
     private void unzip(String zipFilePath, String destDirectory) throws IOException {

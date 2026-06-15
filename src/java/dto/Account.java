@@ -2,6 +2,7 @@
 package dto;
 
 import java.sql.Date;
+import java.sql.Timestamp;
 
 public class Account {
     private int accountID;
@@ -13,6 +14,8 @@ public class Account {
     private String email;
     private String status;
     private Date createAt;
+    private java.sql.Timestamp lastLoginAt; 
+    private String reasonRejected;
 
     public Account() {
     }
@@ -87,6 +90,18 @@ public class Account {
         this.createAt = createAt;
     }
 
+    public Account(int accountID, String firstName, String lastName, String password, String phone, String email, String status) {
+        this.accountID = accountID;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.password = password;
+        this.phone = phone;
+        this.email = email;
+        this.status = status;
+    }
+    
+    
+
     public int getAccountID() {
         return accountID;
     }
@@ -157,6 +172,14 @@ public class Account {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public Timestamp getLastLoginAt() {
+        return lastLoginAt;
+    }
+
+    public void setLastLoginAt(Timestamp lastLoginAt) {
+        this.lastLoginAt = lastLoginAt;
     }
     
 }

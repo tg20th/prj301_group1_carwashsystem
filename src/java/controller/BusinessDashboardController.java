@@ -45,7 +45,7 @@ public class BusinessDashboardController extends HttpServlet {
         try {
             Account account = (Account) request.getSession().getAttribute("ACCOUNT");
             if (account == null) {
-                response.sendRedirect("login.jsp");
+                response.sendRedirect("MainController?action=home");
                 return;
             }
             CustomerDAO cusDAO = new CustomerDAO();
@@ -58,7 +58,7 @@ public class BusinessDashboardController extends HttpServlet {
             Customer customer = cusDAO.getCustomerByAccountID(account.getAccountID());
             if (customer != null) {
                 int pointBalance = cusDAO.getPointBalance(account.getAccountID());
-                request.setAttribute("BUSINESS", bizDAO.getBussinessByID(String.valueOf(customer.getCusID())));
+                request.setAttribute("BUSINESS", bizDAO.getBussinessByCusID(customer.getCusID()));
                 request.setAttribute("VEHICLE_LIST", vDao.getVehiclesByCustomerID(customer.getCusID()));
                 request.setAttribute("PROMO_LIST", promoDAO.getApplicablePromotions(customer.getCusID(), customer.getTierID()));
                 request.setAttribute("POINT_BALANCE", pointBalance);
@@ -70,8 +70,12 @@ public class BusinessDashboardController extends HttpServlet {
             request.getRequestDispatcher("businessDashboard.jsp").forward(request, response);
         } catch (Exception e) {
             e.printStackTrace();
-            request.setAttribute("ERROR", "Unable to load dashboard data: " + e.getMessage());
-            request.getRequestDispatcher("businessDashboard.jsp").forward(request, response);
+            try {
+                request.setAttribute("ERROR", "Unable to load dashboard data: " + e.getMessage());
+                request.getRequestDispatcher("error_page.jsp").forward(request, response);
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
         }
     }
 
@@ -87,6 +91,22 @@ public class BusinessDashboardController extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+
+        HttpSession session = request.getSession(false);
+
+        // chưa login
+        if (session == null || session.getAttribute("ACCOUNT") == null) {
+            response.sendRedirect("index.jsp");
+            return;
+        }
+
+        // không phải business
+        if (session.getAttribute("BUS") == null) {
+            response.sendRedirect("MainController?action=dashboard");
+            return;
+        }
+
+        // đúng business account
         processRequest(request, response);
     }
 
