@@ -70,19 +70,19 @@ public class MainController extends HttpServlet {
                 case "logout":
                     url = "LogoutController";
                     break;
-                case "dashboard":
-                    Account acc = (Account) request.getSession().getAttribute("ACCOUNT");
-                    if (acc == null) {
-                        url = "index.jsp";
-                        break;
-                    }
-                    Business bus = (Business) request.getSession().getAttribute("BUS");
-                    if (bus != null) {
-                        url = "BusinessDashboardController";
-                    } else {
-                        url = "CustomerDashBoardController";
-                    }
-                    break;
+//                case "dashboard":
+//                    Account acc = (Account) request.getSession().getAttribute("ACCOUNT");
+//                    if (acc == null) {
+//                        url = "index.jsp";
+//                        break;
+//                    }
+//                    Business bus = (Business) request.getSession().getAttribute("BUS");
+//                    if (bus != null) {
+//                        url = "BusinessDashboardController";
+//                    } else {
+//                        url = "CustomerDashBoardController";
+//                    }
+//                    break;
                 case "pending_page":
                     url = "pending_page.jsp";
                     break;
