@@ -122,7 +122,7 @@ public class BusinessDAO {
     public Business getBussinessByName(String name) {
         Business result = null;
         String sql = "SELECT [CustomerID]\n"
-                + "      ,[TaxCode]\n"
+                + "      ,[TaxCode], [CompanyName]\n"
                 + "      ,[CompanyAddress]\n"
                 + "  FROM [AutoWashProDB].[dbo].[BusinessCustomers] \n"
                 + "  WHERE [CompanyName] = ?";
@@ -135,6 +135,7 @@ public class BusinessDAO {
         Business result = null;
         String sql = "SELECT [CustomerID]\n"
                 + "      ,[CompanyName]\n"
+                + "      ,[TaxCode]\n"
                 + "      ,[CompanyAddress]\n"
                 + "  FROM [AutoWashProDB].[dbo].[BusinessCustomers] \n"
                 + "  WHERE [TaxCode] = ?";
@@ -204,7 +205,7 @@ public class BusinessDAO {
                 String address = table.getString("CompanyAddress");
                 String status = table.getString("Status");
 
-                Business b = new Business(id, name, email, phone, status, companyName, tax, address  );
+                Business b = new Business(id, name, email, phone, status, companyName, tax, address);
                 list.add(b);
             }
 
@@ -222,91 +223,5 @@ public class BusinessDAO {
 
         return list;
     }
-    
-    public int approveBusRequire(int id) {
-        int result = 0;
-        Connection cn = null;
-        
-        try {
-            cn = DBUtils.getConnection();
-            String sql = "  UPDATE Accounts SET Status = 'Active' WHERE AccountID = ?";
 
-            PreparedStatement st = cn.prepareStatement(sql);
-            st.setInt(1, id);
-
-            result = st.executeUpdate();
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                if (cn != null) {
-                    cn.close();
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-
-        return result;
-    }
-    
-    public int rejectBusinessRequire(int id) {
-        int result = 0;
-        Connection cn = null;
-        
-        try {
-            cn = DBUtils.getConnection();
-            String sql = "  UPDATE Accounts SET Status = 'Rejected' WHERE AccountID = ?";
-
-            PreparedStatement st = cn.prepareStatement(sql);
-            st.setInt(1, id);
-
-            result = st.executeUpdate();
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                if (cn != null) {
-                    cn.close();
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-
-        return result;
-    }
-    
-    public int descripReasonReject(int id, String descrip) {
-        int result = 0;
-        Connection cn = null;
-        
-        try {
-            cn = DBUtils.getConnection();
-            String sql = "  UPDATE [dbo].[BusinessCustomers] SET [RejectReason] = ? WHERE CustomerID = ?";
-
-            PreparedStatement st = cn.prepareStatement(sql);
-            st.setString(1, descrip);
-            st.setInt(2, id);
-
-            result = st.executeUpdate();
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                if (cn != null) {
-                    cn.close();
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-
-        return result;
-    }
-    
-    
 }

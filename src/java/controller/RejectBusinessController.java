@@ -4,8 +4,10 @@
  */
 package controller;
 
+import dao.AccountDAO;
 import dao.BusinessDAO;
 import dao.CustomerDAO;
+import dto.Account;
 import dto.Business;
 import dto.Customer;
 import java.io.IOException;
@@ -35,36 +37,26 @@ public class RejectBusinessController extends HttpServlet {
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         //lấy thông tin admin nhập
-        int id = Integer.parseInt(request.getParameter("id"));
+        int id = Integer.parseInt(request.getParameter("id")); //id cua account
         String description = request.getParameter("reason");
 
         //lấy ra customer cần chỉnh sửa
-        CustomerDAO cd = new CustomerDAO();
-        Customer findCus = cd.getCustomerByAccountID(id);
+        AccountDAO ad = new AccountDAO();
 
         int result = 0;
 
-        BusinessDAO bd = new BusinessDAO();
-
         //update trạng thái account
-        result = bd.rejectBusinessRequire(id);
+        result = ad.updateStatusOfAccount(id, "Rejected", description);
 
         if (result < 1) {
             request.setAttribute("error", "Cannot reject right now. Please try again!");
         } else {
-            result = bd.descripReasonReject(findCus.getCusID(), description);
-
-            if (result < 1) {
-                request.setAttribute("error", "Cannot update reject reason. Please try again!");
-            } else {
-                request.setAttribute("success", "Reject successfully!");    
-            }
+            request.setAttribute("success", "Reject successfully!");
 
         }
         request.getRequestDispatcher("BusinessRequestsController").forward(request, response);
 
     }
-
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
     /**

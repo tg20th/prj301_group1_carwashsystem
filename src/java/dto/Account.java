@@ -15,6 +15,7 @@ public class Account {
     private String status;
     private Date createAt;
     private java.sql.Timestamp lastLoginAt; 
+    private String reasonRejected;
 
     public Account() {
     }
@@ -88,6 +89,18 @@ public class Account {
         this.email = email;
         this.createAt = createAt;
     }
+
+    public Account(int accountID, String firstName, String lastName, String password, String phone, String email, String status) {
+        this.accountID = accountID;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.password = password;
+        this.phone = phone;
+        this.email = email;
+        this.status = status;
+    }
+    
+    
 
     public int getAccountID() {
         return accountID;

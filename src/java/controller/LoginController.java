@@ -79,19 +79,6 @@ public class LoginController extends HttpServlet {
             return;
         }
 
-//tung: 14/6 check status tài khoản 
-        String status = account.isStatus();
-        if ("Rejected".equalsIgnoreCase(status)) {
-            // Bắn thẳng đến trang pending thay vì qua MainController (tránh lỗi getRequestDispatcher sai cú pháp)
-            request.getRequestDispatcher("pending_page.jsp").forward(request, response);
-            return;
-        } else if ("Pending".equalsIgnoreCase(status)) {
-            // TODO: replace with direct forward to ResubmitRegistController once implemented
-            request.setAttribute("error", "Your business registration is pending approval. Please wait for admin review.");
-            request.getRequestDispatcher("pending_page.jsp").forward(request, response);
-            return;
-        }
-
         // update thời gian đăng nhập
         accountDAO.updateLastLogin(account.getAccountID());
 
@@ -105,6 +92,19 @@ public class LoginController extends HttpServlet {
         if (roleID == 1) {
             // Admin
             request.getRequestDispatcher("AdminDashboardController").forward(request, response);
+            return;
+        }
+        
+        //tung: 14/6 check status tài khoản 
+        String status = account.isStatus();
+        if ("Rejected".equalsIgnoreCase(status)) {
+            // Bắn thẳng đến trang pending thay vì qua MainController (tránh lỗi getRequestDispatcher sai cú pháp)
+            request.getRequestDispatcher("ResubmitRegistController").forward(request, response);
+            return;
+        } else if ("Pending".equalsIgnoreCase(status)) {
+            // TODO: replace with direct forward to ResubmitRegistController once implemented
+            request.setAttribute("error", "Your business registration is pending approval. Please wait for admin review.");
+            request.getRequestDispatcher("pending_page.jsp").forward(request, response);
             return;
         }
 
