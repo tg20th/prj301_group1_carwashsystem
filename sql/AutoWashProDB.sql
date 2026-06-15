@@ -25,7 +25,7 @@ CREATE TABLE Roles (
 );
 
 -- =====================================================
--- 2. ACCOUNTS
+-- 2. ACCOUNTS (UPDATED WITH REJECT REASON)
 -- =====================================================
 CREATE TABLE Accounts (
     AccountID INT IDENTITY(1,1) PRIMARY KEY,
@@ -39,6 +39,7 @@ CREATE TABLE Accounts (
     LastName NVARCHAR(50) NOT NULL,
 
     Status NVARCHAR(30) NOT NULL DEFAULT 'Pending',
+    RejectReason NVARCHAR(255) NULL, -- Thêm vào đây: Lưu lý do từ chối (e.g., "Invalid Tax Code", "Spam account")
 
     LastLoginAt DATETIME NULL,
     CreatedAt DATETIME NOT NULL DEFAULT GETDATE(),
@@ -46,7 +47,7 @@ CREATE TABLE Accounts (
     CONSTRAINT FK_Accounts_Roles FOREIGN KEY(RoleID) REFERENCES Roles(RoleID),
     CONSTRAINT CK_Accounts_Status CHECK (Status IN ('Pending', 'Active', 'Frozen', 'Rejected'))
 );
-
+GO
 -- =====================================================
 -- 3. LOYALTY TIERS
 -- =====================================================
@@ -192,18 +193,18 @@ CREATE TABLE WashBays (
 );
 
 -- =====================================================
--- 12.5. TIME SLOTS (for customer booking / availability management)
+-- 12.5. TIME SLOTS
 -- =====================================================
 CREATE TABLE TimeSlots (
     TimeSlotID INT IDENTITY(1,1) PRIMARY KEY,
-    StartTime DATETIME NOT NULL,     -- Local datetime (app treats as local time)
-    EndTime DATETIME NOT NULL,       -- Local datetime (app treats as local time)
+    StartTime DATETIME NOT NULL,
+    EndTime DATETIME NOT NULL,
     IsAvailable BIT NOT NULL DEFAULT 1
 );
 GO
 
 -- =====================================================
--- 13. PROMOTIONS (UPGRADED FOR TARGETED MARKETING)
+-- 13. PROMOTIONS
 -- =====================================================
 CREATE TABLE Promotions (
     PromotionID INT IDENTITY(1,1) PRIMARY KEY,
@@ -229,7 +230,7 @@ CREATE TABLE Promotions (
 );
 
 -- =====================================================
--- 13.1. PROMOTION TIERS (Many-to-Many Mapping)
+-- 13.1. PROMOTION TIERS
 -- =====================================================
 CREATE TABLE PromotionTiers (
     PromotionID INT NOT NULL,
@@ -240,7 +241,7 @@ CREATE TABLE PromotionTiers (
 );
 
 -- =====================================================
--- 13.2. PROMOTION CUSTOMERS (Many-to-Many Mapping)
+-- 13.2. PROMOTION CUSTOMERS
 -- =====================================================
 CREATE TABLE PromotionCustomers (
     PromotionID INT NOT NULL,
@@ -284,7 +285,7 @@ CREATE TABLE Rewards (
 CREATE TABLE PointTransactions (
     TransactionID INT IDENTITY(1,1) PRIMARY KEY,
     CustomerID INT NOT NULL,
-    InvoiceID INT NULL, -- Handled safely in separate constraint below
+    InvoiceID INT NULL, 
 
     PointChange INT NOT NULL,
     TransactionType NVARCHAR(30) NOT NULL,
@@ -313,7 +314,7 @@ CREATE TABLE CustomerRewards (
 );
 
 -- =====================================================
--- 17. INVOICES (UPGRADED FOR BILL CONSOLIDATION / B2B)
+-- 17. INVOICES
 -- =====================================================
 CREATE TABLE Invoices (
     InvoiceID INT IDENTITY(1,1) PRIMARY KEY,
@@ -347,23 +348,22 @@ FOREIGN KEY (InvoiceID) REFERENCES Invoices(InvoiceID);
 GO
 
 -- =====================================================
--- 18. BOOKINGS (Mỗi booking chỉ 1 dịch vụ, 1 invoice chứa nhiều booking, liên kết TimeSlot)
+-- 18. BOOKINGS
 -- =====================================================
 CREATE TABLE Bookings (
     BookingID INT IDENTITY(1,1) PRIMARY KEY,
     CustomerID INT NOT NULL,
     VehicleID INT NOT NULL,
-    ServiceID INT NOT NULL,           -- Thêm: Mỗi booking 1 dịch vụ
+    ServiceID INT NOT NULL,           
     WashBayID INT NULL,
-    TimeSlotID INT NULL,              -- Liên kết đến khung giờ đặt trước (TimeSlots)
-    InvoiceID INT NULL,               -- 1 Invoice có thể chứa nhiều Booking
+    TimeSlotID INT NULL,              
+    InvoiceID INT NULL,               
 
     Quantity INT NOT NULL DEFAULT 1,
     PriceAtOrder DECIMAL(18,0) NOT NULL,
     DurationAtOrder INT NOT NULL,
 
     BookingDate DATETIME NOT NULL DEFAULT GETDATE(),
-    AppointmentTime DATETIME NOT NULL,
     Status NVARCHAR(30) NOT NULL DEFAULT 'Pending',
     Notes NVARCHAR(255),
 
@@ -378,7 +378,7 @@ CREATE TABLE Bookings (
 GO
 
 -- =====================================================
--- 19. BOOKING DETAILS (CORE LINE ITEM SERVICES)
+-- 19. BOOKING DETAILS
 -- =====================================================
 CREATE TABLE BookingDetails (
     BookingDetailID INT IDENTITY(1,1) PRIMARY KEY,
