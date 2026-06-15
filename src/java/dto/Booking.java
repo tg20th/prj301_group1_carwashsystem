@@ -25,6 +25,20 @@ public class Booking {
     private String licensePlate;
     private String service;
     private TimeSlot timeslot;
+    private String vehicleType;
+    private String vehicleName;
+    
+    //dùng để lấy full infor booking trong ngày
+    public Booking(int bookingID, String status, String cusName, String licensePlate, String service, TimeSlot timeslot, String vehicleType, String vehicleName) {
+        this.bookingID = bookingID;
+        this.status = status;
+        this.cusName = cusName;
+        this.licensePlate = licensePlate;
+        this.service = service;
+        this.timeslot = timeslot;
+        this.vehicleType = vehicleType;
+        this.vehicleName = vehicleName;
+    }
 
     public Booking(int id, String cusName, String licensePlate, String service, Date bookingDate, LocalDateTime appointmentTime, String status) {
         this.bookingID = id;
@@ -72,14 +86,6 @@ public class Booking {
         this.service = service;
         this.appointmentTime = appointmentTime;
         this.status = status;
-    }
-
-    public int getId() {
-        return bookingID;
-    }
-
-    public void setId(int id) {
-        this.bookingID = id;
     }
 
     public String getCusName() {
@@ -202,5 +208,39 @@ public class Booking {
     public void setNotes(String notes) {
         this.notes = notes;
     }
+
+    public int getBookingID() {
+        return bookingID;
+    }
+
+    public void setBookingID(int bookingID) {
+        this.bookingID = bookingID;
+    }
+
+    public TimeSlot getTimeslot() {
+        return timeslot;
+    }
+
+    public void setTimeslot(TimeSlot timeslot) {
+        this.timeslot = timeslot;
+    }
+
+    public String getVehicleType() {
+        return vehicleType;
+    }
+
+    public void setVehicleType(String vehicleType) {
+        this.vehicleType = vehicleType;
+    }
+
+    public String getVehicleName() {
+        return vehicleName;
+    }
+
+    public void setVehicleName(String vehicleName) {
+        this.vehicleName = vehicleName;
+    }
+    
+    
 
 }
