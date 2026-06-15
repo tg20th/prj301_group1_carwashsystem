@@ -107,4 +107,34 @@ public class BookingDAO {
         }
         return list;
     }
+    
+    public int updateStatusOfBooking(int id, String status) {
+        int result = 0;
+        Connection cn = null;
+
+        try {
+            cn = DBUtils.getConnection();
+            String sql = "UPDATE Bookings SET Status = ? WHERE BookingID = ?";
+
+            PreparedStatement st = cn.prepareStatement(sql);
+            st.setString(1, status);
+            st.setInt(2, id);
+
+            result = st.executeUpdate();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (cn != null) {
+                    cn.close();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        return result;
+    }
+
 }

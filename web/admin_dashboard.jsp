@@ -401,7 +401,7 @@
                                 <div class="d-flex align-items-start <%= borderClass%>">
                                     <i class="bi bi-circle-fill text-dark me-3" style="font-size: 0.4rem; margin-top: 0.4rem;"></i>
                                     <div>
-                                        <h6 class="fw-bold mb-1 text-dark small"><%= promo.getName()%></h6>
+                                        <h6 class="fw-bold mb-1 text-dark small"><%= promo.getPromotionName()%></h6>
                                         <span class="d-block text-dark fw-medium mb-1" style="font-size: 0.85rem;">
                                             <%= promo.getDescription()%>
                                         </span>
