@@ -74,6 +74,20 @@ public class BookingProcessController extends HttpServlet {
                 } else {
                     request.setAttribute("success", "Check out successfully!");
                 }
+            } else if ("confirm".equals(action)) {
+                result = bd.confirmBooking(bookingId);
+                if (result < 1) {
+                    request.setAttribute("error", "Confirm booking failed. Please try again!");
+                } else {
+                    request.setAttribute("success", "Booking confirmed successfully!");
+                }
+            } else if ("cancel".equals(action)) {
+                result = bd.cancelBooking(bookingId);
+                if (result < 1) {
+                    request.setAttribute("error", "Cancel booking failed. Please try again!");
+                } else {
+                    request.setAttribute("success", "Booking cancelled. Time slot is now available.");
+                }
             }
         }
         request.getRequestDispatcher("ManageBookingsController").forward(request, response);
