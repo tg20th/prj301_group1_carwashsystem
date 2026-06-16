@@ -36,6 +36,8 @@
 
     LocalDate today = LocalDate.now();
     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+    // Tạo thêm formatter cho giờ đặt lịch
+    DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm - dd/MM/yyyy");
 %>
 
 <html lang="en">
@@ -297,7 +299,7 @@
                     <div class="bg-white p-4 rounded-4 shadow-sm border border-light h-100 d-flex flex-column">
                         <div class="d-flex justify-content-between align-items-center mb-4">
                             <h6 class="fw-bold m-0 text-dark">Recent Bookings</h6>
-                            <a href="ManageBookingsController" class="small text-muted text-decoration-none hover-dark">View All</a>
+                            <a href="ManageBookingsController" class="small text-muted text-decoration-none hover-dark">View Details</a>
                         </div>
 
                         <% if (listBooking == null || listBooking.isEmpty()) { %>
@@ -343,12 +345,12 @@
                                             }
                                     %>
                                     <tr class="border-bottom border-light">
-                                        <td class="text-muted small ps-2"><%= b.getId()%></td>
+                                        <td class="text-muted small ps-2"><%= b.getBookingID()%></td>
                                         <td class="fw-medium text-dark"><%= b.getCusName()%></td>
                                         <td class="text-muted small"><%= b.getLicensePlate()%></td>
                                         <td class="text-dark small"><%= b.getService()%></td>
                                         <td class="text-muted small">
-                                            <span class="d-block text-dark"><%= new java.text.SimpleDateFormat("dd/MM/yyyy").format(b.getBookingDate()) %></span>
+                                            <span class="d-block text-dark fw-medium"><%= b.getTimeslot().getStart().format(timeFormatter) %></span>
                                         </td>
                                         <td class="text-center">
                                             <span class="badge <%= badgeColor%> border border-opacity-25" style="font-size: 0.7rem;">
@@ -356,11 +358,11 @@
                                             </span>
                                         </td>
                                     </tr>
-                                    <% } // Đóng vòng lặp %>
+                                    <% } %>
                                 </tbody>
                             </table>
                         </div>
-                        <% } // Đóng if-else %>
+                        <% } %>
                     </div>
                 </div>
 
@@ -399,7 +401,7 @@
                                 <div class="d-flex align-items-start <%= borderClass%>">
                                     <i class="bi bi-circle-fill text-dark me-3" style="font-size: 0.4rem; margin-top: 0.4rem;"></i>
                                     <div>
-                                        <h6 class="fw-bold mb-1 text-dark small"><%= promo.getName()%></h6>
+                                        <h6 class="fw-bold mb-1 text-dark small"><%= promo.getPromotionName()%></h6>
                                         <span class="d-block text-dark fw-medium mb-1" style="font-size: 0.85rem;">
                                             <%= promo.getDescription()%>
                                         </span>

@@ -2,6 +2,7 @@ package dao;
 
 import dbutils.DBUtils;
 import dto.Booking;
+import dto.TimeSlot;
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.PreparedStatement;
@@ -28,7 +29,7 @@ public class BookingDAO {
 
         try ( Connection cn = DBUtils.getConnection();  PreparedStatement st = cn.prepareStatement(sql)) {
 
-            st.setInt(1, b.getId());
+            st.setInt(1, b.getBookingID());
             st.setInt(2, b.getCustomerID());
             st.setInt(3, b.getVehicleID());
             st.setInt(4, b.getServiceID());
@@ -56,16 +57,20 @@ public class BookingDAO {
 
         try {
             cn = DBUtils.getConnection();
-            String sql = "SELECT b.BookingID, a.FirstName + ' ' + a.LastName AS FullName, \n"
-                    + "v.LicensePlate, s.ServiceName, b.AppointmentTime,b.Status, b. BookingDate\n"
-                    + "FROM [dbo].[Bookings] b\n"
-                    + "JOIN [dbo].[Customers] c ON b.[CustomerID] = c.CustomerID\n"
+            String sql = "SELECT b.BookingID, a.LastName + ' ' + a.FirstName AS FullName, \n"
+                    + "v.LicensePlate, vb.BrandName + ' ' + vm.ModelName AS VehicleName,\n"
+                    + "vt.TypeName, s.ServiceName, t.TimeSlotID, t.StartTime, t.EndTime, b.Status\n"
+                    + "FROM Bookings b JOIN TimeSlots t \n"
+                    + "ON b.TimeSlotID = t.TimeSlotID\n"
+                    + "JOIN Customers c ON c.CustomerID = b.CustomerID\n"
+                    + "JOIN Accounts a ON a.AccountID = c.AccountID\n"
                     + "JOIN Vehicles v ON v.VehicleID = b.VehicleID\n"
-                    + "JOIN BookingDetails bd ON bd.BookingID = b.BookingID\n"
-                    + "JOIN Services s ON s.ServiceID = bd.ServiceID\n"
-                    + "JOIN Accounts a ON c.AccountID = a.AccountID\n"
-                    + "WHERE b.BookingDate >= CAST(GETDATE() AS DATE)\n"
-                    + "AND b.BookingDate < DATEADD(DAY, 1, CAST(GETDATE() AS DATE))";
+                    + "JOIN Services s ON s.ServiceID = b.ServiceID\n"
+                    + "JOIN VehicleModels vm ON v.ModelID = vm.ModelID\n"
+                    + "JOIN VehicleBrands vb ON vb.BrandID = vm.BrandID\n"
+                    + "JOIN VehicleTypes vt ON vt.VehicleTypeID = vm.VehicleTypeID\n"
+                    + "WHERE t.IsAvailable = 0 AND\n"
+                    + "t.StartTime >= CAST(GETDATE() AS DATE) AND t.StartTime < DATEADD(DAY, 1, CAST(GETDATE() AS DATE))";
 
             PreparedStatement st = cn.prepareStatement(sql);
             ResultSet table = st.executeQuery();
@@ -74,13 +79,16 @@ public class BookingDAO {
                 int id = table.getInt("BookingID");
                 String name = table.getString("FullName");
                 String licensePlate = table.getString("LicensePlate");
+                String vehicleName = table.getString("VehicleName");
+                String typeName = table.getString("TypeName");
                 String service = table.getString("ServiceName");
-                LocalDateTime appointmentTime
-                        = table.getTimestamp("AppointmentTime").toLocalDateTime();
-                Date bookingDate = table.getDate("BookingDate");
+                LocalDateTime startTime = table.getTimestamp("StartTime").toLocalDateTime();
+                LocalDateTime endTime = table.getTimestamp("EndTime").toLocalDateTime();
+                String timeSlotID = table.getString("TimeSlotID");
                 String status = table.getString("Status");
 
-                Booking b = new Booking(id, name, licensePlate, service, bookingDate, appointmentTime, status);
+                TimeSlot t = new TimeSlot(timeSlotID, startTime, endTime, true);
+                Booking b = new Booking(id, status, name, licensePlate, service, t, typeName, vehicleName);
 
                 list.add(b);
 
@@ -99,4 +107,34 @@ public class BookingDAO {
         }
         return list;
     }
+    
+    public int updateStatusOfBooking(int id, String status) {
+        int result = 0;
+        Connection cn = null;
+
+        try {
+            cn = DBUtils.getConnection();
+            String sql = "UPDATE Bookings SET Status = ? WHERE BookingID = ?";
+
+            PreparedStatement st = cn.prepareStatement(sql);
+            st.setString(1, status);
+            st.setInt(2, id);
+
+            result = st.executeUpdate();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (cn != null) {
+                    cn.close();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        return result;
+    }
+
 }

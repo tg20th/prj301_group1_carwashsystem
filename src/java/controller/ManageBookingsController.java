@@ -4,11 +4,7 @@
  */
 package controller;
 
-import dao.BusinessDAO;
-import dao.CustomerDAO;
-import dbutils.EmailUtils;
-import dto.Business;
-import dto.Customer;
+import dao.BookingDAO;
 import java.io.IOException;
 import java.io.PrintWriter;
 import javax.servlet.ServletException;
@@ -21,8 +17,8 @@ import javax.servlet.http.HttpServletResponse;
  *
  * @author Lan
  */
-@WebServlet(name = "ApproveBusinessController", urlPatterns = {"/ApproveBusinessController"})
-public class ApproveBusinessController extends HttpServlet {
+@WebServlet(name = "ManageBookingsController", urlPatterns = {"/ManageBookingsController"})
+public class ManageBookingsController extends HttpServlet {
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -35,29 +31,9 @@ public class ApproveBusinessController extends HttpServlet {
      */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        int id = Integer.parseInt(request.getParameter("id"));
-        BusinessDAO bd = new BusinessDAO();
-        
-        //lấy ra customer cần chỉnh sửa
-        CustomerDAO cd = new CustomerDAO();
-        Customer findCus = cd.getCustomerByAccountID(id);
-
-        int result = 0;
-
-
-        //update trạng thái account
-
-        result = bd.approveBusRequire(id);
-        
-        if(result < 1) {
-            request.setAttribute("error", "Approve fail. Please try again!");
-        } else {
-            request.setAttribute("success", "Approve successfully!");
-            Business b = bd.getBussinessByCusID(findCus.getCusID());
-            EmailUtils.sendApproveEmail(b.getEmail(), b.getBusinessName());
-            
-        }
-        request.getRequestDispatcher("BusinessRequestsController").forward(request, response);
+        BookingDAO b = new BookingDAO();
+        request.setAttribute("LISTOFBOOKING", b.getAllBookToday());
+        request.getRequestDispatcher("booking_viewdetails.jsp").forward(request, response);
     }
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
