@@ -18,7 +18,7 @@ public class EmailUtils {
     private static final String PASSWORD = "5b52135da0f24f";
     
     // Đường dẫn hệ thống (Có thể chuyển vào file config sau này)
-    private static final String SYSTEM_URL = "http://localhost:8080/CarWashSystem_backup/MainController?action=home";
+    private static final String SYSTEM_URL = "http://localhost:8080/CarWashSystem/MainController?action=home";
 
     private static Session getSession() {
         Properties props = new Properties();
