@@ -223,5 +223,62 @@ public class BusinessDAO {
 
         return list;
     }
+    
+    public int approveBusRequire(int id) {
+        int result = 0;
+        Connection cn = null;
+        
+        try {
+            cn = DBUtils.getConnection();
+            String sql = "  UPDATE Accounts SET Status = 'Active' WHERE AccountID = ?";
+
+            PreparedStatement st = cn.prepareStatement(sql);
+            st.setInt(1, id);
+
+            result = st.executeUpdate();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (cn != null) {
+                    cn.close();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        return result;
+    }
+    
+    public int rejectBusinessRequire(int id, String descrip) {
+        int result = 0;
+        Connection cn = null;
+        
+        try {
+            cn = DBUtils.getConnection();
+            String sql = "  UPDATE Accounts SET Status = 'Rejected', [RejectReason] = ? WHERE AccountID = ?";
+
+            PreparedStatement st = cn.prepareStatement(sql);
+            st.setString(1, descrip);
+            st.setInt(2, id);
+
+            result = st.executeUpdate();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (cn != null) {
+                    cn.close();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        return result;
+    }
 
 }
