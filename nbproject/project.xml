@@ -6,9 +6,6 @@
             <name>CarWashSystem</name>
             <minimum-ant-version>1.6.5</minimum-ant-version>
             <web-module-libraries>
-                <!-- Portable references to jars committed in this repository.
-                     These allow collaborators to open the project in NetBeans
-                     without resolving absolute paths from the original machine. -->
                 <library dirs="200">
                     <file>${file.reference.sqljdbc4.jar}</file>
                     <path-in-war>WEB-INF/lib</path-in-war>
@@ -19,6 +16,10 @@
                 </library>
                 <library dirs="200">
                     <file>${file.reference.servlet-api.jar}</file>
+                    <path-in-war>WEB-INF/lib</path-in-war>
+                </library>
+                <library dirs="200">
+                    <file>${file.reference.javax.mail-1.6.2.jar}</file>
                     <path-in-war>WEB-INF/lib</path-in-war>
                 </library>
             </web-module-libraries>
