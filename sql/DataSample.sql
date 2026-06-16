@@ -273,8 +273,8 @@ INSERT INTO Bookings (BookingID, CustomerID, VehicleID, ServiceID, WashBayID, Ti
 (3, 2, 2, 3, 3, 4, 2, 1, 1200000, 150, GETDATE(), 'Completed', 'Full detailing service'),
 (4, 3, 3, 1, 2, 5, 3, 1, 200000, 40, GETDATE(), 'Completed', 'Standard appointment task'),
 (5, 4, 4, 8, 4, 6, 4, 1, 2500000, 180, GETDATE(), 'Completed', 'VIP ceramic service'),
-(6, 5, 5, 1, 7, 7, 5, 1, 300000, 40, GETDATE(), 'Completed', 'Corporate Fleet Order A'),
-(7, 5, 5, 1, 7, 8, 6, 1, 300000, 40, GETDATE(), 'Completed', 'Corporate Fleet Order B'),
+(6, 5, 5, 1, 7, 7, 5, 1, 300000, 40, GETDATE(), 'Pending', 'Corporate Fleet Order A'),
+(7, 5, 5, 1, 7, 8, 6, 1, 300000, 40, GETDATE(), 'Peding', 'Corporate Fleet Order B'),
 (8, 6, 6, 1, 1, 2, NULL, 1, 180000, 35, GETDATE(), 'Pending', 'Awaiting approval');
 SET IDENTITY_INSERT Bookings OFF;
 GO
