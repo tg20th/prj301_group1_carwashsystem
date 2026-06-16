@@ -48,6 +48,7 @@ CREATE TABLE Accounts (
     CONSTRAINT CK_Accounts_Status CHECK (Status IN ('Pending', 'Active', 'Frozen', 'Rejected'))
 );
 GO
+
 -- =====================================================
 -- 3. LOYALTY TIERS
 -- =====================================================
