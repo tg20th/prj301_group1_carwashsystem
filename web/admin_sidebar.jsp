@@ -1,7 +1,7 @@
 <%@ page pageEncoding="UTF-8" %>
-<aside class="sidebar p-4 shadow-sm d-flex flex-column" style="height: 100vh; position: sticky; top: 0;">
+<aside class="sidebar p-4 shadow-sm">
     <a href="AdminDashboardController" class="text-dark text-decoration-none fw-bold fs-4 mb-4 d-flex align-items-center">
-        <i class="bi bi-vinyl-fill me-2 fs-3 text-primary"></i>EliteAuto
+        <i class="bi bi-vinyl-fill me-2 fs-3 text-dark"></i>EliteAuto
     </a>
 
     <div class="overflow-y-auto flex-grow-1" style="scrollbar-width: none;">
@@ -116,9 +116,5 @@
                 link.classList.add('text-dark');
             }
         });
-
-        if(!foundActive && links.length > 0) {
-            // fallback
-        }
     });
 </script>

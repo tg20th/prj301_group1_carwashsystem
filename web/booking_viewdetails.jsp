@@ -25,7 +25,7 @@
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
         <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-        <link href="css/admin.css?v=1.0" rel="stylesheet">
+        <link href="css/admin.css?v=1.1" rel="stylesheet">
         <style>
             .booking-row {
                 transition: background-color 0.3s ease;
@@ -38,28 +38,7 @@
     </head>
     <body class="admin-body">
 
-        <aside class="sidebar p-4 shadow-sm">
-            <a href="DashboardController" class="text-dark text-decoration-none fw-bold fs-4 mb-4 d-flex align-items-center">
-                <i class="bi bi-vinyl-fill me-2 fs-3 text-dark"></i>EliteAuto
-            </a>
-            <div class="overflow-y-auto" style="scrollbar-width: none;">
-                <ul class="nav flex-column gap-1" id="sidebarMenu">
-                    <li class="nav-item">
-                        <a class="nav-link d-flex align-items-center" href="AdminDashboardController"><i class="bi bi-grid-1x2-fill me-3"></i> Dashboard</a>
-                    </li>
-                    <li class="nav-item mt-3 mb-1"><span class="text-muted small fw-bold text-uppercase" style="font-size: 0.65rem; padding-left: 1rem;">Operations</span></li>
-                    <li class="nav-item"><a class="nav-link d-flex align-items-center" href="CarRequestsController"><i class="bi bi-car-front me-3"></i> Car Requests</a></li>
-                    <li class="nav-item"><a class="nav-link d-flex align-items-center" href="BusinessRequestsController"><i class="bi bi-building me-3"></i> Business Requests</a></li>
-                    <li class="nav-item"><a class="nav-link d-flex align-items-center" href="WashBayMgmtController"><i class="bi bi-droplet me-3"></i> Wash Bay Mgmt</a></li>
-                    <li class="nav-item"><a class="nav-link active d-flex align-items-center" href="SlotScheduleController"><i class="bi bi-calendar-range me-3"></i> Slot Schedule</a></li>
-
-                    <li class="nav-item mt-3 mb-1"><span class="text-muted small fw-bold text-uppercase" style="font-size: 0.65rem; padding-left: 1rem;">Management</span></li>
-                    <li class="nav-item"><a class="nav-link d-flex align-items-center" href="UsersMgmtController"><i class="bi bi-people me-3"></i> Users Mgmt</a></li>
-                    <li class="nav-item"><a class="nav-link d-flex align-items-center" href="RevenueController"><i class="bi bi-graph-up me-3"></i> Revenue</a></li>
-                    <li class="nav-item"><a class="nav-link d-flex align-items-center" href="ManagePromotionsController"><i class="bi bi-ticket-perforated me-3"></i> Promos</a></li>
-                </ul>
-            </div>
-        </aside>
+        <jsp:include page="admin_sidebar.jsp"/>
 
         <main class="main-wrapper p-4 p-lg-5 animate-fade-up">
 

@@ -12,8 +12,8 @@
 body.admin-body {
     background-color: #f9fafb;
     font-family: 'Inter', sans-serif;
-    display: flex;
     overflow-x: hidden;
+    /* Đã xóa display: flex; để tránh xung đột với layout fixed */
 }
 
 /* Sidebar */
@@ -30,7 +30,8 @@ body.admin-body {
 
 /* Main Content */
 .main-wrapper {
-    margin-left: var(--sidebar-width);
+    /* Sử dụng margin-left thay vì chặn lề 0px !important */
+    margin-left: var(--sidebar-width); 
     width: calc(100% - var(--sidebar-width));
     min-height: 100vh;
 }
@@ -145,7 +146,7 @@ body.admin-body {
 /* Soft Badges for Status */
 .badge-soft-warning {
     background-color: rgba(255, 193, 7, 0.15);
-    color: #b38600; /* Màu chữ cam đậm cho dễ đọc */
+    color: #b38600;
 }
 
 .badge-soft-success {
