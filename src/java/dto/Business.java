@@ -1,4 +1,3 @@
-
 package dto;
 
 public class Business {
@@ -18,6 +17,16 @@ public class Business {
     public Business() {
     }
     
+    
+
+    public Business(String contractName, String email, String phone, String businessName, String taxCode, String companyAddress) {
+        this.contractName = contractName;
+        this.email = email;
+        this.phone = phone;
+        this.businessName = businessName;
+        this.taxCode = taxCode;
+        this.companyAddress = companyAddress;
+    }
     
 
     public Business(int accountId, int cusID, String contractName, String email, String phone, String status, String businessName, String taxCode, String companyAddress) {
@@ -60,14 +69,6 @@ public class Business {
         this.companyAddress = companyAddress;
     }
 
-    public Business(String cusName, String email, String phone, String busName, String taxCode, String address) {
-        this.contractName = cusName;
-        this.email = email;
-        this.phone= phone;
-        this.businessName = busName;
-        this.taxCode = taxCode;
-        this.companyAddress = address;
-    }
 
     
 
@@ -106,8 +107,7 @@ public class Business {
     public String getBusinessName() {
         return businessName;
     }
-
-    public void setBusinessName(String businessName) {
+public void setBusinessName(String businessName) {
         this.businessName = businessName;
     }
 

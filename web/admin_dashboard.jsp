@@ -152,19 +152,19 @@
                         <h3 class="fw-bold mb-0 text-dark fs-3"><%= totalVehiclePending%></h3>
                     </div>
                 </div>
-                
+
                 <div class="col-6 col-md-4 col-lg-2">
                     <div class="bg-white p-4 rounded-4 shadow-sm border border-light h-100 transition-hover text-center">
                         <div class="kpi-icon bg-info bg-opacity-10 text-info mb-3 mx-auto"><i class="bi bi-cash-stack"></i></div>
                         <div class="text-muted small mb-1">Revenue Today</div>
-                        <h4 class="fw-bold mb-0 text-dark fs-5 text-nowrap" style="margin-top: 5px;"><%= String.format("%,d", (long) revenueDay) %> đ</h4>
+                        <h4 class="fw-bold mb-0 text-dark fs-5 text-nowrap" style="margin-top: 5px;"><%= String.format("%,d", (long) revenueDay)%> đ</h4>
                     </div>
                 </div>
                 <div class="col-6 col-md-4 col-lg-2">
                     <div class="bg-white p-4 rounded-4 shadow-sm border border-light h-100 transition-hover text-center">
                         <div class="kpi-icon bg-dark bg-opacity-10 text-dark mb-3 mx-auto"><i class="bi bi-wallet-fill"></i></div>
                         <div class="text-muted small mb-1">Revenue Month</div>
-                        <h4 class="fw-bold mb-0 text-dark fs-5 text-nowrap" style="margin-top: 5px;"><%= String.format("%,d", (long) revenueMonth) %> đ</h4>
+                        <h4 class="fw-bold mb-0 text-dark fs-5 text-nowrap" style="margin-top: 5px;"><%= String.format("%,d", (long) revenueMonth)%> đ</h4>
                     </div>
                 </div>
             </div>
@@ -286,7 +286,7 @@
                             %>
                         </div> 
 
-                        <a href="ManageServiceController" class="btn btn-dark w-100 rounded-pill py-2 mt-auto small fw-medium transition-hover text-decoration-none d-flex justify-content-center align-items-center">
+                        <a href="ServiceController?action=list" class="btn btn-dark w-100 rounded-pill py-2 mt-auto small fw-medium transition-hover text-decoration-none d-flex justify-content-center align-items-center">
                             <i class="bi bi-gear me-2"></i>Manage Service
                         </a>
                     </div>
@@ -351,6 +351,7 @@
                                         <td class="text-dark small"><%= b.getService()%></td>
                                         <td class="text-muted small">
                                             <span class="d-block text-dark fw-medium"><%= b.getTimeslot().getStart().format(timeFormatter) %></span>
+
                                         </td>
                                         <td class="text-center">
                                             <span class="badge <%= badgeColor%> border border-opacity-25" style="font-size: 0.7rem;">
@@ -409,7 +410,7 @@
                                             Ends: <%= promo.getEndDate()%>
                                         </span>
                                     </div>
-                               </div>
+                                </div>
                                 <%
                                     }
 
