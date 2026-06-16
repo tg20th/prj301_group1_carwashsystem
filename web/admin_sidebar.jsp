@@ -27,8 +27,8 @@
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link d-flex align-items-center" href="SlotScheduleController">
-                    <i class="bi bi-clock-history me-3"></i> Slot Schedule
+                <a class="nav-link d-flex align-items-center" href="TimeSlotController">
+                    <i class="bi bi-clock-history me-3"></i> Time Slot Management
                 </a>
             </li>
             <li class="nav-item">

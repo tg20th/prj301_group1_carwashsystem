@@ -3,6 +3,7 @@ package dao;
 import dbutils.DBUtils;
 import dto.Booking;
 import dto.TimeSlot;
+import dto.TimeSlotDTO;
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.PreparedStatement;
@@ -20,6 +21,17 @@ import java.util.logging.Logger;
 public class BookingDAO {
 
     public int createBooking(Booking b) {
+        if (b.getTimeSlotID() != null) {
+            TimeSlotDAO slotDao = new TimeSlotDAO();
+            TimeSlotDTO slot = slotDao.getSlotById(b.getTimeSlotID());
+            if (slot == null) {
+                return -1;
+            }
+            if (!TimeSlotDTO.AVAILABLE.equals(slot.getStatus())) {
+                return -2;
+            }
+        }
+
         String sql = "INSERT INTO Bookings "
                 + "(BookingID, CustomerID, VehicleID, ServiceID, "
                 + "WashBayID, TimeSlotID, InvoiceID, Quantity, PriceAtOrder, "
@@ -34,6 +46,11 @@ public class BookingDAO {
             st.setInt(3, b.getVehicleID());
             st.setInt(4, b.getServiceID());
             st.setInt(5, b.getWashBayId());
+            if (b.getTimeSlotID() != null) {
+                st.setInt(6, b.getTimeSlotID());
+            } else {
+                st.setNull(6, java.sql.Types.INTEGER);
+            }
             st.setInt(7, b.getInvoiceID());
             st.setInt(8, b.getQuantity());
             st.setDouble(9, b.getPriceAtOrder());
@@ -43,7 +60,14 @@ public class BookingDAO {
             st.setString(13, b.getStatus());
             st.setString(14, b.getNotes());
 
-            return st.executeUpdate();
+            int result = st.executeUpdate();
+
+            if (result > 0 && b.getTimeSlotID() != null
+                    && ("Confirmed".equalsIgnoreCase(b.getStatus()) || "Pending".equalsIgnoreCase(b.getStatus()))) {
+                new TimeSlotDAO().updateSlotStatus(b.getTimeSlotID(), TimeSlotDTO.UNAVAILABLE);
+            }
+
+            return result;
 
         } catch (ClassNotFoundException | SQLException e) {
             e.printStackTrace();
@@ -69,8 +93,8 @@ public class BookingDAO {
                     + "JOIN VehicleModels vm ON v.ModelID = vm.ModelID\n"
                     + "JOIN VehicleBrands vb ON vb.BrandID = vm.BrandID\n"
                     + "JOIN VehicleTypes vt ON vt.VehicleTypeID = vm.VehicleTypeID\n"
-                    + "WHERE t.IsAvailable = 0 AND\n"
-                    + "t.StartTime >= CAST(GETDATE() AS DATE) AND t.StartTime < DATEADD(DAY, 1, CAST(GETDATE() AS DATE))";
+                    + "WHERE t.Status = 'UNAVAILABLE' AND\n"
+                    + "t.SlotDate = CAST(GETDATE() AS DATE)";
 
             PreparedStatement st = cn.prepareStatement(sql);
             ResultSet table = st.executeQuery();
@@ -87,7 +111,7 @@ public class BookingDAO {
                 String timeSlotID = table.getString("TimeSlotID");
                 String status = table.getString("Status");
 
-                TimeSlot t = new TimeSlot(timeSlotID, startTime, endTime, true);
+                TimeSlot t = new TimeSlot(timeSlotID, startTime, endTime, TimeSlotDTO.UNAVAILABLE);
                 Booking b = new Booking(id, status, name, licensePlate, service, t, typeName, vehicleName);
 
                 list.add(b);
@@ -135,6 +159,54 @@ public class BookingDAO {
         }
 
         return result;
+    }
+
+    public int confirmBooking(int bookingId) {
+        int result = updateStatusOfBooking(bookingId, "Confirmed");
+        if (result > 0) {
+            Integer slotId = getTimeSlotIdByBooking(bookingId);
+            if (slotId != null) {
+                new TimeSlotDAO().updateSlotStatus(slotId, TimeSlotDTO.UNAVAILABLE);
+            }
+        }
+        return result;
+    }
+
+    public int cancelBooking(int bookingId) {
+        int result = updateStatusOfBooking(bookingId, "Cancelled");
+        if (result > 0) {
+            Integer slotId = getTimeSlotIdByBooking(bookingId);
+            if (slotId != null) {
+                new TimeSlotDAO().updateSlotStatus(slotId, TimeSlotDTO.AVAILABLE);
+            }
+        }
+        return result;
+    }
+
+    private Integer getTimeSlotIdByBooking(int bookingId) {
+        Connection cn = null;
+        try {
+            cn = DBUtils.getConnection();
+            String sql = "SELECT TimeSlotID FROM Bookings WHERE BookingID = ?";
+            PreparedStatement st = cn.prepareStatement(sql);
+            st.setInt(1, bookingId);
+            ResultSet rs = st.executeQuery();
+            if (rs.next()) {
+                int slotId = rs.getInt("TimeSlotID");
+                return rs.wasNull() ? null : slotId;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (cn != null) {
+                    cn.close();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return null;
     }
 
 }

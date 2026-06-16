@@ -198,9 +198,12 @@ CREATE TABLE WashBays (
 -- =====================================================
 CREATE TABLE TimeSlots (
     TimeSlotID INT IDENTITY(1,1) PRIMARY KEY,
+    SlotDate DATE NOT NULL,
     StartTime DATETIME NOT NULL,
     EndTime DATETIME NOT NULL,
-    IsAvailable BIT NOT NULL DEFAULT 1
+    Status VARCHAR(20) NOT NULL DEFAULT 'AVAILABLE'
+        CHECK (Status IN ('AVAILABLE', 'UNAVAILABLE', 'MAINTENANCE')),
+    MaintenanceNote NVARCHAR(500) NULL
 );
 GO
 
