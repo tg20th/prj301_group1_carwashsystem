@@ -22,7 +22,7 @@
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link d-flex align-items-center" href="WashBayMgmtController">
+                <a class="nav-link d-flex align-items-center" href="WashBayController?action=list">
                     <i class="bi bi-droplet me-3"></i> Wash Bays
                 </a>
             </li>
@@ -32,7 +32,7 @@
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link d-flex align-items-center" href="ManageServiceController">
+                <a class="nav-link d-flex align-items-center" href="ServiceController?action=list">
                     <i class="bi bi-tools me-3"></i> Services
                 </a>
             </li>

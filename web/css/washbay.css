@@ -1,0 +1,71 @@
+/* =========================================
+   WASH BAY MANAGEMENT - Supporting Styles
+   Matches Elite Auto admin design (Bootstrap + admin.css)
+   Used by washbay-dashboard.jsp and edit-washbay.jsp
+========================================= */
+
+/* Full-width page override for list view (same pattern as Service Management) */
+body.admin-body.page-fullwidth {
+    display: block;
+}
+body.admin-body.page-fullwidth .page-content,
+body.admin-body.page-fullwidth .main-wrapper {
+    margin-left: 0;
+    width: 100%;
+    max-width: 100%;
+}
+
+/* Custom form inputs matching edit-service styling */
+.form-control-custom {
+    border: 0;
+    background: #f3f4f6;
+    border-radius: 0.75rem;
+    padding: 0.6rem 0.9rem;
+    font-size: 0.95rem;
+    color: #111827;
+}
+
+.form-control-custom:focus {
+    box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.06);
+    background: #fff;
+    outline: none;
+}
+
+.form-control-custom[readonly] {
+    background-color: #e9ecef;
+    color: #6b7280;
+    cursor: not-allowed;
+}
+
+/* Section title used in edit form cards */
+.section-title {
+    font-size: 0.95rem;
+    letter-spacing: -.2px;
+}
+
+/* Slight enhancement for washbay tables (inherits .table-custom) */
+.washbay-table-note {
+    font-size: 0.8rem;
+}
+
+/* Ensure nice alignment for icon action buttons in tables */
+.table .btn-sm.rounded-circle {
+    transition: all 0.2s ease;
+}
+.table .btn-sm.rounded-circle:hover {
+    transform: scale(1.05);
+}
+
+/* Optional wash bay specific badge tweaks if needed */
+.badge-washbay {
+    font-size: 0.7rem;
+    padding-left: 0.65rem;
+    padding-right: 0.65rem;
+}
+
+/* Responsive tweaks for management pages */
+@media (max-width: 768px) {
+    .main-wrapper.page-content {
+        padding: 1rem !important;
+    }
+}
