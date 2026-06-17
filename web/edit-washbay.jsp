@@ -40,7 +40,7 @@
                     <h2 class="fw-bold tracking-tight mb-1 text-dark">Edit Wash Bay</h2>
 
                     <p class="text-muted small mb-0">
-                        Update name, description and activation status
+                        Update name, description and status
                         <% if (hasWb) { %>
                             for <strong class="text-dark">#<%= wb.getWashBayID() %> <%= wb.getBayName() != null ? wb.getBayName() : "" %></strong>
                         <% } %>
@@ -97,9 +97,10 @@
 
                         <div class="col-md-6">
                             <label class="small text-muted fw-semibold mb-2 ms-1">Status</label>
-                            <select name="isActive" class="form-select form-control-custom shadow-none" style="cursor: pointer;">
-                                <option value="true" <%= wb.isIsActive() ? "selected" : "" %>>Active</option>
-                                <option value="false" <%= !wb.isIsActive() ? "selected" : "" %>>Inactive</option>
+                            <select name="status" class="form-select form-control-custom shadow-none" style="cursor: pointer;">
+                                <option value="Available" <%= "Available".equalsIgnoreCase(wb.getStatus()) ? "selected" : "" %>>Available</option>
+                                <option value="Unavailable" <%= "Unavailable".equalsIgnoreCase(wb.getStatus()) ? "selected" : "" %>>Unavailable</option>
+                                <option value="Maintenance" <%= "Maintenance".equalsIgnoreCase(wb.getStatus()) ? "selected" : "" %>>Maintenance</option>
                             </select>
                         </div>
 
@@ -119,6 +120,7 @@
                             <label class="small text-muted fw-semibold mb-2 ms-1">Description</label>
                             <textarea name="description"
                                       rows="4"
+                                      required=""
                                       class="form-control form-control-custom shadow-none"
                                       placeholder="Optional notes about this wash bay (location, equipment, capacity...)"><%= wb.getDescription() == null ? "" : wb.getDescription() %></textarea>
                         </div>
@@ -138,7 +140,7 @@
 
                     <div class="ms-auto small text-muted d-flex align-items-center gap-1">
                         <i class="bi bi-info-circle"></i>
-                        <span>Setting to <strong>Inactive</strong> will hide the bay from scheduling.</span>
+                        <span>Wash bay which status is <strong>Available</strong> can be booking.</span>
                     </div>
                 </div>
             </form>

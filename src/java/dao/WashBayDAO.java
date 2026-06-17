@@ -24,7 +24,7 @@ public class WashBayDAO {
             String sql = "SELECT [WashBayID]\n"
                     + "      ,[BayName]\n"
                     + "      ,[Description]\n"
-                    + "      ,[IsActive]\n"
+                    + "      ,[Status] \n"
                     + "  FROM [AutoWashProDB].[dbo].[WashBays]";
 
             PreparedStatement st = cn.prepareStatement(sql);
@@ -34,9 +34,9 @@ public class WashBayDAO {
                 int wbID = table.getInt("washBayID");
                 String bayName = table.getString("bayName");
                 String description = table.getString("description");
-                boolean isActive = table.getBoolean("isActive");
+                String status = table.getString("status");
 
-                WashBay wb = new WashBay(wbID, bayName, description, isActive);
+                WashBay wb = new WashBay(wbID, bayName, description, status);
                 wbList.add(wb);
 
             }
@@ -56,6 +56,95 @@ public class WashBayDAO {
         return wbList;
     } // end func
 
+    // lay tat ca nhung wash dang la AVAILABLE
+    public List<WashBay> getAvailableWashBays() {
+
+        List<WashBay> wbList = new ArrayList<>();
+        Connection cn = null;
+
+        try {
+            cn = DBUtils.getConnection();
+            String sql = "SELECT [WashBayID]\n"
+                    + "      ,[BayName]\n"
+                    + "      ,[Description]\n"
+                    + "      ,[Status] \n"
+                    + "  FROM [AutoWashProDB].[dbo].[WashBays]"
+                    + "  WHERE [Status] = 'Available' ";
+
+            PreparedStatement st = cn.prepareStatement(sql);
+            ResultSet table = st.executeQuery();
+
+            while (table.next()) {
+                int wbID = table.getInt("washBayID");
+                String bayName = table.getString("bayName");
+                String description = table.getString("description");
+                String status = table.getString("status");
+
+                WashBay wb = new WashBay(wbID, bayName, description, status);
+                wbList.add(wb);
+
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (cn != null) {
+                    cn.close();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        return wbList;
+    }
+    
+    // lay ds trang thai cua wb
+    public List<WashBay> getWashBayByStatus(String s) {
+
+        List<WashBay> wbList = new ArrayList<>();
+        Connection cn = null;
+
+        try {
+            cn = DBUtils.getConnection();
+            String sql = "SELECT [WashBayID]\n"
+                    + "      ,[BayName]\n"
+                    + "      ,[Description]\n"
+                    + "      ,[Status] \n"
+                    + "  FROM [AutoWashProDB].[dbo].[WashBays]"
+                    + "  WHERE [Status] = ? ";
+
+            PreparedStatement st = cn.prepareStatement(sql);
+            st.setString(1, s);
+            ResultSet table = st.executeQuery();
+
+            while (table.next()) {
+                int wbID = table.getInt("washBayID");
+                String bayName = table.getString("bayName");
+                String description = table.getString("description");
+                String status = table.getString("status");
+
+                WashBay wb = new WashBay(wbID, bayName, description, status);
+                wbList.add(wb);
+
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (cn != null) {
+                    cn.close();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        return wbList;
+    }
+
     public WashBay getWashBayByID(int id) {
         WashBay result = null;
         Connection cn = null;
@@ -65,7 +154,7 @@ public class WashBayDAO {
             String sql = "SELECT [WashBayID]\n"
                     + "      ,[BayName]\n"
                     + "      ,[Description]\n"
-                    + "      ,[IsActive]\n"
+                    + "      ,[Status] \n"
                     + "  FROM [AutoWashProDB].[dbo].[WashBays]\n"
                     + "  WHERE [WashBayID] = ?";
 
@@ -77,9 +166,9 @@ public class WashBayDAO {
                 int wbID = table.getInt("washBayID");
                 String bayName = table.getString("bayName");
                 String description = table.getString("description");
-                boolean isActive = table.getBoolean("isActive");
+                String status = table.getString("status");
 
-                result = new WashBay(wbID, bayName, description, isActive);
+                result = new WashBay(wbID, bayName, description, status);
             }
 
         } catch (Exception e) {
@@ -97,6 +186,14 @@ public class WashBayDAO {
         return result;
     } // end func
 
+    public boolean isWashBayAvailable(int id) {
+        WashBay wb = getWashBayByID(id);
+        if (wb == null) { // ktra du phong neu db sai
+            return false;
+        }
+        return wb.isAvailable();
+    }
+    
     public boolean updateWashBay(WashBay wb) {
         boolean result = false;
         Connection cn = null;
@@ -105,13 +202,13 @@ public class WashBayDAO {
             String sql = "UPDATE [AutoWashProDB].[dbo].[WashBays]\n"
                     + "      SET [BayName] = ?\n"
                     + "      ,[Description] = ?\n"
-                    + "      ,[IsActive] = ?\n"
+                    + "      ,[Status] = ?\n"
                     + "      WHERE [WashBayID] = ?";
 
             PreparedStatement st = cn.prepareStatement(sql);
             st.setString(1, wb.getBayName());
             st.setString(2, wb.getDescription());
-            st.setBoolean(3, wb.isIsActive());
+            st.setString(3, wb.getStatus());
             st.setInt(4, wb.getWashBayID());
 
             int row = st.executeUpdate();

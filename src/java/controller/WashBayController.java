@@ -65,7 +65,6 @@ public class WashBayController extends HttpServlet {
             return;
 
         }//end if
-
         else if (action.equalsIgnoreCase("showEditDashboard")) {
             int wbID = Integer.parseInt(request.getParameter("washBayID"));
 
@@ -75,23 +74,30 @@ public class WashBayController extends HttpServlet {
             request.getRequestDispatcher("edit-washbay.jsp").forward(request, response);
             return;
         }//end if
-
         else if (action.equalsIgnoreCase("update")) {
             int id = Integer.parseInt(request.getParameter("washBayID"));
             String bayName = request.getParameter("bayName");
             String description = request.getParameter("description");
-            boolean isActive = Boolean.parseBoolean(request.getParameter("isActive"));
+            String status = request.getParameter("status");
+
+            if (bayName == null || bayName.trim().isEmpty()
+                    || description == null || description.trim().isEmpty()) {
+                request.setAttribute("ERROR", "Bay name or description is required!");
+                WashBay old = wbDAO.getWashBayByID(id);
+                request.setAttribute("WB", old);
+                request.getRequestDispatcher("edit-washbay.jsp").forward(request, response);
+                return;
+            }
 
             WashBay wb = new WashBay();
             wb.setWashBayID(id);
             wb.setBayName(bayName);
             wb.setDescription(description);
-            wb.setIsActive(isActive);
+            wb.setStatus(status);
 
             boolean result = wbDAO.updateWashBay(wb);
 
             if (result) {
-                // Redirect back to list so the new modern page is shown
                 response.sendRedirect("WashBayController?action=list");
                 return;
             } else {
@@ -102,7 +108,10 @@ public class WashBayController extends HttpServlet {
             }
 
         }
-
+        request.setAttribute("ERROR", "Invalid action!");
+        List<WashBay> wbList = wbDAO.getAllWashBays();
+        request.setAttribute("WB_LIST", wbList);
+        request.getRequestDispatcher("washbay-dashboard.jsp").forward(request, response);
     }
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">

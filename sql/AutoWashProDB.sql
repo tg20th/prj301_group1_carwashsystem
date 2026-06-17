@@ -25,7 +25,7 @@ CREATE TABLE Roles (
 );
 
 -- =====================================================
--- 2. ACCOUNTS (UPDATED WITH REJECT REASON)
+-- 2. ACCOUNTS 
 -- =====================================================
 CREATE TABLE Accounts (
     AccountID INT IDENTITY(1,1) PRIMARY KEY,
@@ -39,7 +39,7 @@ CREATE TABLE Accounts (
     LastName NVARCHAR(50) NOT NULL,
 
     Status NVARCHAR(30) NOT NULL DEFAULT 'Pending',
-    RejectReason NVARCHAR(255) NULL, -- Thêm vào đây: Lưu lý do từ chối (e.g., "Invalid Tax Code", "Spam account")
+    RejectReason NVARCHAR(255) NULL, 
 
     LastLoginAt DATETIME NULL,
     CreatedAt DATETIME NOT NULL DEFAULT GETDATE(),
@@ -184,13 +184,14 @@ CREATE TABLE ServicePrices (
 );
 
 -- =====================================================
--- 12. WASH BAYS
+-- 12. WASH BAYS (ĐÃ CẬP NHẬT TRẠNG THÁI STATUS CHỮ)
 -- =====================================================
 CREATE TABLE WashBays (
     WashBayID INT IDENTITY(1,1) PRIMARY KEY,
     BayName NVARCHAR(50) NOT NULL UNIQUE,
     Description NVARCHAR(255),
-    IsActive BIT NOT NULL DEFAULT 1
+    Status NVARCHAR(30) NOT NULL DEFAULT 'Available',
+    CONSTRAINT CK_WashBays_Status CHECK (Status IN ('Available', 'Unavailable', 'Maintenance'))
 );
 
 -- =====================================================
@@ -198,12 +199,9 @@ CREATE TABLE WashBays (
 -- =====================================================
 CREATE TABLE TimeSlots (
     TimeSlotID INT IDENTITY(1,1) PRIMARY KEY,
-    SlotDate DATE NOT NULL,
     StartTime DATETIME NOT NULL,
     EndTime DATETIME NOT NULL,
-    Status VARCHAR(20) NOT NULL DEFAULT 'AVAILABLE'
-        CHECK (Status IN ('AVAILABLE', 'UNAVAILABLE', 'MAINTENANCE')),
-    MaintenanceNote NVARCHAR(500) NULL
+    IsAvailable BIT NOT NULL DEFAULT 1
 );
 GO
 
