@@ -32,6 +32,7 @@ public class ManageBookingsController extends HttpServlet {
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         BookingDAO b = new BookingDAO();
+        int result= b.markNoShowBookings();
         request.setAttribute("LISTOFBOOKING", b.getAllBookToday());
         request.getRequestDispatcher("booking_viewdetails.jsp").forward(request, response);
     }
