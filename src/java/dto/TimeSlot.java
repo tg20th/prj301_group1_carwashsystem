@@ -1,22 +1,14 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package dto;
 
 import java.time.LocalDateTime;
 
-/**
- *
- * @author PC
- */
 public class TimeSlot {
     private String timeslotID;
     private LocalDateTime start;
     private LocalDateTime end;
-    private boolean status;
+    private String status;
 
-    public TimeSlot(String timeslotID, LocalDateTime start, LocalDateTime end, boolean status) {
+    public TimeSlot(String timeslotID, LocalDateTime start, LocalDateTime end, String status) {
         this.timeslotID = timeslotID;
         this.start = start;
         this.end = end;
@@ -47,13 +39,15 @@ public class TimeSlot {
         this.end = end;
     }
 
-    public boolean isStatus() {
+    public String getStatus() {
         return status;
     }
 
-    public void setStatus(boolean status) {
+    public void setStatus(String status) {
         this.status = status;
     }
-    
-    
+
+    public boolean isAvailable() {
+        return TimeSlotDTO.AVAILABLE.equals(status);
+    }
 }

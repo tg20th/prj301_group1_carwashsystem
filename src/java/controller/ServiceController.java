@@ -241,6 +241,25 @@ public class ServiceController extends HttpServlet {
             return;
         }
 
+        request.setAttribute("ERROR", "Invalid action!");
+                    ServicesDAO sDAO = new ServicesDAO();
+            ServicePricesDAO spDAO = new ServicePricesDAO();
+            VehicleTypeDAO vTDAO = new VehicleTypeDAO();
+            List<Service> serviceList = sDAO.getAllServices();
+            List<VehicleType> vehicleTypeList = vTDAO.getAllActiveVehicleType();
+
+            Map<Integer, List<ServicePrices>> priceMap = new HashMap<>();
+
+            for (Service s : serviceList) {
+                List<ServicePrices> prices = spDAO.getPricesByServiceID(s.getId());
+                priceMap.put(s.getId(), prices);
+            }
+
+            request.setAttribute("SERVICES", serviceList);
+            request.setAttribute("PRICE_MAP", priceMap);
+            request.setAttribute("VEHICLE_TYPES", vehicleTypeList);
+
+            request.getRequestDispatcher("service-dashboard.jsp").forward(request, response);
     }
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
