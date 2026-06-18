@@ -131,6 +131,7 @@ public class TimeSlotDAO {
                 + "FROM Bookings b "
                 + "JOIN WashBays wb ON wb.WashBayID = b.WashBayID "
                 + "WHERE b.TimeSlotID = ? "
+                + "AND wb.Status = 'Available' "
                 + "AND b.Status NOT IN ('Cancelled', 'NoShow')";
         PreparedStatement st = cn.prepareStatement(sql);
         st.setInt(1, slotId);
@@ -141,8 +142,9 @@ public class TimeSlotDAO {
         return 0;
     }
 
-    public int countTotalWashBays(Connection cn) throws Exception {
-        String sql = "SELECT COUNT(*) AS Total FROM WashBays";
+    /** Số bay có thể nhận booking (Status = Available), không tính Maintenance/Unavailable. */
+    public int countBookableWashBays(Connection cn) throws Exception {
+        String sql = "SELECT COUNT(*) AS Total FROM WashBays WHERE Status = 'Available'";
         PreparedStatement st = cn.prepareStatement(sql);
         ResultSet rs = st.executeQuery();
         if (rs.next()) {
@@ -327,9 +329,13 @@ public class TimeSlotDAO {
     }
 
     private void enrichSlotCounts(TimeSlotDTO slot, Connection cn) throws Exception {
-        slot.setAvailableBayCount(countAvailableBaysInSlot(slot.getSlotId(), cn));
-        slot.setBookedCount(countBookedBaysInSlot(slot.getSlotId(), cn));
-        slot.setTotalBayCount(countTotalWashBays(cn));
+        int bookableBays = countBookableWashBays(cn);
+        int booked = countBookedBaysInSlot(slot.getSlotId(), cn);
+        int free = countAvailableBaysInSlot(slot.getSlotId(), cn);
+        slot.setTotalBayCount(bookableBays);
+        slot.setBookedCount(booked);
+        slot.setAvailableBayCount(free);
+        slot.setFull(bookableBays > 0 && free == 0);
     }
 
     private boolean hasOverlap(LocalDate date, LocalDateTime start, LocalDateTime end,
