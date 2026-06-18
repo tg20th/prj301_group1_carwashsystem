@@ -87,9 +87,8 @@
         </div>
 
         <div class="d-flex gap-3 mb-4 flex-wrap">
-            <span class="badge rounded-pill px-3 py-2 slot-legend slot-available"><i class="fa-solid fa-circle me-1"></i> Available</span>
-            <span class="badge rounded-pill px-3 py-2 slot-legend slot-unavailable"><i class="fa-solid fa-circle me-1"></i> Unavailable</span>
-            <span class="badge rounded-pill px-3 py-2 slot-legend slot-maintenance"><i class="fa-solid fa-circle me-1"></i> Maintenance</span>
+            <span class="badge rounded-pill px-3 py-2 slot-legend slot-available"><i class="fa-solid fa-circle me-1"></i> Has Availability</span>
+            <span class="badge rounded-pill px-3 py-2 slot-legend slot-unavailable"><i class="fa-solid fa-circle me-1"></i> Full</span>
             <span class="text-muted small ms-auto align-self-center">
                 <%= (slots != null ? slots.size() : 0) %> slots &middot; Operating hours 08:00 – 20:00
             </span>
@@ -107,78 +106,31 @@
         <% } else { %>
         <div class="timeslot-grid">
             <% for (TimeSlotDTO slot : slots) {
-                String status = slot.getStatus() != null ? slot.getStatus() : "AVAILABLE";
-                String statusClass = "slot-card-available";
-                String statusIcon = "fa-check-circle";
-                if ("UNAVAILABLE".equals(status)) {
-                    statusClass = "slot-card-unavailable";
-                    statusIcon = "fa-ban";
-                } else if ("MAINTENANCE".equals(status)) {
-                    statusClass = "slot-card-maintenance";
-                    statusIcon = "fa-wrench";
-                }
+                boolean isFull = slot.isFull();
+                String statusClass = isFull ? "slot-card-unavailable" : "slot-card-available";
+                String statusIcon = isFull ? "fa-ban" : "fa-check-circle";
+                String statusLabel = isFull ? "FULL" : "OPEN";
                 String startStr = slot.getStartTime().toLocalTime().format(timeFmt);
                 String endStr = slot.getEndTime().toLocalTime().format(timeFmt);
-                String note = slot.getMaintenanceNote() != null ? slot.getMaintenanceNote() : "";
             %>
             <div class="slot-card <%= statusClass %>" data-slot-id="<%= slot.getSlotId() %>"
-                 data-status="<%= status %>"
+                 data-full="<%= isFull %>"
                  data-start="<%= startStr %>"
-                 data-end="<%= endStr %>"
-                 data-note="<%= note.replace("\"", "&quot;") %>">
+                 data-end="<%= endStr %>">
                 <div class="slot-card-time"><%= startStr %> – <%= endStr %></div>
                 <div class="slot-card-status">
-                    <i class="fa-solid <%= statusIcon %> me-1"></i><%= status %>
+                    <i class="fa-solid <%= statusIcon %> me-1"></i><%= statusLabel %>
                 </div>
-                <% if ("AVAILABLE".equals(status)) { %>
-                <div class="slot-card-actions">
-                    <button type="button" class="btn btn-sm btn-warning rounded-pill slot-action-maint text-dark"
-                            title="Mark as Maintenance"
-                            data-slot-id="<%= slot.getSlotId() %>"
-                            data-start="<%= startStr %>"
-                            data-end="<%= endStr %>">
-                        <i class="fa-solid fa-wrench"></i>
-                    </button>
+                <div class="slot-card-hint small">
+                    <%= slot.getAvailableBayCount() %>/<%= slot.getTotalBayCount() %> bays free
+                    <% if (slot.getBookedCount() > 0) { %> · <%= slot.getBookedCount() %> booked<% } %>
                 </div>
-                <div class="slot-card-hint small">Click to view · <i class="fa-solid fa-wrench"></i> maintenance</div>
-                <% } else if ("UNAVAILABLE".equals(status)) { %>
-                <div class="slot-card-hint small">Click to view booking</div>
-                <% } else if ("MAINTENANCE".equals(status)) { %>
-                <div class="slot-card-hint small text-truncate" title="<%= note %>">
-                    <%= note.isEmpty() ? "No note" : note %>
-                </div>
-                <div class="slot-card-hint small">Click to update or restore</div>
-                <% } %>
+                <div class="slot-card-hint small">Click to view bookings</div>
             </div>
             <% } %>
         </div>
         <% } %>
     </main>
-
-    <!-- View Details Modal -->
-    <div class="modal fade" id="viewSlotModal" tabindex="-1">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content border-0 rounded-4 shadow">
-                <div class="modal-header border-0 pb-0">
-                    <h5 class="modal-title fw-bold"><i class="fa-solid fa-eye me-2"></i>Slot Details</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="row g-3">
-                        <div class="col-6"><span class="text-muted small">Start Time</span><div class="fw-semibold" id="viewStart"></div></div>
-                        <div class="col-6"><span class="text-muted small">End Time</span><div class="fw-semibold" id="viewEnd"></div></div>
-                        <div class="col-12"><span class="text-muted small">Status</span><div class="fw-semibold" id="viewStatus"></div></div>
-                    </div>
-                </div>
-                <div class="modal-footer border-0 pt-0">
-                    <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-warning rounded-pill px-4 text-dark d-none" id="btnViewToMaint">
-                        <i class="fa-solid fa-wrench me-1"></i> Mark as Maintenance
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
 
     <!-- Booking Details Modal -->
     <div class="modal fade" id="bookingModal" tabindex="-1">
@@ -193,14 +145,7 @@
                         <div class="spinner-border spinner-border-sm me-2"></div> Loading...
                     </div>
                     <div id="bookingContent" class="d-none">
-                        <div class="row g-3">
-                            <div class="col-6"><span class="text-muted small">Booking ID</span><div class="fw-semibold" id="bkId"></div></div>
-                            <div class="col-6"><span class="text-muted small">Status</span><div class="fw-semibold" id="bkStatus"></div></div>
-                            <div class="col-12"><span class="text-muted small">Customer Name</span><div class="fw-semibold" id="bkCustomer"></div></div>
-                            <div class="col-12"><span class="text-muted small">Service</span><div class="fw-semibold" id="bkService"></div></div>
-                            <div class="col-12"><span class="text-muted small">Vehicle Information</span><div class="fw-semibold" id="bkVehicle"></div></div>
-                            <div class="col-12"><span class="text-muted small">Booking Time</span><div class="fw-semibold" id="bkTime"></div></div>
-                        </div>
+                        <div id="bookingList" class="vstack gap-3"></div>
                     </div>
                     <div id="bookingError" class="alert alert-danger d-none small rounded-3"></div>
                 </div>
@@ -211,48 +156,10 @@
         </div>
     </div>
 
-    <!-- Maintenance Modal -->
-    <div class="modal fade" id="maintenanceModal" tabindex="-1">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content border-0 rounded-4 shadow">
-                <div class="modal-header border-0 pb-0">
-                    <h5 class="modal-title fw-bold" id="maintModalTitle"><i class="fa-solid fa-wrench me-2"></i>Mark as Maintenance</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <form id="maintenanceForm" novalidate>
-                    <div class="modal-body">
-                        <input type="hidden" name="slotId" id="maintSlotId">
-                        <input type="hidden" name="slotDate" value="<%= dateStr %>">
-                        <input type="hidden" name="updateAction" value="maintenance">
-                        <input type="hidden" name="responseType" value="json">
-                        <p class="text-muted small mb-3" id="maintTimeLabel"></p>
-                        <p class="text-muted small mb-3" id="maintModeHint">Enter the reason for blocking this time slot from bookings.</p>
-                        <div class="mb-3">
-                            <label class="form-label small fw-semibold text-muted">Maintenance Reason / Note</label>
-                            <textarea name="maintenanceNote" id="maintNote" class="form-control rounded-3" rows="3"
-                                      placeholder="e.g. Bay equipment repair, scheduled downtime..." required></textarea>
-                        </div>
-                        <div id="maintError" class="alert alert-danger d-none small rounded-3"></div>
-                    </div>
-                    <div class="modal-footer border-0 pt-0 d-flex justify-content-between w-100">
-                        <button type="button" class="btn btn-success rounded-pill px-4 d-none" id="btnRestoreSlot">
-                            <i class="fa-solid fa-rotate-left me-1"></i> Restore Available
-                        </button>
-                        <div class="ms-auto d-flex gap-2">
-                            <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Cancel</button>
-                            <button type="submit" class="btn btn-warning rounded-pill px-4 text-dark" id="maintSubmitBtn">Confirm</button>
-                        </div>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         const APP_CONTEXT = '<%= request.getContextPath() %>';
         const CURRENT_DATE = '<%= dateStr %>';
-        let maintenanceModalInstance = null;
 
         function showAlert(message, type) {
             const container = document.getElementById('alertContainer');
@@ -306,208 +213,41 @@
             btn.addEventListener('click', autoGenerateSlots);
         });
 
-        let pendingMaintSlot = null;
-
-        function openMaintenanceModal(slotId, start, end, note, isUpdate) {
-            document.getElementById('maintSlotId').value = slotId;
-            document.getElementById('maintNote').value = note || '';
-            document.getElementById('maintTimeLabel').textContent = start + ' – ' + end;
-            document.getElementById('maintError').classList.add('d-none');
-
-            const titleEl = document.getElementById('maintModalTitle');
-            const hintEl = document.getElementById('maintModeHint');
-            const submitBtn = document.getElementById('maintSubmitBtn');
-            const restoreBtn = document.getElementById('btnRestoreSlot');
-
-            if (isUpdate) {
-                titleEl.innerHTML = '<i class="fa-solid fa-wrench me-2"></i>Maintenance Slot';
-                hintEl.textContent = 'Update the note or restore this slot back to available for bookings.';
-                submitBtn.textContent = 'Update Note';
-                restoreBtn.classList.remove('d-none');
-            } else {
-                titleEl.innerHTML = '<i class="fa-solid fa-wrench me-2"></i>Mark as Maintenance';
-                hintEl.textContent = 'This slot will be blocked from new bookings.';
-                submitBtn.textContent = 'Confirm';
-                restoreBtn.classList.add('d-none');
-            }
-
-            const modalEl = document.getElementById('maintenanceModal');
-            maintenanceModalInstance = bootstrap.Modal.getOrCreateInstance(modalEl);
-            maintenanceModalInstance.show();
-        }
-
-        function submitMaintenanceForm() {
-            const form = document.getElementById('maintenanceForm');
-            const errEl = document.getElementById('maintError');
-            const submitBtn = document.getElementById('maintSubmitBtn');
-            const note = document.getElementById('maintNote').value.trim();
-            const slotId = document.getElementById('maintSlotId').value;
-
-            errEl.classList.add('d-none');
-
-            if (!slotId) {
-                errEl.textContent = 'Invalid slot. Please close and try again.';
-                errEl.classList.remove('d-none');
-                return;
-            }
-            if (!note) {
-                errEl.textContent = 'Maintenance reason is required.';
-                errEl.classList.remove('d-none');
-                document.getElementById('maintNote').focus();
-                return;
-            }
-
-            const originalText = submitBtn.textContent;
-            submitBtn.disabled = true;
-            submitBtn.textContent = 'Saving...';
-
-            postSlotAction('maintenance', { maintenanceNote: note }, null).finally(function () {
-                submitBtn.disabled = false;
-                submitBtn.textContent = originalText;
-            });
-        }
-
-        function postSlotAction(updateAction, extraParams, onSuccess) {
-            const errEl = document.getElementById('maintError');
-            const slotId = document.getElementById('maintSlotId').value;
-            errEl.classList.add('d-none');
-
-            if (!slotId) {
-                errEl.textContent = 'Invalid slot. Please close and try again.';
-                errEl.classList.remove('d-none');
-                return;
-            }
-
-            const params = new URLSearchParams();
-            params.append('slotId', slotId);
-            params.append('slotDate', CURRENT_DATE);
-            params.append('updateAction', updateAction);
-            params.append('responseType', 'json');
-            if (extraParams) {
-                Object.keys(extraParams).forEach(function (key) {
-                    params.append(key, extraParams[key]);
-                });
-            }
-
-            return fetch(APP_CONTEXT + '/UpdateTimeSlotController', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
-                    'X-Requested-With': 'XMLHttpRequest'
-                },
-                body: params.toString()
-            })
-                .then(function (response) {
-                    if (!response.ok) {
-                        throw new Error('Server error (' + response.status + ')');
-                    }
-                    return response.json();
-                })
-                .then(function (data) {
-                    if (data.success) {
-                        if (maintenanceModalInstance) {
-                            maintenanceModalInstance.hide();
-                        }
-                        showAlert(data.message, 'success');
-                        setTimeout(reloadPage, 600);
-                        if (onSuccess) onSuccess();
-                    } else {
-                        errEl.textContent = data.message || 'Request failed.';
-                        errEl.classList.remove('d-none');
-                    }
-                })
-                .catch(function (err) {
-                    errEl.textContent = 'Request failed: ' + err.message;
-                    errEl.classList.remove('d-none');
-                });
-        }
-
-        document.getElementById('btnRestoreSlot').addEventListener('click', function () {
-            if (!confirm('Restore this slot to AVAILABLE? It will be open for bookings again.')) return;
-            const btn = this;
-            const originalText = btn.innerHTML;
-            btn.disabled = true;
-            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Restoring...';
-            postSlotAction('restore', null, null).finally(function () {
-                btn.disabled = false;
-                btn.innerHTML = originalText;
-            });
-        });
-
-        document.getElementById('btnViewToMaint').addEventListener('click', function () {
-            if (!pendingMaintSlot) return;
-            const viewModal = bootstrap.Modal.getInstance(document.getElementById('viewSlotModal'));
-            if (viewModal) viewModal.hide();
-            openMaintenanceModal(pendingMaintSlot.id, pendingMaintSlot.start, pendingMaintSlot.end, '', false);
-        });
-
-        document.querySelectorAll('.slot-action-maint').forEach(btn => {
-            btn.addEventListener('click', function (e) {
-                e.stopPropagation();
-                openMaintenanceModal(
-                    this.dataset.slotId,
-                    this.dataset.start,
-                    this.dataset.end,
-                    '',
-                    false
-                );
-            });
-        });
-
-        document.getElementById('maintenanceForm').addEventListener('submit', function (e) {
-            e.preventDefault();
-            submitMaintenanceForm();
-        });
-
-        document.getElementById('maintSubmitBtn').addEventListener('click', function (e) {
-            e.preventDefault();
-            submitMaintenanceForm();
-        });
-
         document.querySelectorAll('.slot-card').forEach(card => {
-            const status = card.dataset.status;
-            const slotId = card.dataset.slotId;
-
-            card.addEventListener('click', function (e) {
-                if (e.target.closest('.slot-action-maint')) return;
-
-                if (status === 'UNAVAILABLE') {
-                    openBookingModal(slotId);
-                } else if (status === 'MAINTENANCE') {
-                    openMaintenanceModal(slotId, card.dataset.start, card.dataset.end, card.dataset.note || '', true);
-                } else {
-                    pendingMaintSlot = { id: slotId, start: card.dataset.start, end: card.dataset.end };
-                    document.getElementById('viewStart').textContent = card.dataset.start;
-                    document.getElementById('viewEnd').textContent = card.dataset.end;
-                    document.getElementById('viewStatus').textContent = status;
-                    document.getElementById('btnViewToMaint').classList.remove('d-none');
-                    new bootstrap.Modal(document.getElementById('viewSlotModal')).show();
-                }
+            card.addEventListener('click', function () {
+                openBookingModal(card.dataset.slotId);
             });
         });
 
         function openBookingModal(slotId) {
             const modal = new bootstrap.Modal(document.getElementById('bookingModal'));
+            const listEl = document.getElementById('bookingList');
             document.getElementById('bookingLoading').classList.remove('d-none');
             document.getElementById('bookingContent').classList.add('d-none');
             document.getElementById('bookingError').classList.add('d-none');
+            listEl.innerHTML = '';
             modal.show();
 
             fetch(APP_CONTEXT + '/TimeSlotController?action=booking&slotId=' + slotId)
                 .then(r => r.json())
                 .then(data => {
                     document.getElementById('bookingLoading').classList.add('d-none');
-                    if (data.success) {
+                    if (data.success && data.bookings && data.bookings.length > 0) {
                         document.getElementById('bookingContent').classList.remove('d-none');
-                        document.getElementById('bkId').textContent = data.data.bookingId;
-                        document.getElementById('bkStatus').textContent = data.data.status;
-                        document.getElementById('bkCustomer').textContent = data.data.customerName;
-                        document.getElementById('bkService').textContent = data.data.service;
-                        document.getElementById('bkVehicle').textContent = data.data.vehicleInfo + ' · ' + data.data.licensePlate;
-                        document.getElementById('bkTime').textContent = data.data.bookingTime;
+                        data.bookings.forEach(function (bk) {
+                            const item = document.createElement('div');
+                            item.className = 'border rounded-3 p-3';
+                            item.innerHTML =
+                                '<div class="fw-semibold mb-1">Bay #' + bk.washBayId + ' · Booking #' + bk.bookingId + '</div>' +
+                                '<div class="small text-muted">' + bk.customerName + ' · ' + bk.licensePlate + '</div>' +
+                                '<div class="small">' + bk.service + '</div>' +
+                                '<div class="small text-muted">' + bk.vehicleInfo + '</div>' +
+                                '<div class="badge bg-dark bg-opacity-10 text-dark mt-2">' + bk.status + '</div>';
+                            listEl.appendChild(item);
+                        });
                     } else {
                         const errEl = document.getElementById('bookingError');
-                        errEl.textContent = data.message;
+                        errEl.textContent = data.message || 'No bookings in this slot.';
                         errEl.classList.remove('d-none');
                     }
                 });

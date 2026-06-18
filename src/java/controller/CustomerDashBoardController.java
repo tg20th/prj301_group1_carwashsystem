@@ -4,6 +4,7 @@
  */
 package controller;
 
+import dao.BookingDAO;
 import dao.CustomerDAO;
 import dao.RewardDAO;
 import dao.TierDAO;
@@ -68,6 +69,9 @@ public class CustomerDashBoardController extends HttpServlet {
 
             Reward nextReward = rewardDAO.getNextReward(pointBalance);
 
+            BookingDAO bookingDAO = new BookingDAO();
+            int activeBookingCount = bookingDAO.countActiveBookingsByCustomerId(customer.getCusID());
+
             request.getSession().setAttribute("CUSTOMER", customer);
             request.setAttribute("ACCOUNT", account);
             request.setAttribute("CUSTOMER", customer);
@@ -75,6 +79,7 @@ public class CustomerDashBoardController extends HttpServlet {
             request.setAttribute("VEHICLES", vehicleList);
             request.setAttribute("NEXTREWARD", nextReward);
             request.setAttribute("POINT_BALANCE", pointBalance);
+            request.setAttribute("ACTIVE_BOOKING_COUNT", activeBookingCount);
 
             request.getRequestDispatcher("customer-dashboard.jsp")
                     .forward(request, response);

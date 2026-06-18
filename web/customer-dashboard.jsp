@@ -78,7 +78,7 @@
             <% }%>
 
             <div class="row g-4 mb-4">
-                <div class="col-md-4 delay-1">
+                <div class="col-md-6 col-lg-3 delay-1">
                     <div class="bg-white p-4 rounded-4 shadow-sm border border-light h-100 transition-hover">
                         <div class="d-flex justify-content-between align-items-center mb-3">
                             <h6 class="text-muted small text-uppercase fw-bold m-0 tracking-tight">Points Balance</h6>
@@ -89,7 +89,7 @@
                         <h2 class="mb-0 fw-bold display-6 tracking-tight"><%= request.getAttribute("POINT_BALANCE") != null ? request.getAttribute("POINT_BALANCE") : 0%></h2>
                     </div>
                 </div>
-                <div class="col-md-4 delay-2">
+                <div class="col-md-6 col-lg-3 delay-2">
                     <div class="bg-white p-4 rounded-4 shadow-sm border border-light h-100 transition-hover">
                         <div class="d-flex justify-content-between align-items-center mb-3">
                             <h6 class="text-muted small text-uppercase fw-bold m-0 tracking-tight">Membership Tier</h6>
@@ -100,7 +100,7 @@
                         <h2 class="mb-0 fw-bold display-6 tracking-tight"><%= tier != null ? tier.getTierName() : "Standard"%></h2>
                     </div>
                 </div>
-                <div class="col-md-4 delay-3">
+                <div class="col-md-6 col-lg-3 delay-3">
                     <div class="bg-white p-4 rounded-4 shadow-sm border border-light h-100 transition-hover" style="border-top: 4px solid var(--text-main) !important;">
                         <div class="d-flex justify-content-between align-items-center mb-3">
                             <h6 class="text-muted small text-uppercase fw-bold m-0 tracking-tight">Next Reward</h6>
@@ -110,6 +110,23 @@
                         </div>
                         <h4 class="mb-0 fw-bold mt-2 tracking-tight text-truncate"><%= nextReward != null ? nextReward.getRewardName() : "No rewards yet"%></h4>
                     </div>
+                </div>
+                <div class="col-md-6 col-lg-3 delay-4">
+                    <a href="CustomerBookingHistoryController" class="text-decoration-none d-block h-100">
+                        <div class="bg-white p-4 rounded-4 shadow-sm border border-light h-100 transition-hover" style="border-top: 4px solid #0d6efd !important;">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h6 class="text-muted small text-uppercase fw-bold m-0 tracking-tight">My Bookings</h6>
+                                <div class="bg-light rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                    <i class="bi bi-calendar2-check text-dark fs-5"></i>
+                                </div>
+                            </div>
+                            <h2 class="mb-1 fw-bold display-6 tracking-tight text-dark"><%= request.getAttribute("ACTIVE_BOOKING_COUNT") != null ? request.getAttribute("ACTIVE_BOOKING_COUNT") : 0%></h2>
+                            <p class="text-muted small mb-3">Active appointments</p>
+                            <span class="btn btn-outline-dark rounded-pill btn-sm w-100 fw-medium">
+                                <i class="bi bi-journal-text me-1"></i> View History &amp; Status
+                            </span>
+                        </div>
+                    </a>
                 </div>
             </div>
 
@@ -146,9 +163,14 @@
 
                         <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 pb-3 border-bottom">
                             <h4 class="mb-3 mb-md-0 fw-bold tracking-tight"><i class="bi bi-car-front-fill me-2 text-muted"></i>My Vehicles</h4>
-                            <a href="MainController?action=AddVehicle_page" class="btn btn-black rounded-pill py-2 px-4 fw-medium">
-                                <i class="bi bi-plus-lg me-1"></i> Add Vehicle
-                            </a>
+                            <div class="d-flex gap-2">
+                                <a href="CustomerBookingController" class="btn btn-dark rounded-pill py-2 px-4 fw-medium">
+                                    <i class="bi bi-calendar-check me-1"></i> Book Service
+                                </a>
+                                <a href="MainController?action=AddVehicle_page" class="btn btn-black rounded-pill py-2 px-4 fw-medium">
+                                    <i class="bi bi-plus-lg me-1"></i> Add Vehicle
+                                </a>
+                            </div>
                         </div>
 
                         <div class="pt-2">

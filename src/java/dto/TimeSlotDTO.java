@@ -5,28 +5,25 @@ import java.time.LocalDateTime;
 
 public class TimeSlotDTO {
 
-    public static final String AVAILABLE = "AVAILABLE";
-    public static final String UNAVAILABLE = "UNAVAILABLE";
-    public static final String MAINTENANCE = "MAINTENANCE";
-
     private int slotId;
     private LocalDate slotDate;
     private LocalDateTime startTime;
     private LocalDateTime endTime;
-    private String status;
-    private String maintenanceNote;
+    private boolean isFull;
+    private int bookedCount;
+    private int availableBayCount;
+    private int totalBayCount;
 
     public TimeSlotDTO() {
     }
 
     public TimeSlotDTO(int slotId, LocalDate slotDate, LocalDateTime startTime,
-            LocalDateTime endTime, String status, String maintenanceNote) {
+            LocalDateTime endTime, boolean isFull) {
         this.slotId = slotId;
         this.slotDate = slotDate;
         this.startTime = startTime;
         this.endTime = endTime;
-        this.status = status;
-        this.maintenanceNote = maintenanceNote;
+        this.isFull = isFull;
     }
 
     public int getSlotId() {
@@ -61,19 +58,39 @@ public class TimeSlotDTO {
         this.endTime = endTime;
     }
 
-    public String getStatus() {
-        return status;
+    public boolean isFull() {
+        return isFull;
     }
 
-    public void setStatus(String status) {
-        this.status = status;
+    public void setFull(boolean full) {
+        isFull = full;
     }
 
-    public String getMaintenanceNote() {
-        return maintenanceNote;
+    public int getBookedCount() {
+        return bookedCount;
     }
 
-    public void setMaintenanceNote(String maintenanceNote) {
-        this.maintenanceNote = maintenanceNote;
+    public void setBookedCount(int bookedCount) {
+        this.bookedCount = bookedCount;
+    }
+
+    public int getAvailableBayCount() {
+        return availableBayCount;
+    }
+
+    public void setAvailableBayCount(int availableBayCount) {
+        this.availableBayCount = availableBayCount;
+    }
+
+    public int getTotalBayCount() {
+        return totalBayCount;
+    }
+
+    public void setTotalBayCount(int totalBayCount) {
+        this.totalBayCount = totalBayCount;
+    }
+
+    public boolean hasAvailability() {
+        return !isFull && availableBayCount > 0;
     }
 }

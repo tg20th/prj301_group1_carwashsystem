@@ -63,30 +63,37 @@ public class TimeSlotController extends HttpServlet {
         try {
             int slotId = Integer.parseInt(request.getParameter("slotId"));
             TimeSlotDAO dao = new TimeSlotDAO();
-            Booking booking = dao.getBookingBySlotId(slotId);
+            List<Booking> bookings = dao.getBookingsBySlotId(slotId);
 
-            if (booking == null) {
+            if (bookings.isEmpty()) {
                 out.print("{\"success\":false,\"message\":\"No active booking found for this slot.\"}");
             } else {
-                String bookingTime = "";
-                if (booking.getTimeslot() != null) {
-                    bookingTime = booking.getTimeslot().getStart().toLocalTime().toString()
-                            + " - " + booking.getTimeslot().getEnd().toLocalTime().toString();
+                StringBuilder json = new StringBuilder("{\"success\":true,\"bookings\":[");
+                for (int i = 0; i < bookings.size(); i++) {
+                    Booking booking = bookings.get(i);
+                    if (i > 0) {
+                        json.append(",");
+                    }
+                    String bookingTime = "";
+                    if (booking.getTimeslot() != null) {
+                        bookingTime = booking.getTimeslot().getStart().toLocalTime().toString()
+                                + " - " + booking.getTimeslot().getEnd().toLocalTime().toString();
+                    }
+                    String vehicleInfo = escapeJson(booking.getVehicleName())
+                            + " (" + escapeJson(booking.getVehicleType()) + ")";
+                    json.append("{")
+                            .append("\"bookingId\":").append(booking.getBookingID()).append(",")
+                            .append("\"customerName\":\"").append(escapeJson(booking.getCusName())).append("\",")
+                            .append("\"service\":\"").append(escapeJson(booking.getService())).append("\",")
+                            .append("\"vehicleInfo\":\"").append(vehicleInfo).append("\",")
+                            .append("\"licensePlate\":\"").append(escapeJson(booking.getLicensePlate())).append("\",")
+                            .append("\"bookingTime\":\"").append(escapeJson(bookingTime)).append("\",")
+                            .append("\"status\":\"").append(escapeJson(booking.getStatus())).append("\",")
+                            .append("\"washBayId\":").append(booking.getWashBayId())
+                            .append("}");
                 }
-                String vehicleInfo = escapeJson(booking.getVehicleName())
-                        + " (" + escapeJson(booking.getVehicleType()) + ")";
-                out.print("{"
-                        + "\"success\":true,"
-                        + "\"data\":{"
-                        + "\"bookingId\":" + booking.getBookingID() + ","
-                        + "\"customerName\":\"" + escapeJson(booking.getCusName()) + "\","
-                        + "\"service\":\"" + escapeJson(booking.getService()) + "\","
-                        + "\"vehicleInfo\":\"" + vehicleInfo + "\","
-                        + "\"licensePlate\":\"" + escapeJson(booking.getLicensePlate()) + "\","
-                        + "\"bookingTime\":\"" + escapeJson(bookingTime) + "\","
-                        + "\"status\":\"" + escapeJson(booking.getStatus()) + "\""
-                        + "}"
-                        + "}");
+                json.append("]}");
+                out.print(json.toString());
             }
         } catch (NumberFormatException e) {
             out.print("{\"success\":false,\"message\":\"Invalid slot ID.\"}");
