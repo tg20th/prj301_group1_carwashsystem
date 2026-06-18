@@ -1,6 +1,7 @@
 package dto;
 
 public class Business {
+
     private int accountId;
     private int cusID;
     private String contractName;
@@ -10,14 +11,13 @@ public class Business {
     private String businessName;
     private String taxCode;
     private String companyAddress;
-    
+
     //trường hợp admin reject business
     private String rejectedDescription;
+    private int pendingVehicleCount;
 
     public Business() {
     }
-    
-    
 
     public Business(String contractName, String email, String phone, String businessName, String taxCode, String companyAddress) {
         this.contractName = contractName;
@@ -27,7 +27,6 @@ public class Business {
         this.taxCode = taxCode;
         this.companyAddress = companyAddress;
     }
-    
 
     public Business(int accountId, int cusID, String contractName, String email, String phone, String status, String businessName, String taxCode, String companyAddress) {
         this.accountId = accountId;
@@ -55,8 +54,6 @@ public class Business {
         this.taxCode = taxCode;
         this.companyAddress = companyAddress;
     }
-    
-    
 
     public Business(int accountId, String contractName, String email, String phone, String status, String businessName, String taxCode, String companyAddress) {
         this.accountId = accountId;
@@ -68,9 +65,6 @@ public class Business {
         this.taxCode = taxCode;
         this.companyAddress = companyAddress;
     }
-
-
-    
 
     public String getContractName() {
         return contractName;
@@ -107,7 +101,8 @@ public class Business {
     public String getBusinessName() {
         return businessName;
     }
-public void setBusinessName(String businessName) {
+
+    public void setBusinessName(String businessName) {
         this.businessName = businessName;
     }
 
@@ -143,6 +138,12 @@ public void setBusinessName(String businessName) {
         this.cusID = cusID;
     }
 
-   
-    
+    public int getPendingVehicleCount() {
+        return pendingVehicleCount;
+    }
+
+    public void setPendingVehicleCount(int pendingVehicleCount) {
+        this.pendingVehicleCount = pendingVehicleCount;
+    }
+
 }
