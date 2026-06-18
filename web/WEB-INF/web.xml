@@ -31,7 +31,12 @@
     <web-resource-collection>
         <web-resource-name>Block Direct JSP Access</web-resource-name>
         <description>Prevent users from directly accessing register.jsp</description>
-        <url-pattern>/register.jsp</url-pattern> </web-resource-collection>
+        <url-pattern>/register.jsp</url-pattern> 
+        <url-pattern>/service-dashboard.jsp</url-pattern> 
+        <url-pattern>/edit-service.jsp</url-pattern> 
+        <url-pattern>/edit-washbay.jsp</url-pattern> 
+        <url-pattern>/washbay-dashboard.jsp</url-pattern> 
+    </web-resource-collection>
     <auth-constraint>
         </auth-constraint>
 </security-constraint>

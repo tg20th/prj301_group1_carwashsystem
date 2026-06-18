@@ -36,7 +36,6 @@
 
     LocalDate today = LocalDate.now();
     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-    // Tạo thêm formatter cho giờ đặt lịch
     DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm - dd/MM/yyyy");
 %>
 
@@ -53,63 +52,13 @@
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-        <link href="css/admin.css?v=1.0" rel="stylesheet">
+        <link href="css/admin.css?v=1.1" rel="stylesheet">
     </head>
     <body class="admin-body">
 
-        <aside class="sidebar p-4 shadow-sm">
-            <a href="DashboardController" class="text-dark text-decoration-none fw-bold fs-4 mb-4 d-flex align-items-center">
-                <i class="bi bi-vinyl-fill me-2 fs-3 text-dark"></i>EliteAuto
-            </a>
+        <jsp:include page="admin_sidebar.jsp"/>
 
-            <div class="overflow-y-auto" style="scrollbar-width: none;">
-                <ul class="nav flex-column gap-1" id="sidebarMenu">
-                    <li class="nav-item">
-                        <a class="nav-link active d-flex align-items-center" href="DashboardController"><i class="bi bi-grid-1x2-fill me-3"></i> Dashboard</a>
-                    </li>
-
-                    <li class="nav-item mt-3 mb-1">
-                        <span class="text-muted small fw-bold text-uppercase" style="font-size: 0.65rem; padding-left: 1rem;">Operations</span>
-                    </li>
-                    <li class="nav-item"><a class="nav-link d-flex align-items-center" href="CarRequestsController"><i class="bi bi-car-front me-3"></i> Car Requests</a></li>
-                    <li class="nav-item"><a class="nav-link d-flex align-items-center" href="BusinessRequestsController"><i class="bi bi-building me-3"></i> Business Requests</a></li>
-                    <li class="nav-item"><a class="nav-link d-flex align-items-center" href="WashBayMgmtController"><i class="bi bi-droplet me-3"></i> Wash Bay Mgmt</a></li>
-                    <li class="nav-item"><a class="nav-link d-flex align-items-center" href="SlotScheduleController"><i class="bi bi-calendar-range me-3"></i> Slot Schedule</a></li>
-
-                    <li class="nav-item mt-3 mb-1">
-                        <span class="text-muted small fw-bold text-uppercase" style="font-size: 0.65rem; padding-left: 1rem;">Management</span>
-                    </li>
-                    <li class="nav-item"><a class="nav-link d-flex align-items-center" href="UsersMgmtController"><i class="bi bi-people me-3"></i> Users Mgmt</a></li>
-                    <li class="nav-item"><a class="nav-link d-flex align-items-center" href="RevenueController"><i class="bi bi-graph-up me-3"></i> Revenue</a></li>
-                    <li class="nav-item"><a class="nav-link d-flex align-items-center" href="ManagePromotionsController"><i class="bi bi-ticket-perforated me-3"></i> Promos</a></li>
-
-                    <li class="nav-item mt-3 mb-1">
-                        <span class="text-muted small fw-bold text-uppercase" style="font-size: 0.65rem; padding-left: 1rem;">Growth & Loyalty</span>
-                    </li>
-                    <li class="nav-item"><a class="nav-link d-flex align-items-center" href="ManageTiersController"><i class="bi bi-star me-3"></i> Tier Rules & Rates</a></li>
-                    <li class="nav-item"><a class="nav-link d-flex align-items-center" href="TargetedPromosController"><i class="bi bi-megaphone me-3"></i> Targeted Promos</a></li>
-
-                    <li class="nav-item mt-3 mb-1">
-                        <span class="text-muted small fw-bold text-uppercase" style="font-size: 0.65rem; padding-left: 1rem;">System</span>
-                    </li>
-                    <li class="nav-item"><a class="nav-link d-flex align-items-center" href="ReportsController"><i class="bi bi-file-earmark-bar-graph me-3"></i> Reports</a></li>
-                    <li class="nav-item"><a class="nav-link d-flex align-items-center" href="SettingsController"><i class="bi bi-gear me-3"></i> Settings</a></li>
-                </ul>
-            </div>
-
-            <div class="sidebar-profile d-flex align-items-center gap-3 cursor-pointer mt-3 border-top pt-3">
-                <img src="https://ui-avatars.com/api/?name=Admin&background=000&color=fff" alt="Admin" class="rounded-circle" width="40" height="40">
-                <div class="d-flex flex-column">
-                    <span class="small fw-bold text-dark mb-0">Admin</span>
-                    <span class="text-muted" style="font-size: 0.75rem;">Super Administrator</span>
-                </div>
-                <a href="LogoutController" class="ms-auto text-muted transition-hover">
-                    <i class="bi bi-box-arrow-right" title="Logout"></i>
-                </a>
-            </div>
-        </aside>
-
-        <main class="main-wrapper p-4 p-lg-5 animate-fade-up">
+        <main class="main-wrapper p-4 p-lg-5 animate-fade-up flex-grow-1" style="min-width: 0;">
 
             <div class="d-flex justify-content-between align-items-end mb-4 pb-2">
                 <div>
@@ -152,19 +101,19 @@
                         <h3 class="fw-bold mb-0 text-dark fs-3"><%= totalVehiclePending%></h3>
                     </div>
                 </div>
-                
+
                 <div class="col-6 col-md-4 col-lg-2">
                     <div class="bg-white p-4 rounded-4 shadow-sm border border-light h-100 transition-hover text-center">
                         <div class="kpi-icon bg-info bg-opacity-10 text-info mb-3 mx-auto"><i class="bi bi-cash-stack"></i></div>
                         <div class="text-muted small mb-1">Revenue Today</div>
-                        <h4 class="fw-bold mb-0 text-dark fs-5 text-nowrap" style="margin-top: 5px;"><%= String.format("%,d", (long) revenueDay) %> đ</h4>
+                        <h4 class="fw-bold mb-0 text-dark fs-5 text-nowrap" style="margin-top: 5px;"><%= String.format("%,d", (long) revenueDay)%> đ</h4>
                     </div>
                 </div>
                 <div class="col-6 col-md-4 col-lg-2">
                     <div class="bg-white p-4 rounded-4 shadow-sm border border-light h-100 transition-hover text-center">
                         <div class="kpi-icon bg-dark bg-opacity-10 text-dark mb-3 mx-auto"><i class="bi bi-wallet-fill"></i></div>
                         <div class="text-muted small mb-1">Revenue Month</div>
-                        <h4 class="fw-bold mb-0 text-dark fs-5 text-nowrap" style="margin-top: 5px;"><%= String.format("%,d", (long) revenueMonth) %> đ</h4>
+                        <h4 class="fw-bold mb-0 text-dark fs-5 text-nowrap" style="margin-top: 5px;"><%= String.format("%,d", (long) revenueMonth)%> đ</h4>
                     </div>
                 </div>
             </div>
@@ -248,12 +197,12 @@
                             <div class="d-flex flex-column">
                                 <%
                                     int displayLimitSrv = Math.min(2, serviceCount);
-
                                     for (int i = 0; i < displayLimitSrv; i++) {
                                         Service s = listServices.get(i);
                                         boolean isActive = s.isStatus();
                                         String displayStatus = isActive ? "Active" : "Inactive";
-                                        String badgeClass = isActive ? "bg-success bg-opacity-10 text-success border-success"
+                                        String badgeClass = isActive ?
+                                                "bg-success bg-opacity-10 text-success border-success"
                                                 : "bg-danger bg-opacity-10 text-danger border-danger";
                                 %>
                                 <div class="d-flex justify-content-between align-items-center mb-3 p-3 bg-light rounded-3 border transition-hover">
@@ -286,7 +235,7 @@
                             %>
                         </div> 
 
-                        <a href="ManageServiceController" class="btn btn-dark w-100 rounded-pill py-2 mt-auto small fw-medium transition-hover text-decoration-none d-flex justify-content-center align-items-center">
+                        <a href="ServiceController?action=list" class="btn btn-dark w-100 rounded-pill py-2 mt-auto small fw-medium transition-hover text-decoration-none d-flex justify-content-center align-items-center">
                             <i class="bi bi-gear me-2"></i>Manage Service
                         </a>
                     </div>
@@ -328,10 +277,8 @@
 
                                         for (int i = 0; i < displayLimitBooking; i++) {
                                             Booking b = listBooking.get(i);
-
                                             String status = (b.getStatus() != null) ? b.getStatus() : "Pending";
                                             String badgeColor = "bg-secondary bg-opacity-10 text-secondary border-secondary";
-
                                             if ("Completed".equalsIgnoreCase(status)) {
                                                 badgeColor = "bg-success bg-opacity-10 text-success border-success";
                                             } else if ("InProgress".equalsIgnoreCase(status)) {
@@ -351,6 +298,7 @@
                                         <td class="text-dark small"><%= b.getService()%></td>
                                         <td class="text-muted small">
                                             <span class="d-block text-dark fw-medium"><%= b.getTimeslot().getStart().format(timeFormatter) %></span>
+
                                         </td>
                                         <td class="text-center">
                                             <span class="badge <%= badgeColor%> border border-opacity-25" style="font-size: 0.7rem;">
@@ -391,7 +339,6 @@
                             <div class="d-flex flex-column">
                                 <%
                                     int displayLimitPromo = Math.min(3, promoCount);
-
                                     for (int i = 0; i < displayLimitPromo; i++) {
                                         Promotion promo = listPromotion.get(i);
                                         boolean isLastDisplayed = (i == displayLimitPromo - 1);
@@ -409,7 +356,7 @@
                                             Ends: <%= promo.getEndDate()%>
                                         </span>
                                     </div>
-                               </div>
+                                </div>
                                 <%
                                     }
 
@@ -439,19 +386,5 @@
         </main>
 
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-        <script>
-            document.addEventListener("DOMContentLoaded", function () {
-                const sidebarLinks = document.querySelectorAll('.sidebar .nav-link');
-                sidebarLinks.forEach(link => {
-                    link.addEventListener('click', function (e) {
-                        if (this.getAttribute('href') === '#') {
-                            e.preventDefault();
-                        }
-                        sidebarLinks.forEach(l => l.classList.remove('active'));
-                        this.classList.add('active');
-                    });
-                });
-            });
-        </script>
     </body>
 </html>

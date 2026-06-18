@@ -1,4 +1,8 @@
-﻿USE master;
+﻿-- =============================================================================
+-- AutoWashProDB — Database Schema (BƯỚC 1/2)
+-- Chạy file này trước, sau đó chạy: sql/Data.sql
+-- =============================================================================
+USE master;
 GO
 
 -- 1. DROP EXISTING DATABASE TO RESET CLEANLY
@@ -25,7 +29,7 @@ CREATE TABLE Roles (
 );
 
 -- =====================================================
--- 2. ACCOUNTS (UPDATED WITH REJECT REASON)
+-- 2. ACCOUNTS 
 -- =====================================================
 CREATE TABLE Accounts (
     AccountID INT IDENTITY(1,1) PRIMARY KEY,
@@ -39,7 +43,7 @@ CREATE TABLE Accounts (
     LastName NVARCHAR(50) NOT NULL,
 
     Status NVARCHAR(30) NOT NULL DEFAULT 'Pending',
-    RejectReason NVARCHAR(255) NULL, -- Thêm vào đây: Lưu lý do từ chối (e.g., "Invalid Tax Code", "Spam account")
+    RejectReason NVARCHAR(255) NULL, 
 
     LastLoginAt DATETIME NULL,
     CreatedAt DATETIME NOT NULL DEFAULT GETDATE(),
@@ -60,7 +64,9 @@ CREATE TABLE LoyaltyTiers (
     PointMultiplier DECIMAL(4,2) NOT NULL,
 
     BenefitDescription NVARCHAR(255),
-    IsActive BIT NOT NULL DEFAULT 1
+    MaxBookingDaysAhead INT NOT NULL DEFAULT 3,
+    IsActive BIT NOT NULL DEFAULT 1,
+    CONSTRAINT CK_LoyaltyTiers_MaxBookingDays CHECK (MaxBookingDaysAhead BETWEEN 1 AND 90)
 );
 
 -- =====================================================
@@ -184,13 +190,14 @@ CREATE TABLE ServicePrices (
 );
 
 -- =====================================================
--- 12. WASH BAYS
+-- 12. WASH BAYS (ĐÃ CẬP NHẬT TRẠNG THÁI STATUS CHỮ)
 -- =====================================================
 CREATE TABLE WashBays (
     WashBayID INT IDENTITY(1,1) PRIMARY KEY,
     BayName NVARCHAR(50) NOT NULL UNIQUE,
     Description NVARCHAR(255),
-    IsActive BIT NOT NULL DEFAULT 1
+    Status NVARCHAR(30) NOT NULL DEFAULT 'Available',
+    CONSTRAINT CK_WashBays_Status CHECK (Status IN ('Available', 'Unavailable', 'Maintenance'))
 );
 
 -- =====================================================
@@ -198,9 +205,10 @@ CREATE TABLE WashBays (
 -- =====================================================
 CREATE TABLE TimeSlots (
     TimeSlotID INT IDENTITY(1,1) PRIMARY KEY,
+    SlotDate DATE NOT NULL,
     StartTime DATETIME NOT NULL,
     EndTime DATETIME NOT NULL,
-    IsAvailable BIT NOT NULL DEFAULT 1
+    IsFull BIT NOT NULL DEFAULT 0
 );
 GO
 
@@ -368,14 +376,27 @@ CREATE TABLE Bookings (
     Status NVARCHAR(30) NOT NULL DEFAULT 'Pending',
     Notes NVARCHAR(255),
 
+    PaymentOrderCode BIGINT NULL,
+    PaymentLinkId NVARCHAR(64) NULL,
+    PaymentStatus NVARCHAR(20) NOT NULL DEFAULT 'Unpaid',
+    PaymentExpiredAt DATETIME NULL,
+
     CONSTRAINT FK_Bookings_Customers FOREIGN KEY(CustomerID) REFERENCES Customers(CustomerID),
     CONSTRAINT FK_Bookings_Vehicles FOREIGN KEY(VehicleID) REFERENCES Vehicles(VehicleID),
     CONSTRAINT FK_Bookings_Services FOREIGN KEY(ServiceID) REFERENCES Services(ServiceID),
     CONSTRAINT FK_Bookings_WashBays FOREIGN KEY(WashBayID) REFERENCES WashBays(WashBayID),
     CONSTRAINT FK_Bookings_TimeSlots FOREIGN KEY(TimeSlotID) REFERENCES TimeSlots(TimeSlotID),
     CONSTRAINT FK_Bookings_Invoices FOREIGN KEY(InvoiceID) REFERENCES Invoices(InvoiceID),
-    CONSTRAINT CK_Bookings_Status CHECK (Status IN ('Pending', 'Confirmed', 'InProgress', 'Completed', 'Cancelled', 'NoShow'))
+    CONSTRAINT CK_Bookings_Status CHECK (Status IN ('Pending', 'Confirmed', 'InProgress', 'Completed', 'Cancelled', 'NoShow')),
+    CONSTRAINT CK_Bookings_PaymentStatus CHECK (PaymentStatus IN ('Unpaid', 'Paid', 'Expired', 'Cancelled'))
 );
+GO
+
+CREATE UNIQUE INDEX UQ_Bookings_Bay_Slot_Active
+ON Bookings (WashBayID, TimeSlotID)
+WHERE Status IN ('Pending', 'Confirmed', 'InProgress', 'Completed')
+  AND WashBayID IS NOT NULL
+  AND TimeSlotID IS NOT NULL;
 GO
 
 -- =====================================================
@@ -394,4 +415,7 @@ CREATE TABLE BookingDetails (
     CONSTRAINT FK_BookingDetails_Bookings FOREIGN KEY(BookingID) REFERENCES Bookings(BookingID),
     CONSTRAINT FK_BookingDetails_Services FOREIGN KEY(ServiceID) REFERENCES Services(ServiceID)
 );
+GO
+
+PRINT 'AutoWashProDB schema created. Next step: run sql/Data.sql';
 GO

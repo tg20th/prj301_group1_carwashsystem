@@ -79,6 +79,7 @@ public class LoginController extends HttpServlet {
             return;
         }
 
+
         // update thời gian đăng nhập
         accountDAO.updateLastLogin(account.getAccountID());
 
@@ -129,6 +130,7 @@ public class LoginController extends HttpServlet {
         // Trường hợp tài khoản hợp lệ nhưng không tìm thấy data Customer trong DB
         request.setAttribute("error", "Your profile is incomplete. Please contact support.");
         request.getRequestDispatcher("index.jsp").forward(request, response);
+
     }
 
     /**

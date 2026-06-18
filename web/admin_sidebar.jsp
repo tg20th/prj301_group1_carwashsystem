@@ -1,7 +1,7 @@
 <%@ page pageEncoding="UTF-8" %>
-<aside class="sidebar p-4 shadow-sm d-flex flex-column" style="height: 100vh; position: sticky; top: 0;">
+<aside class="sidebar p-4 shadow-sm">
     <a href="AdminDashboardController" class="text-dark text-decoration-none fw-bold fs-4 mb-4 d-flex align-items-center">
-        <i class="bi bi-vinyl-fill me-2 fs-3 text-primary"></i>EliteAuto
+        <i class="bi bi-vinyl-fill me-2 fs-3 text-dark"></i>EliteAuto
     </a>
 
     <div class="overflow-y-auto flex-grow-1" style="scrollbar-width: none;">
@@ -22,17 +22,17 @@
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link d-flex align-items-center" href="WashBayMgmtController">
+                <a class="nav-link d-flex align-items-center" href="WashBayController?action=list">
                     <i class="bi bi-droplet me-3"></i> Wash Bays
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link d-flex align-items-center" href="SlotScheduleController">
-                    <i class="bi bi-clock-history me-3"></i> Slot Schedule
+                <a class="nav-link d-flex align-items-center" href="TimeSlotController">
+                    <i class="bi bi-clock-history me-3"></i> Time Slot Management
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link d-flex align-items-center" href="ManageServiceController">
+                <a class="nav-link d-flex align-items-center" href="ServiceController?action=list">
                     <i class="bi bi-tools me-3"></i> Services
                 </a>
             </li>
@@ -116,9 +116,5 @@
                 link.classList.add('text-dark');
             }
         });
-
-        if(!foundActive && links.length > 0) {
-            // fallback
-        }
     });
 </script>

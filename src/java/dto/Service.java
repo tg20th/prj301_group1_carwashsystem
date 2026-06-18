@@ -4,20 +4,21 @@ package dto;
 public class Service {
     private int id;
     private String name;
-    private double price;
     private String description;
     private boolean status;
 
-    public Service(int id, String name, double price, boolean status) {
-        this.id = id;
-        this.name = name;
-        this.price = price;
-        this.status = status;
-    }
+
 
     public Service(int id, String name, boolean status) {
         this.id = id;
         this.name = name;
+        this.status = status;
+    }
+
+    public Service(int id, String name, String description, boolean status) {
+        this.id = id;
+        this.name = name;
+        this.description = description;
         this.status = status;
     }
 
@@ -40,15 +41,7 @@ public class Service {
     public void setName(String name) {
         this.name = name;
     }
-
-    public double getPrice() {
-        return price;
-    }
-
-    public void setPrice(double price) {
-        this.price = price;
-    }
-
+    
     public String getDescription() {
         return description;
     }

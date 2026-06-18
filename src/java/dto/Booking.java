@@ -27,6 +27,10 @@ public class Booking {
     private TimeSlot timeslot;
     private String vehicleType;
     private String vehicleName;
+    private String bayName;
+    private long paymentOrderCode;
+    private String paymentLinkId;
+    private String paymentStatus;
     
     //dùng để lấy full infor booking trong ngày
     public Booking(int bookingID, String status, String cusName, String licensePlate, String service, TimeSlot timeslot, String vehicleType, String vehicleName) {
@@ -240,7 +244,37 @@ public class Booking {
     public void setVehicleName(String vehicleName) {
         this.vehicleName = vehicleName;
     }
-    
-    
+
+    public String getBayName() {
+        return bayName;
+    }
+
+    public void setBayName(String bayName) {
+        this.bayName = bayName;
+    }
+
+    public long getPaymentOrderCode() {
+        return paymentOrderCode;
+    }
+
+    public void setPaymentOrderCode(long paymentOrderCode) {
+        this.paymentOrderCode = paymentOrderCode;
+    }
+
+    public String getPaymentLinkId() {
+        return paymentLinkId;
+    }
+
+    public void setPaymentLinkId(String paymentLinkId) {
+        this.paymentLinkId = paymentLinkId;
+    }
+
+    public String getPaymentStatus() {
+        return paymentStatus;
+    }
+
+    public void setPaymentStatus(String paymentStatus) {
+        this.paymentStatus = paymentStatus;
+    }
 
 }

@@ -9,6 +9,7 @@ public class Tier {
     private String desciption;
     private boolean status;
     private int totalCus;
+    private int maxBookingDaysAhead;
 
     public Tier(int tierID, String tierName, int totalCus) {
         this.tierID = tierID;
@@ -109,5 +110,12 @@ public class Tier {
         this.pointRate = pointRate;
     }
 
-    
+    public int getMaxBookingDaysAhead() {
+        return maxBookingDaysAhead;
+    }
+
+    public void setMaxBookingDaysAhead(int maxBookingDaysAhead) {
+        this.maxBookingDaysAhead = maxBookingDaysAhead;
+    }
+
 }

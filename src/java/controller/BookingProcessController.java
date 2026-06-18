@@ -54,9 +54,9 @@ public class BookingProcessController extends HttpServlet {
                             try {
                                 Thread.sleep(60000);
 
-                                bd.updateStatusOfBooking(bookingId, "Completed");
-
-                                System.out.println("Auto checkout booking " + bookingId);
+                                int points = bd.completeBookingWithPayment(bookingId, "Cash");
+                                System.out.println("Auto checkout booking " + bookingId
+                                        + (points >= 0 ? ", points earned: " + points : ", checkout failed"));
 
                             } catch (InterruptedException e) {
                                 e.printStackTrace();
@@ -68,11 +68,31 @@ public class BookingProcessController extends HttpServlet {
                     request.setAttribute("success", "Check in successfully!");
                 }
             } else if ("checkout".equals(action)) {
-                result = bd.updateStatusOfBooking(bookingId, "Completed");
-                if (result < 1) {
+                String paymentMethod = request.getParameter("paymentMethod");
+                int points = bd.completeBookingWithPayment(bookingId, paymentMethod);
+                if (points < 0) {
                     request.setAttribute("error", "Check out fail. Please try again!");
                 } else {
-                    request.setAttribute("success", "Check out successfully!");
+                    String msg = "Payment completed successfully!";
+                    if (points > 0) {
+                        msg += " Customer earned " + points + " loyalty points (1,000 VND = 1 point).";
+                    }
+                    request.setAttribute("success", msg);
+                }
+            } else if ("confirm".equals(action)) {
+                result = bd.confirmBooking(bookingId);
+                if (result < 1) {
+                    request.setAttribute("error", "Confirm booking failed. Please try again!");
+                } else {
+                    request.setAttribute("success", "Booking confirmed successfully!");
+                }
+            } else if ("cancel".equals(action)) {
+                result = bd.cancelBooking(bookingId);
+                if (result < 1) {
+                    request.setAttribute("error", "Cancel booking failed. Please try again!");
+                } else {
+                    request.setAttribute("success",
+                            "Booking cancelled. Wash bay released and loyalty points reversed if payment was completed.");
                 }
             }
         }

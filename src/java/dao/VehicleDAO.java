@@ -216,6 +216,38 @@ public class VehicleDAO {
         return 0;
     }
 
+    public boolean isVehicleOwnedByCustomer(int vehicleId, int customerId) {
+        String sql = "SELECT 1 FROM Vehicles WHERE VehicleID = ? AND CustomerID = ?";
+        try (Connection con = DBUtils.getConnection();
+                PreparedStatement st = con.prepareStatement(sql)) {
+            st.setInt(1, vehicleId);
+            st.setInt(2, customerId);
+            ResultSet rs = st.executeQuery();
+            return rs.next();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public Integer getVehicleTypeIdByVehicleId(int vehicleId) {
+        String sql = "SELECT vm.VehicleTypeID "
+                + "FROM Vehicles v "
+                + "JOIN VehicleModels vm ON v.ModelID = vm.ModelID "
+                + "WHERE v.VehicleID = ?";
+        try (Connection con = DBUtils.getConnection();
+                PreparedStatement st = con.prepareStatement(sql)) {
+            st.setInt(1, vehicleId);
+            ResultSet rs = st.executeQuery();
+            if (rs.next()) {
+                return rs.getInt("VehicleTypeID");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
     public List<Vehicle> getVehiclesByCustomerID(int cusID) {
         String sql = "SELECT v.*, vm.ModelName, vb.BrandName\n"
                 + "FROM Vehicles v\n"
