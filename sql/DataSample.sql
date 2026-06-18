@@ -49,9 +49,9 @@ INSERT INTO Accounts (AccountID, RoleID, Email, Phone, Password, FirstName, Last
 (3, 2, 'customer2@gmail.com', '0912234567', 'EmmaPass202#', 'Emma', 'Williams', 'Active', NULL),
 (4, 2, 'customer3@gmail.com', '0913345678', 'DavidPass303$', 'David', 'Jones', 'Active', NULL),
 (5, 2, 'customer4@gmail.com', '0914456789', 'SophiaPass404!', 'Sophia', 'Garcia', 'Active', NULL),
-(6, 2, 'business1@company.com', '0921123456', 'BizAdmin505#', 'James', 'Miller', 'Pending', NULL),
-(7, 2, 'customer5@gmail.com', '0915567890', 'OliviaPass606@', 'Olivia', 'Davis', 'Active', NULL),
-(8, 2, 'customer6@gmail.com', '0916678901', 'LiamPass808!', 'Liam', 'Moore', 'Pending', NULL),
+(6, 2, 'business1@company.com', '0921123456', 'BizAdmin505#', 'James', 'Miller', 'Active', NULL),
+(7, 2, 'customer5@gmail.com', '0915567890', 'OliviaPass606@', 'Olivia', 'Davis', 'Pending', NULL),
+(8, 2, 'customer6@gmail.com', '0916678901', 'LiamPass808!', 'Liam', 'Moore', 'Active', NULL),
 (9, 2, 'customer7@gmail.com', '0917789012', 'IsabellaPass909#', 'Isabella', 'Taylor', 'Rejected', N'Invalid Corporate Registration Certificate Number.'),
 (10, 2, 'customer8@gmail.com', '0918890123', 'NoahPass1111$', 'Noah', 'Thomas', 'Active', NULL),
 (11, 2, 'customer9@gmail.com', '0919901234', 'AvaPass1212!', 'Ava', 'Jackson', 'Active', NULL);
@@ -163,15 +163,20 @@ INSERT INTO ServicePrices (ServiceID, VehicleTypeID, Price, DurationMinutes) VAL
 GO
 
 -- =====================================================
--- 12. WASH BAYS
+-- 12. WASH BAYS (ĐÃ CẬP NHẬT TRẠNG THÁI STATUS ĐẦY ĐỦ)
 -- =====================================================
 SET IDENTITY_INSERT WashBays ON;
-INSERT INTO WashBays (WashBayID, BayName, Description, IsActive) VALUES 
-(1, 'Bay A1', 'Standard bay near entrance', 1), (2, 'Bay A2', 'Standard bay', 1),
-(3, 'Bay B1', 'Premium detailing bay', 1), (4, 'Bay B2', 'Premium bay with lift', 1),
-(5, 'Bay C1', 'Express wash bay', 1), (6, 'Bay C2', 'Express wash bay', 1),
-(7, 'Bay VIP1', 'VIP customer bay', 1), (8, 'Bay VIP2', 'VIP customer bay', 1),
-(9, 'Bay D1', 'Large vehicle bay', 1), (10, 'Bay D2', 'Electric vehicle compatible bay', 1);
+INSERT INTO WashBays (WashBayID, BayName, Description, Status) VALUES 
+(1, 'Bay A1', 'Standard bay near entrance', 'Available'), 
+(2, 'Bay A2', 'Standard bay', 'Unavailable'),
+(3, 'Bay B1', 'Premium detailing bay', 'Available'), 
+(4, 'Bay B2', 'Premium bay with lift', 'Maintenance'),
+(5, 'Bay C1', 'Express wash bay', 'Available'), 
+(6, 'Bay C2', 'Express wash bay', 'Available'),
+(7, 'Bay VIP1', 'VIP customer bay', 'Unavailable'), 
+(8, 'Bay VIP2', 'VIP customer bay', 'Available'),
+(9, 'Bay D1', 'Large vehicle bay', 'Maintenance'), 
+(10, 'Bay D2', 'Electric vehicle compatible bay', 'Available');
 SET IDENTITY_INSERT WashBays OFF;
 GO
 
@@ -179,15 +184,15 @@ GO
 -- 12.5. TIME SLOTS
 -- =====================================================
 SET IDENTITY_INSERT TimeSlots ON;
-INSERT INTO TimeSlots (TimeSlotID, SlotDate, StartTime, EndTime, Status, MaintenanceNote) VALUES
-(1, CAST(GETDATE() AS DATE), DATEADD(hour, 8, CAST(CAST(GETDATE() AS DATE) AS DATETIME)), DATEADD(minute, 510, CAST(CAST(GETDATE() AS DATE) AS DATETIME)), 'AVAILABLE', NULL),
-(2, CAST(GETDATE() AS DATE), DATEADD(hour, 8, CAST(CAST(GETDATE() AS DATE) AS DATETIME)), DATEADD(minute, 510, CAST(CAST(GETDATE() AS DATE) AS DATETIME)), 'UNAVAILABLE', NULL),
-(3, CAST(GETDATE() AS DATE), DATEADD(hour, 9, CAST(CAST(GETDATE() AS DATE) AS DATETIME)), DATEADD(minute, 570, CAST(CAST(GETDATE() AS DATE) AS DATETIME)), 'UNAVAILABLE', NULL),
-(4, CAST(GETDATE() AS DATE), DATEADD(hour, 9, CAST(CAST(GETDATE() AS DATE) AS DATETIME)), DATEADD(minute, 600, CAST(CAST(GETDATE() AS DATE) AS DATETIME)), 'UNAVAILABLE', NULL),
-(5, CAST(GETDATE() AS DATE), DATEADD(hour, 10, CAST(CAST(GETDATE() AS DATE) AS DATETIME)), DATEADD(minute, 630, CAST(CAST(GETDATE() AS DATE) AS DATETIME)), 'UNAVAILABLE', NULL),
-(6, CAST(GETDATE() AS DATE), DATEADD(hour, 11, CAST(CAST(GETDATE() AS DATE) AS DATETIME)), DATEADD(minute, 690, CAST(CAST(GETDATE() AS DATE) AS DATETIME)), 'UNAVAILABLE', NULL),
-(7, CAST(GETDATE() AS DATE), DATEADD(hour, 14, CAST(CAST(GETDATE() AS DATE) AS DATETIME)), DATEADD(minute, 870, CAST(CAST(GETDATE() AS DATE) AS DATETIME)), 'UNAVAILABLE', NULL),
-(8, CAST(GETDATE() AS DATE), DATEADD(hour, 15, CAST(CAST(GETDATE() AS DATE) AS DATETIME)), DATEADD(minute, 930, CAST(CAST(GETDATE() AS DATE) AS DATETIME)), 'UNAVAILABLE', NULL);
+INSERT INTO TimeSlots (TimeSlotID, StartTime, EndTime, IsAvailable) VALUES
+(1, CAST(GETDATE() AS DATE), DATEADD(minute, 30, CAST(CAST(GETDATE() AS DATE) AS DATETIME)), 1), 
+(2, DATEADD(hour, 8, CAST(CAST(GETDATE() AS DATE) AS DATETIME)), DATEADD(minute, 510, CAST(CAST(GETDATE() AS DATE) AS DATETIME)), 0), 
+(3, DATEADD(hour, 9, CAST(CAST(GETDATE() AS DATE) AS DATETIME)), DATEADD(minute, 570, CAST(CAST(GETDATE() AS DATE) AS DATETIME)), 0), 
+(4, DATEADD(hour, 9, CAST(CAST(GETDATE() AS DATE) AS DATETIME)), DATEADD(minute, 600, CAST(CAST(GETDATE() AS DATE) AS DATETIME)), 0), 
+(5, DATEADD(hour, 10, CAST(CAST(GETDATE() AS DATE) AS DATETIME)), DATEADD(minute, 630, CAST(CAST(GETDATE() AS DATE) AS DATETIME)), 0), 
+(6, DATEADD(hour, 11, CAST(CAST(GETDATE() AS DATE) AS DATETIME)), DATEADD(minute, 690, CAST(CAST(GETDATE() AS DATE) AS DATETIME)), 0), 
+(7, DATEADD(hour, 14, CAST(CAST(GETDATE() AS DATE) AS DATETIME)), DATEADD(minute, 870, CAST(CAST(GETDATE() AS DATE) AS DATETIME)), 0), 
+(8, DATEADD(hour, 15, CAST(CAST(GETDATE() AS DATE) AS DATETIME)), DATEADD(minute, 930, CAST(CAST(GETDATE() AS DATE) AS DATETIME)), 0); 
 SET IDENTITY_INSERT TimeSlots OFF;
 GO
 
@@ -274,7 +279,7 @@ INSERT INTO Bookings (BookingID, CustomerID, VehicleID, ServiceID, WashBayID, Ti
 (4, 3, 3, 1, 2, 5, 3, 1, 200000, 40, GETDATE(), 'Completed', 'Standard appointment task'),
 (5, 4, 4, 8, 4, 6, 4, 1, 2500000, 180, GETDATE(), 'Completed', 'VIP ceramic service'),
 (6, 5, 5, 1, 7, 7, 5, 1, 300000, 40, GETDATE(), 'Pending', 'Corporate Fleet Order A'),
-(7, 5, 5, 1, 7, 8, 6, 1, 300000, 40, GETDATE(), 'Peding', 'Corporate Fleet Order B'),
+(7, 5, 5, 1, 7, 8, 6, 1, 300000, 40, GETDATE(), 'Pending', 'Corporate Fleet Order B'),
 (8, 6, 6, 1, 1, 2, NULL, 1, 180000, 35, GETDATE(), 'Pending', 'Awaiting approval');
 SET IDENTITY_INSERT Bookings OFF;
 GO

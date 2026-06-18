@@ -72,7 +72,7 @@
                     </li>
                     <li class="nav-item"><a class="nav-link d-flex align-items-center" href="CarRequestsController"><i class="bi bi-car-front me-3"></i> Car Requests</a></li>
                     <li class="nav-item"><a class="nav-link d-flex align-items-center" href="BusinessRequestsController"><i class="bi bi-building me-3"></i> Business Requests</a></li>
-                    <li class="nav-item"><a class="nav-link d-flex align-items-center" href="WashBayMgmtController"><i class="bi bi-droplet me-3"></i> Wash Bay Mgmt</a></li>
+                    <li class="nav-item"><a class="nav-link d-flex align-items-center" href="WashBayController?action=list"><i class="bi bi-droplet me-3"></i> Wash Bay Mgmt</a></li>
                     <li class="nav-item"><a class="nav-link d-flex align-items-center" href="SlotScheduleController"><i class="bi bi-calendar-range me-3"></i> Slot Schedule</a></li>
 
                     <li class="nav-item mt-3 mb-1">

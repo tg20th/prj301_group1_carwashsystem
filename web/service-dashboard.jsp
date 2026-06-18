@@ -58,16 +58,11 @@
         </style>
     </head>
 
-    <body class="admin-body page-fullwidth">
+    <body class="admin-body">
 
-        <main class="main-wrapper page-content p-4 p-lg-5 animate-fade-up">
+        <jsp:include page="admin_sidebar.jsp"/>
 
-            <div class="mb-4">
-                <a href="AdminDashboardController" class="btn btn-outline-secondary rounded-pill px-4">
-                    <i class="bi bi-arrow-left me-2"></i>
-                    Back to Dashboard
-                </a>
-            </div>
+        <main class="main-wrapper p-4 p-lg-5 animate-fade-up">
 
             <div class="d-flex justify-content-between align-items-end mb-4 pb-2">
                 <div>
