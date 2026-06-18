@@ -16,6 +16,8 @@ public class Account {
     private Date createAt;
     private java.sql.Timestamp lastLoginAt; 
     private String reasonRejected;
+    
+    private String typeUser; //dung de phan biet loai khach hang
 
     public Account() {
     }
@@ -99,7 +101,34 @@ public class Account {
         this.email = email;
         this.status = status;
     }
-    
+
+    public Account(int accountID, String firstName, String lastName, String phone, String email, String status, Timestamp lastLoginAt, String typeUser) {
+        this.accountID = accountID;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.phone = phone;
+        this.email = email;
+        this.status = status;
+        this.lastLoginAt = lastLoginAt;
+        this.typeUser = typeUser;
+    }
+
+    public String getReasonRejected() {
+        return reasonRejected;
+    }
+
+    public void setReasonRejected(String reasonRejected) {
+        this.reasonRejected = reasonRejected;
+    }
+
+    public String getTypeUser() {
+        return typeUser;
+    }
+
+    public void setTypeUser(String typeUser) {
+        this.typeUser = typeUser;
+    }
+
     
 
     public int getAccountID() {
@@ -118,7 +147,7 @@ public class Account {
         this.roleID = roleID;
     }
 
-    public String isStatus() {
+    public String getStatus() {
         return status;
     }
 

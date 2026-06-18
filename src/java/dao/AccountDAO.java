@@ -6,6 +6,8 @@ import java.sql.Connection;
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.util.ArrayList;
+import java.util.List;
 
 public class AccountDAO {
 
@@ -29,7 +31,7 @@ public class AccountDAO {
             st.setString(4, a.getLastName());
             st.setString(5, a.getPhone());
             st.setString(6, a.getEmail());
-            st.setString(7, a.isStatus());
+            st.setString(7, a.getStatus());
             st.setDate(8, new Date(System.currentTimeMillis()));
 
             result = st.executeUpdate();
@@ -298,7 +300,6 @@ public class AccountDAO {
         return result;
     }
 
-
     public int updateStatusOfAccount(int id, String status, String reason) {
         int result = 0;
         Connection cn = null;
@@ -328,6 +329,301 @@ public class AccountDAO {
 
         return result;
     }
+
+    public List<Account> getAllUser() {
+        List<Account> list = new ArrayList<>();
+        Connection cn = null;
+        try {
+            cn = DBUtils.getConnection();
+
+            String sql = "SELECT\n"
+                    + "    a.AccountID,\n"
+                    + "    a.FirstName,\n"
+                    + "    a.LastName,\n"
+                    + "    a.Email,\n"
+                    + "    a.Phone,\n"
+                    + "    a.LastLoginAt,\n"
+                    + "    a.Status,\n"
+                    + "    CASE\n"
+                    + "        WHEN a.RoleID = 1 THEN 'Admin'\n"
+                    + "        WHEN bc.CustomerID IS NOT NULL THEN 'Business'\n"
+                    + "        ELSE 'Customer'\n"
+                    + "    END AS UserType\n"
+                    + "FROM Accounts a\n"
+                    + "LEFT JOIN Customers c\n"
+                    + "    ON a.AccountID = c.AccountID\n"
+                    + "LEFT JOIN BusinessCustomers bc\n"
+                    + "    ON c.CustomerID = bc.CustomerID\n"
+                    + "WHERE a.RoleID IN (1, 2) AND status IN ('Active','Frozen')";
+
+            PreparedStatement st = cn.prepareStatement(sql);
+            ResultSet table = st.executeQuery();
+
+            while (table.next()) {
+                Account a = new Account(table.getInt("AccountID"),
+                        table.getString("FirstName"),
+                        table.getString("LastName"),
+                        table.getString("Phone"),
+                        table.getString("Email"),
+                        table.getString("Status"),
+                        table.getTimestamp("LastLoginAt"),
+                        table.getString("UserType"));
+
+                list.add(a);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (cn != null) {
+                    cn.close();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        return list;
+    }
+
+    public List<Account> getUserByStatus(String status) {
+        List<Account> list = new ArrayList<>();
+        Connection cn = null;
+        try {
+            cn = DBUtils.getConnection();
+
+            String sql = "SELECT\n"
+                    + "    a.AccountID,\n"
+                    + "    a.FirstName,\n"
+                    + "    a.LastName,\n"
+                    + "    a.Email,\n"
+                    + "    a.Phone,\n"
+                    + "    a.LastLoginAt,\n"
+                    + "    a.Status,\n"
+                    + "    CASE\n"
+                    + "        WHEN a.RoleID = 1 THEN 'Admin'\n"
+                    + "        WHEN bc.CustomerID IS NOT NULL THEN 'Business'\n"
+                    + "        ELSE 'Customer'\n"
+                    + "    END AS UserType\n"
+                    + "FROM Accounts a\n"
+                    + "LEFT JOIN Customers c\n"
+                    + "    ON a.AccountID = c.AccountID\n"
+                    + "LEFT JOIN BusinessCustomers bc\n"
+                    + "    ON c.CustomerID = bc.CustomerID\n"
+                    + "WHERE a.RoleID IN (1, 2) AND status = ?";
+
+            PreparedStatement st = cn.prepareStatement(sql);
+            st.setString(1, status);
+            ResultSet table = st.executeQuery();
+
+            while (table.next()) {
+                Account a = new Account(table.getInt("AccountID"),
+                        table.getString("FirstName"),
+                        table.getString("LastName"),
+                        table.getString("Phone"),
+                        table.getString("Email"),
+                        table.getString("Status"),
+                        table.getTimestamp("LastLoginAt"),
+                        table.getString("UserType"));
+
+                list.add(a);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (cn != null) {
+                    cn.close();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        return list;
+    }
+
+    public List<Account> filterUsers(String status, String userType, String search, int page, int pageSize) {
+        List<Account> list = new ArrayList<>();
+        Connection cn = null;
+
+        try {
+            cn = DBUtils.getConnection();
+
+            String sql
+                    = "SELECT "
+                    + "a.AccountID, "
+                    + "a.FirstName, "
+                    + "a.LastName, "
+                    + "a.Email, "
+                    + "a.Phone, "
+                    + "a.LastLoginAt, "
+                    + "a.Status, "
+                    + "CASE "
+                    + "WHEN a.RoleID = 1 THEN 'Admin' "
+                    + "WHEN bc.CustomerID IS NOT NULL THEN 'Business' "
+                    + "ELSE 'Customer' "
+                    + "END AS UserType "
+                    + "FROM Accounts a "
+                    + "LEFT JOIN Customers c "
+                    + "ON a.AccountID = c.AccountID "
+                    + "LEFT JOIN BusinessCustomers bc "
+                    + "ON c.CustomerID = bc.CustomerID "
+                    + "WHERE a.RoleID IN (1,2) AND a.Status IN ('Active','Frozen')";
+
+            if (!"ALL".equals(status)) {
+                sql += " AND a.Status = ? ";
+            }
+
+            if (!"ALL".equals(userType)) {
+                sql += " AND (CASE "
+                        + "WHEN a.RoleID = 1 THEN 'Admin' "
+                        + "WHEN bc.CustomerID IS NOT NULL THEN 'Business' "
+                        + "ELSE 'Customer' "
+                        + "END) = ? ";
+            }
+
+            if (!search.trim().isEmpty()) {
+                sql += " AND ("
+                        + "a.FirstName LIKE ? "
+                        + "OR a.LastName LIKE ? "
+                        + "OR a.Email LIKE ? "
+                        + "OR a.Phone LIKE ? "
+                        + ") ";
+            }
+
+            sql += " ORDER BY a.AccountID DESC "
+                    + " OFFSET ? ROWS "
+                    + " FETCH NEXT ? ROWS ONLY ";
+
+            PreparedStatement st = cn.prepareStatement(sql);
+            int index = 1;
+
+            if (!"ALL".equals(status)) {
+                st.setString(index++, status);
+            }
+
+            if (!"ALL".equals(userType)) {
+                st.setString(index++, userType);
+            }
+
+            if (!search.trim().isEmpty()) {
+                String keyword = "%" + search.trim() + "%";
+
+                st.setString(index++, keyword);
+                st.setString(index++, keyword);
+                st.setString(index++, keyword);
+                st.setString(index++, keyword);
+            }
+
+            st.setInt(index++, (page - 1) * pageSize);
+            st.setInt(index++, pageSize);
+
+            ResultSet table = st.executeQuery();
+
+            while (table.next()) {
+                Account acc = new Account();
+
+                acc.setAccountID(table.getInt("AccountID"));
+                acc.setFirstName(table.getString("FirstName"));
+                acc.setLastName(table.getString("LastName"));
+                acc.setEmail(table.getString("Email"));
+                acc.setPhone(table.getString("Phone"));
+                acc.setLastLoginAt(table.getTimestamp("LastLoginAt"));
+                acc.setStatus(table.getString("Status"));
+                acc.setTypeUser(table.getString("UserType"));
+
+                list.add(acc);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (cn != null) {
+                    cn.close();
+                }
+            } catch (Exception e) {
+            }
+        }
+        return list;
+    }
     
 
+    public int getTotalFilteredUsers(String status, String userType, String search) {
+        int result = 0;
+        Connection cn = null;
+
+        try {
+            cn = DBUtils.getConnection();
+
+            String sql = "SELECT COUNT(*) AS Total "
+                    + "FROM Accounts a "
+                    + "LEFT JOIN Customers c ON a.AccountID = c.AccountID "
+                    + "LEFT JOIN BusinessCustomers bc ON c.CustomerID = bc.CustomerID "
+                    + "WHERE a.RoleID IN (1,2) AND a.Status IN ('Active','Frozen')";
+
+            // Filter theo Status
+            if (!"ALL".equals(status)) {
+                sql += " AND a.Status = ? ";
+            }
+
+            // Filter theo UserType 
+            if (!"ALL".equals(userType)) {
+                sql += " AND (CASE "
+                        + "WHEN a.RoleID = 1 THEN 'Admin' "
+                        + "WHEN bc.CustomerID IS NOT NULL THEN 'Business' "
+                        + "ELSE 'Customer' "
+                        + "END) = ? ";
+            }
+
+            // Filter theo Search
+            if (search != null && !search.trim().isEmpty()) {
+                sql += " AND ("
+                        + "a.FirstName LIKE ? "
+                        + "OR a.LastName LIKE ? "
+                        + "OR a.Email LIKE ? "
+                        + "OR a.Phone LIKE ? "
+                        + ") ";
+            }
+
+            PreparedStatement st = cn.prepareStatement(sql);
+            int index = 1;
+
+            if (!"ALL".equals(status)) {
+                st.setString(index++, status);
+            }
+
+            if (!"ALL".equals(userType)) {
+                st.setString(index++, userType);
+            }
+
+            if (search != null && !search.trim().isEmpty()) {
+                String keyword = "%" + search.trim() + "%";
+                st.setString(index++, keyword);
+                st.setString(index++, keyword);
+                st.setString(index++, keyword);
+                st.setString(index++, keyword);
+            }
+
+            ResultSet rs = st.executeQuery();
+            if (rs.next()) {
+                result = rs.getInt("Total");
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (cn != null) {
+                    cn.close();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return result;
+    }
 }

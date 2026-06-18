@@ -97,7 +97,7 @@ public class LoginController extends HttpServlet {
         }
         
         //tung: 14/6 check status tài khoản 
-        String status = account.isStatus();
+        String status = account.getStatus();
         if ("Rejected".equalsIgnoreCase(status)) {
             // Bắn thẳng đến trang pending thay vì qua MainController (tránh lỗi getRequestDispatcher sai cú pháp)
             request.getRequestDispatcher("ResubmitRegistController").forward(request, response);
