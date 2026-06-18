@@ -41,7 +41,7 @@
                 <span class="text-muted small fw-bold text-uppercase" style="font-size: 0.65rem; padding-left: 1rem;">Requests</span>
             </li>
             <li class="nav-item">
-                <a class="nav-link d-flex align-items-center" href="CarRequestsController">
+                <a class="nav-link d-flex align-items-center" href="VehicleRequestController">
                     <i class="bi bi-car-front me-3"></i> Car Requests
                 </a>
             </li>

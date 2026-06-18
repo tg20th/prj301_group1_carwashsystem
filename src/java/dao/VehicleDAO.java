@@ -166,7 +166,7 @@ public class VehicleDAO {
         return null;
     }
 
-    public int updateVehicle(Vehicle v){
+    public int updateVehicle(Vehicle v) {
         int result = 0;
         String sql = "UPDATE Vehicles "
                 + "SET ModelID = ?, "
@@ -248,7 +248,7 @@ public class VehicleDAO {
         }
         return list;
     }
-    
+
     public int getTotalVehicle() {
         int result = 0;
         Connection cn = null;
@@ -279,7 +279,7 @@ public class VehicleDAO {
 
         return result;
     }
-    
+
     public int getTotalVehiclePending() {
         int result = 0;
         Connection cn = null;
@@ -309,5 +309,134 @@ public class VehicleDAO {
         }
 
         return result;
+    }
+
+    public List<Vehicle> getAllPendingIndividualVehicles() {
+        List<Vehicle> list = new ArrayList<>();
+        Connection cn = null;
+        try {
+            cn = DBUtils.getConnection();
+            String sql = "SELECT v.*, vm.ModelName, vb.BrandName \n"
+                    + "       FROM Vehicles v \n"
+                    + "       JOIN Customers c ON v.CustomerID = c.CustomerID \n"
+                    + "       LEFT JOIN BusinessCustomers bc ON c.CustomerID = bc.CustomerID \n"
+                    + "       JOIN VehicleModels vm ON v.ModelID = vm.ModelID \n"
+                    + "       JOIN VehicleBrands vb ON vm.BrandID = vb.BrandID \n"
+                    + "       WHERE v.Status='Pending' AND bc.CustomerID IS NULL";
+            PreparedStatement st = cn.prepareStatement(sql);
+            ResultSet rs = st.executeQuery();
+            while (rs.next()) {
+                Vehicle v = new Vehicle();
+                v.setVehicleID(rs.getInt("VehicleID"));
+                v.setCustomerID(rs.getInt("CustomerID"));
+                v.setModelID(rs.getInt("ModelID"));
+                v.setLicensePlate(rs.getString("LicensePlate"));
+                v.setColor(rs.getString("Color"));
+                int year = rs.getInt("ManufactureYear");
+                if (!rs.wasNull()) {
+                    v.setManufactureYear(year);
+                }
+                v.setImageURL(rs.getString("ImageURL"));
+                v.setStatus(rs.getString("Status"));
+                v.setBrandName(rs.getString("BrandName"));
+                v.setModelName(rs.getString("ModelName"));
+                list.add(v);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (cn != null) {
+                    cn.close();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return list;
+    }
+
+    public List<Vehicle> getPendingVehiclesByBusiness(int customerID) {
+        List<Vehicle> list = new ArrayList<>();
+        Connection cn = null;
+        try {
+            cn = DBUtils.getConnection();
+            String sql = "SELECT v.*, vm.ModelName, vb.BrandName \n"
+                    + "      FROM Vehicles v \n"
+                    + "     JOIN VehicleModels vm  ON v.ModelID = vm.ModelID \n"
+                    + "     JOIN VehicleBrands vb ON vm.BrandID = vb.BrandID \n"
+                    + "    WHERE v.CustomerID=? AND v.Status='Pending'";
+            PreparedStatement st = cn.prepareStatement(sql);
+            st.setInt(1, customerID);
+            ResultSet rs = st.executeQuery();
+            while (rs.next()) {
+                Vehicle v = new Vehicle();
+                v.setVehicleID(rs.getInt("VehicleID"));
+                v.setCustomerID(rs.getInt("CustomerID"));
+                v.setModelID(rs.getInt("ModelID"));
+                v.setLicensePlate(rs.getString("LicensePlate"));
+                v.setColor(rs.getString("Color"));
+                int year = rs.getInt("ManufactureYear");
+                if (!rs.wasNull()) {
+                    v.setManufactureYear(year);
+                }
+                v.setImageURL(rs.getString("ImageURL"));
+                v.setStatus(rs.getString("Status"));
+                v.setBrandName(rs.getString("BrandName"));
+                v.setModelName(rs.getString("ModelName"));
+                list.add(v);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (cn != null) {
+                    cn.close();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return list;
+    }
+
+    public int approveVehicle(int vehicleID) {
+        String sql = "UPDATE Vehicles "
+                + "SET Status = 'Active' "
+                + "WHERE VehicleID = ? "
+                + "AND Status = 'Pending'";
+
+        try {
+            Connection con = DBUtils.getConnection();
+            PreparedStatement st = con.prepareStatement(sql);
+
+            st.setInt(1, vehicleID);
+
+            return st.executeUpdate();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    public int rejectVehicle(int vehicleID) {
+        String sql = "UPDATE Vehicles "
+                + "SET Status = 'Frozen' "
+                + "WHERE VehicleID = ? "
+                + "AND Status = 'Pending'";
+
+        try {
+            Connection con = DBUtils.getConnection();
+            PreparedStatement st = con.prepareStatement(sql);
+
+            st.setInt(1, vehicleID);
+
+            return st.executeUpdate();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return 0;
     }
 }
