@@ -86,7 +86,7 @@ public class BookingProcessController extends HttpServlet {
                 if (result < 1) {
                     request.setAttribute("error", "Cancel booking failed. Please try again!");
                 } else {
-                    request.setAttribute("success", "Booking cancelled. Time slot is now available.");
+                    request.setAttribute("success", "Booking cancelled. Wash bay released for this time slot.");
                 }
             }
         }

@@ -15,17 +15,17 @@ public class TierDAO {
         Connection cn = null;
         try {
             cn = DBUtils.getConnection();
-            String sql = "SELECT [TierName]\n"
-                    + "  FROM [AutoWashProDB].[dbo].[LoyaltyTiers] where [TierID] = ?";
+            String sql = "SELECT [TierID], [TierName], [MaxBookingDaysAhead] "
+                    + "FROM [dbo].[LoyaltyTiers] WHERE [TierID] = ? AND [IsActive] = 1";
             PreparedStatement st = cn.prepareStatement(sql);
             st.setInt(1, id);
             ResultSet table = st.executeQuery();
-            while (table.next()) {
-                String name = table.getString("TierName");
+            if (table.next()) {
                 result = new Tier();
-                result.setTierName(name);
+                result.setTierID(table.getInt("TierID"));
+                result.setTierName(table.getString("TierName"));
+                result.setMaxBookingDaysAhead(table.getInt("MaxBookingDaysAhead"));
             }
-
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
@@ -38,6 +38,27 @@ public class TierDAO {
             }
         }
         return result;
+    }
+
+    public int getMaxBookingDaysAhead(int tierId) {
+        Tier tier = getTier(tierId);
+        if (tier != null && tier.getMaxBookingDaysAhead() > 0) {
+            return tier.getMaxBookingDaysAhead();
+        }
+        return defaultMaxBookingDays(tierId);
+    }
+
+    private int defaultMaxBookingDays(int tierId) {
+        switch (tierId) {
+            case 4:
+                return 30;
+            case 3:
+                return 14;
+            case 2:
+                return 7;
+            default:
+                return 3;
+        }
     }
     
     public List<Tier> getAllTier() {

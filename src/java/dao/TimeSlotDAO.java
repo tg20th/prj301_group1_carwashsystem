@@ -30,39 +30,15 @@ public class TimeSlotDAO {
         Connection cn = null;
         try {
             cn = DBUtils.getConnection();
-            if (columnExists(cn, "SlotDate") && columnExists(cn, "Status")) {
+            if (columnExists(cn, "SlotDate") && columnExists(cn, "IsFull")) {
                 schemaReady = true;
                 return null;
             }
-            if (!columnExists(cn, "IsAvailable")) {
-                lastError = "TimeSlots table is missing required columns. Run sql/migration_timeslots_status.sql";
-                return lastError;
-            }
-            executeUpdate(cn, "ALTER TABLE TimeSlots ADD SlotDate DATE NULL");
-            executeUpdate(cn, "ALTER TABLE TimeSlots ADD Status VARCHAR(20) NULL");
-            if (!columnExists(cn, "MaintenanceNote")) {
-                executeUpdate(cn, "ALTER TABLE TimeSlots ADD MaintenanceNote NVARCHAR(500) NULL");
-            }
-            executeUpdate(cn,
-                    "UPDATE TimeSlots SET SlotDate = CAST(StartTime AS DATE), "
-                    + "Status = CASE WHEN IsAvailable = 1 THEN 'AVAILABLE' ELSE 'UNAVAILABLE' END "
-                    + "WHERE SlotDate IS NULL OR Status IS NULL");
-            executeUpdate(cn, "ALTER TABLE TimeSlots ALTER COLUMN SlotDate DATE NOT NULL");
-            executeUpdate(cn, "ALTER TABLE TimeSlots ALTER COLUMN Status VARCHAR(20) NOT NULL");
-            if (!constraintExists(cn, "CK_TimeSlots_Status")) {
-                executeUpdate(cn,
-                        "ALTER TABLE TimeSlots ADD CONSTRAINT CK_TimeSlots_Status "
-                        + "CHECK (Status IN ('AVAILABLE', 'UNAVAILABLE', 'MAINTENANCE'))");
-            }
-            dropDefaultConstraint(cn, "IsAvailable");
-            if (columnExists(cn, "IsAvailable")) {
-                executeUpdate(cn, "ALTER TABLE TimeSlots DROP COLUMN IsAvailable");
-            }
-            schemaReady = true;
-            return null;
+            lastError = "TimeSlots schema is outdated. Re-run sql/AutoWashProDB.sql and sql/Data.sql";
+            return lastError;
         } catch (Exception e) {
             e.printStackTrace();
-            lastError = "Database schema migration failed: " + e.getMessage();
+            lastError = "Database schema check failed: " + e.getMessage();
             return lastError;
         } finally {
             closeConnection(cn);
@@ -76,18 +52,30 @@ public class TimeSlotDAO {
     }
 
     public List<TimeSlotDTO> getAllSlotsByDate(LocalDate date) {
+        return querySlotsByDate(date, false);
+    }
+
+    public List<TimeSlotDTO> getAvailableSlotsByDate(LocalDate date) {
+        return querySlotsByDate(date, true);
+    }
+
+    private List<TimeSlotDTO> querySlotsByDate(LocalDate date, boolean onlyAvailable) {
         List<TimeSlotDTO> list = new ArrayList<>();
         prepareSchema();
         Connection cn = null;
         try {
             cn = DBUtils.getConnection();
-            String sql = "SELECT TimeSlotID, SlotDate, StartTime, EndTime, Status, MaintenanceNote "
-                    + "FROM TimeSlots WHERE SlotDate = ? ORDER BY StartTime";
+            String sql = "SELECT TimeSlotID, SlotDate, StartTime, EndTime, IsFull "
+                    + "FROM TimeSlots WHERE SlotDate = ? "
+                    + (onlyAvailable ? "AND IsFull = 0 " : "")
+                    + "ORDER BY StartTime";
             PreparedStatement st = cn.prepareStatement(sql);
             st.setDate(1, Date.valueOf(date));
             ResultSet rs = st.executeQuery();
             while (rs.next()) {
-                list.add(mapRow(rs));
+                TimeSlotDTO slot = mapRow(rs);
+                enrichSlotCounts(slot, cn);
+                list.add(slot);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -103,13 +91,14 @@ public class TimeSlotDAO {
         Connection cn = null;
         try {
             cn = DBUtils.getConnection();
-            String sql = "SELECT TimeSlotID, SlotDate, StartTime, EndTime, Status, MaintenanceNote "
+            String sql = "SELECT TimeSlotID, SlotDate, StartTime, EndTime, IsFull "
                     + "FROM TimeSlots WHERE TimeSlotID = ?";
             PreparedStatement st = cn.prepareStatement(sql);
             st.setInt(1, slotId);
             ResultSet rs = st.executeQuery();
             if (rs.next()) {
                 slot = mapRow(rs);
+                enrichSlotCounts(slot, cn);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -119,79 +108,69 @@ public class TimeSlotDAO {
         return slot;
     }
 
-    public int createSlot(TimeSlotDTO slot) {
-        int result = 0;
-        Connection cn = null;
-        try {
-            if (!validateSlot(slot, -1)) {
-                return -1;
-            }
-            cn = DBUtils.getConnection();
-            String sql = "INSERT INTO TimeSlots (SlotDate, StartTime, EndTime, Status, MaintenanceNote) "
-                    + "VALUES (?, ?, ?, ?, ?)";
-            PreparedStatement st = cn.prepareStatement(sql);
-            st.setDate(1, Date.valueOf(slot.getSlotDate()));
-            st.setTimestamp(2, Timestamp.valueOf(slot.getStartTime()));
-            st.setTimestamp(3, Timestamp.valueOf(slot.getEndTime()));
-            st.setString(4, slot.getStatus());
-            st.setString(5, slot.getMaintenanceNote());
-            result = st.executeUpdate();
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            closeConnection(cn);
+    public int countAvailableBaysInSlot(int slotId, Connection cn) throws Exception {
+        String sql = "SELECT COUNT(*) AS Total FROM WashBays wb "
+                + "WHERE wb.Status = 'Available' "
+                + "AND NOT EXISTS ("
+                + "  SELECT 1 FROM Bookings b "
+                + "  WHERE b.WashBayID = wb.WashBayID "
+                + "    AND b.TimeSlotID = ? "
+                + "    AND b.Status NOT IN ('Cancelled', 'NoShow')"
+                + ")";
+        PreparedStatement st = cn.prepareStatement(sql);
+        st.setInt(1, slotId);
+        ResultSet rs = st.executeQuery();
+        if (rs.next()) {
+            return rs.getInt("Total");
         }
-        return result;
+        return 0;
     }
 
-    public int updateSlot(TimeSlotDTO slot) {
-        int result = 0;
-        Connection cn = null;
-        try {
-            if (!validateSlot(slot, slot.getSlotId())) {
-                return -1;
-            }
-            cn = DBUtils.getConnection();
-            String sql = "UPDATE TimeSlots SET SlotDate = ?, StartTime = ?, EndTime = ?, "
-                    + "Status = ?, MaintenanceNote = ? WHERE TimeSlotID = ?";
-            PreparedStatement st = cn.prepareStatement(sql);
-            st.setDate(1, Date.valueOf(slot.getSlotDate()));
-            st.setTimestamp(2, Timestamp.valueOf(slot.getStartTime()));
-            st.setTimestamp(3, Timestamp.valueOf(slot.getEndTime()));
-            st.setString(4, slot.getStatus());
-            st.setString(5, slot.getMaintenanceNote());
-            st.setInt(6, slot.getSlotId());
-            result = st.executeUpdate();
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            closeConnection(cn);
+    public int countBookedBaysInSlot(int slotId, Connection cn) throws Exception {
+        String sql = "SELECT COUNT(DISTINCT b.WashBayID) AS Total "
+                + "FROM Bookings b "
+                + "JOIN WashBays wb ON wb.WashBayID = b.WashBayID "
+                + "WHERE b.TimeSlotID = ? "
+                + "AND b.Status NOT IN ('Cancelled', 'NoShow')";
+        PreparedStatement st = cn.prepareStatement(sql);
+        st.setInt(1, slotId);
+        ResultSet rs = st.executeQuery();
+        if (rs.next()) {
+            return rs.getInt("Total");
         }
-        return result;
+        return 0;
     }
 
-    public int deleteSlot(int slotId) {
-        int result = 0;
+    public int countTotalWashBays(Connection cn) throws Exception {
+        String sql = "SELECT COUNT(*) AS Total FROM WashBays";
+        PreparedStatement st = cn.prepareStatement(sql);
+        ResultSet rs = st.executeQuery();
+        if (rs.next()) {
+            return rs.getInt("Total");
+        }
+        return 0;
+    }
+
+    public void syncSlotFullness(int slotId) {
         Connection cn = null;
         try {
-            TimeSlotDTO existing = getSlotById(slotId);
-            if (existing == null) {
-                return 0;
-            }
-            if (TimeSlotDTO.UNAVAILABLE.equals(existing.getStatus())) {
-                return -2;
-            }
             cn = DBUtils.getConnection();
-            String sql = "DELETE FROM TimeSlots WHERE TimeSlotID = ?";
-            PreparedStatement st = cn.prepareStatement(sql);
-            st.setInt(1, slotId);
-            result = st.executeUpdate();
+            syncSlotFullness(slotId, cn);
         } catch (Exception e) {
             e.printStackTrace();
+            lastError = e.getMessage();
         } finally {
             closeConnection(cn);
         }
-        return result;
+    }
+
+    public void syncSlotFullness(int slotId, Connection cn) throws Exception {
+        int remaining = countAvailableBaysInSlot(slotId, cn);
+        String sql = "UPDATE TimeSlots SET IsFull = ? WHERE TimeSlotID = ?";
+        PreparedStatement st = cn.prepareStatement(sql);
+        st.setBoolean(1, remaining == 0);
+        st.setInt(2, slotId);
+        st.executeUpdate();
     }
 
     public int generateDefaultSlots(LocalDate date) {
@@ -206,13 +185,12 @@ public class TimeSlotDAO {
             while (cursor.isBefore(dayEnd)) {
                 LocalDateTime slotEnd = cursor.plusMinutes(SLOT_MINUTES);
                 if (!hasOverlap(date, cursor, slotEnd, -1, cn)) {
-                    String sql = "INSERT INTO TimeSlots (SlotDate, StartTime, EndTime, Status) "
-                            + "VALUES (?, ?, ?, ?)";
+                    String sql = "INSERT INTO TimeSlots (SlotDate, StartTime, EndTime, IsFull) "
+                            + "VALUES (?, ?, ?, 0)";
                     PreparedStatement st = cn.prepareStatement(sql);
                     st.setDate(1, Date.valueOf(date));
                     st.setTimestamp(2, Timestamp.valueOf(cursor));
                     st.setTimestamp(3, Timestamp.valueOf(slotEnd));
-                    st.setString(4, TimeSlotDTO.AVAILABLE);
                     created += st.executeUpdate();
                 }
                 cursor = slotEnd;
@@ -231,10 +209,13 @@ public class TimeSlotDAO {
         Connection cn = null;
         try {
             cn = DBUtils.getConnection();
-            String deleteSql = "DELETE FROM TimeSlots WHERE SlotDate = ? AND Status = ?";
+            String deleteSql = "DELETE FROM TimeSlots WHERE SlotDate = ? AND IsFull = 0 "
+                    + "AND NOT EXISTS ("
+                    + "  SELECT 1 FROM Bookings b WHERE b.TimeSlotID = TimeSlots.TimeSlotID "
+                    + "  AND b.Status NOT IN ('Cancelled', 'NoShow')"
+                    + ")";
             PreparedStatement deleteSt = cn.prepareStatement(deleteSql);
             deleteSt.setDate(1, Date.valueOf(date));
-            deleteSt.setString(2, TimeSlotDTO.AVAILABLE);
             deleteSt.executeUpdate();
             result = generateDefaultSlots(date);
         } catch (Exception e) {
@@ -266,17 +247,18 @@ public class TimeSlotDAO {
         return count;
     }
 
-    public Booking getBookingBySlotId(int slotId) {
-        Booking booking = null;
+    public List<Booking> getBookingsBySlotId(int slotId) {
+        List<Booking> list = new ArrayList<>();
         Connection cn = null;
         try {
             cn = DBUtils.getConnection();
-            String sql = "SELECT b.BookingID, b.Status, b.BookingDate, "
+            String sql = "SELECT b.BookingID, b.Status, b.WashBayID, "
                     + "a.LastName + ' ' + a.FirstName AS FullName, "
                     + "v.LicensePlate, vb.BrandName + ' ' + vm.ModelName AS VehicleName, "
-                    + "vt.TypeName, s.ServiceName, t.StartTime, t.EndTime "
+                    + "vt.TypeName, s.ServiceName, wb.BayName, t.StartTime, t.EndTime, t.IsFull "
                     + "FROM Bookings b "
                     + "JOIN TimeSlots t ON b.TimeSlotID = t.TimeSlotID "
+                    + "JOIN WashBays wb ON wb.WashBayID = b.WashBayID "
                     + "JOIN Customers c ON c.CustomerID = b.CustomerID "
                     + "JOIN Accounts a ON a.AccountID = c.AccountID "
                     + "JOIN Vehicles v ON v.VehicleID = b.VehicleID "
@@ -284,11 +266,12 @@ public class TimeSlotDAO {
                     + "JOIN VehicleModels vm ON v.ModelID = vm.ModelID "
                     + "JOIN VehicleBrands vb ON vb.BrandID = vm.BrandID "
                     + "JOIN VehicleTypes vt ON vt.VehicleTypeID = vm.VehicleTypeID "
-                    + "WHERE b.TimeSlotID = ? AND b.Status NOT IN ('Cancelled', 'NoShow')";
+                    + "WHERE b.TimeSlotID = ? AND b.Status NOT IN ('Cancelled', 'NoShow') "
+                    + "ORDER BY wb.BayName";
             PreparedStatement st = cn.prepareStatement(sql);
             st.setInt(1, slotId);
             ResultSet rs = st.executeQuery();
-            if (rs.next()) {
+            while (rs.next()) {
                 int bookingId = rs.getInt("BookingID");
                 String status = rs.getString("Status");
                 String customerName = rs.getString("FullName");
@@ -298,164 +281,55 @@ public class TimeSlotDAO {
                 String service = rs.getString("ServiceName");
                 LocalDateTime start = rs.getTimestamp("StartTime").toLocalDateTime();
                 LocalDateTime end = rs.getTimestamp("EndTime").toLocalDateTime();
+                boolean isFull = rs.getBoolean("IsFull");
 
-                booking = new Booking(bookingId, status, customerName, licensePlate, service,
-                        new dto.TimeSlot(String.valueOf(slotId), start, end, TimeSlotDTO.UNAVAILABLE),
+                Booking booking = new Booking(bookingId, status, customerName, licensePlate, service,
+                        new dto.TimeSlot(String.valueOf(slotId), start, end, isFull),
                         vehicleType, vehicleName);
+                booking.setWashBayId(rs.getInt("WashBayID"));
+                list.add(booking);
             }
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
             closeConnection(cn);
         }
-        return booking;
+        return list;
     }
 
-    public int updateSlotStatus(int slotId, String status) {
+    public Booking getBookingBySlotId(int slotId) {
+        List<Booking> bookings = getBookingsBySlotId(slotId);
+        return bookings.isEmpty() ? null : bookings.get(0);
+    }
+
+    public int deleteSlot(int slotId) {
         int result = 0;
         Connection cn = null;
         try {
-            cn = DBUtils.getConnection();
-            String sql = "UPDATE TimeSlots SET Status = ? WHERE TimeSlotID = ?";
-            PreparedStatement st = cn.prepareStatement(sql);
-            st.setString(1, status);
-            st.setInt(2, slotId);
-            result = st.executeUpdate();
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            closeConnection(cn);
-        }
-        return result;
-    }
-
-    public int markSlotAsMaintenance(int slotId, String note) {
-        TimeSlotDTO slot = getSlotById(slotId);
-        if (slot == null) {
-            lastError = "Time slot not found.";
-            return 0;
-        }
-        if (TimeSlotDTO.UNAVAILABLE.equals(slot.getStatus())) {
-            lastError = "Cannot change status. This slot is already booked.";
-            return -2;
-        }
-        if (note == null || note.trim().isEmpty()) {
-            lastError = "Maintenance reason is required.";
-            return -3;
-        }
-        return updateMaintenanceNote(slotId, note.trim());
-    }
-
-    public int restoreSlotToAvailable(int slotId) {
-        TimeSlotDTO slot = getSlotById(slotId);
-        if (slot == null) {
-            lastError = "Time slot not found.";
-            return 0;
-        }
-        if (TimeSlotDTO.UNAVAILABLE.equals(slot.getStatus())) {
-            lastError = "Cannot restore. This slot is already booked.";
-            return -2;
-        }
-        if (!TimeSlotDTO.MAINTENANCE.equals(slot.getStatus())) {
-            lastError = "Only maintenance slots can be restored to available.";
-            return -4;
-        }
-
-        int result = 0;
-        Connection cn = null;
-        try {
-            cn = DBUtils.getConnection();
-            String sql = "UPDATE TimeSlots SET Status = ?, MaintenanceNote = NULL WHERE TimeSlotID = ?";
-            PreparedStatement st = cn.prepareStatement(sql);
-            st.setString(1, TimeSlotDTO.AVAILABLE);
-            st.setInt(2, slotId);
-            result = st.executeUpdate();
-        } catch (Exception e) {
-            e.printStackTrace();
-            lastError = e.getMessage();
-        } finally {
-            closeConnection(cn);
-        }
-        return result;
-    }
-
-    public int updateMaintenanceNote(int slotId, String note) {
-        int result = 0;
-        Connection cn = null;
-        try {
-            cn = DBUtils.getConnection();
-            String sql = "UPDATE TimeSlots SET MaintenanceNote = ?, Status = ? WHERE TimeSlotID = ?";
-            PreparedStatement st = cn.prepareStatement(sql);
-            st.setString(1, note);
-            st.setString(2, TimeSlotDTO.MAINTENANCE);
-            st.setInt(3, slotId);
-            result = st.executeUpdate();
-        } catch (Exception e) {
-            e.printStackTrace();
-            lastError = e.getMessage();
-        } finally {
-            closeConnection(cn);
-        }
-        return result;
-    }
-
-    public boolean validateSlot(TimeSlotDTO slot, int excludeSlotId) {
-        if (slot.getSlotDate() == null) {
-            return false;
-        }
-        if (slot.getStartTime() == null || slot.getEndTime() == null) {
-            return false;
-        }
-        if (!slot.getEndTime().isAfter(slot.getStartTime())) {
-            return false;
-        }
-        if (slot.getStatus() == null || slot.getStatus().trim().isEmpty()) {
-            return false;
-        }
-        if (!isValidStatus(slot.getStatus())) {
-            return false;
-        }
-        Connection cn = null;
-        try {
-            cn = DBUtils.getConnection();
-            return !hasOverlap(slot.getSlotDate(), slot.getStartTime(), slot.getEndTime(), excludeSlotId, cn);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
-        } finally {
-            closeConnection(cn);
-        }
-    }
-
-    public String getValidationError(TimeSlotDTO slot, int excludeSlotId) {
-        if (slot.getSlotDate() == null) {
-            return "Date is required.";
-        }
-        if (slot.getStartTime() == null || slot.getEndTime() == null) {
-            return "Start time and end time are required.";
-        }
-        if (!slot.getEndTime().isAfter(slot.getStartTime())) {
-            return "End time must be greater than start time.";
-        }
-        if (slot.getStatus() == null || slot.getStatus().trim().isEmpty()) {
-            return "Status is required.";
-        }
-        if (!isValidStatus(slot.getStatus())) {
-            return "Invalid status. Allowed: AVAILABLE, UNAVAILABLE, MAINTENANCE.";
-        }
-        Connection cn = null;
-        try {
-            cn = DBUtils.getConnection();
-            if (hasOverlap(slot.getSlotDate(), slot.getStartTime(), slot.getEndTime(), excludeSlotId, cn)) {
-                return "This time slot overlaps with an existing slot.";
+            TimeSlotDTO existing = getSlotById(slotId);
+            if (existing == null) {
+                return 0;
             }
+            if (existing.getBookedCount() > 0) {
+                return -2;
+            }
+            cn = DBUtils.getConnection();
+            String sql = "DELETE FROM TimeSlots WHERE TimeSlotID = ?";
+            PreparedStatement st = cn.prepareStatement(sql);
+            st.setInt(1, slotId);
+            result = st.executeUpdate();
         } catch (Exception e) {
             e.printStackTrace();
-            return "Validation error: " + e.getMessage();
         } finally {
             closeConnection(cn);
         }
-        return null;
+        return result;
+    }
+
+    private void enrichSlotCounts(TimeSlotDTO slot, Connection cn) throws Exception {
+        slot.setAvailableBayCount(countAvailableBaysInSlot(slot.getSlotId(), cn));
+        slot.setBookedCount(countBookedBaysInSlot(slot.getSlotId(), cn));
+        slot.setTotalBayCount(countTotalWashBays(cn));
     }
 
     private boolean hasOverlap(LocalDate date, LocalDateTime start, LocalDateTime end,
@@ -475,20 +349,13 @@ public class TimeSlotDAO {
         return false;
     }
 
-    private boolean isValidStatus(String status) {
-        return TimeSlotDTO.AVAILABLE.equals(status)
-                || TimeSlotDTO.UNAVAILABLE.equals(status)
-                || TimeSlotDTO.MAINTENANCE.equals(status);
-    }
-
     private TimeSlotDTO mapRow(ResultSet rs) throws Exception {
         return new TimeSlotDTO(
                 rs.getInt("TimeSlotID"),
                 rs.getDate("SlotDate").toLocalDate(),
                 rs.getTimestamp("StartTime").toLocalDateTime(),
                 rs.getTimestamp("EndTime").toLocalDateTime(),
-                rs.getString("Status"),
-                rs.getString("MaintenanceNote")
+                rs.getBoolean("IsFull")
         );
     }
 
@@ -502,35 +369,6 @@ public class TimeSlotDAO {
             return rs.getInt("Total") > 0;
         }
         return false;
-    }
-
-    private boolean constraintExists(Connection cn, String constraintName) throws Exception {
-        String sql = "SELECT COUNT(*) AS Total FROM sys.check_constraints WHERE name = ?";
-        PreparedStatement st = cn.prepareStatement(sql);
-        st.setString(1, constraintName);
-        ResultSet rs = st.executeQuery();
-        if (rs.next()) {
-            return rs.getInt("Total") > 0;
-        }
-        return false;
-    }
-
-    private void executeUpdate(Connection cn, String sql) throws Exception {
-        PreparedStatement st = cn.prepareStatement(sql);
-        st.executeUpdate();
-    }
-
-    private void dropDefaultConstraint(Connection cn, String columnName) throws Exception {
-        String sql = "SELECT dc.name FROM sys.default_constraints dc "
-                + "JOIN sys.columns c ON dc.parent_object_id = c.object_id AND dc.parent_column_id = c.column_id "
-                + "WHERE dc.parent_object_id = OBJECT_ID('TimeSlots') AND c.name = ?";
-        PreparedStatement st = cn.prepareStatement(sql);
-        st.setString(1, columnName);
-        ResultSet rs = st.executeQuery();
-        if (rs.next()) {
-            String constraintName = rs.getString("name");
-            executeUpdate(cn, "ALTER TABLE TimeSlots DROP CONSTRAINT " + constraintName);
-        }
     }
 
     private void closeConnection(Connection cn) {

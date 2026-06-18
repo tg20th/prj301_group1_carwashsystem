@@ -94,7 +94,14 @@
                                 <td class="text-center">
                                     <%
 
-                                        if (wb.isAvailable()) {
+                                        if (wb.isUnavailable()) {
+                                    %>
+                                    <span class="badge bg-danger bg-opacity-10 text-danger border-danger border border-opacity-25 px-3 py-1"
+                                          style="font-size: 0.7rem;">
+                                        Unavailable
+                                    </span>
+                                    <%
+                                    } else if (wb.isAvailable()) {
                                     %>
                                     <span class="badge bg-success bg-opacity-10 text-success border-success border border-opacity-25 px-3 py-1"
                                           style="font-size: 0.7rem;">
@@ -106,13 +113,6 @@
                                     <span class="badge bg-warning bg-opacity-10 text-warning border-warning border border-opacity-75 px-3 py-1"
                                           style="font-size: 0.7rem;">
                                         Maintenance
-                                    </span>
-                                    <%
-                                    } else {
-                                    %>
-                                    <span class="badge bg-danger bg-opacity-10 text-danger border-danger border border-opacity-25 px-3 py-1"
-                                          style="font-size: 0.7rem;">
-                                        Unavailable
                                     </span>
                                     <%
                                         }

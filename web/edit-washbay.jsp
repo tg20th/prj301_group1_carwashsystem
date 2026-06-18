@@ -140,7 +140,7 @@
 
                     <div class="ms-auto small text-muted d-flex align-items-center gap-1">
                         <i class="bi bi-info-circle"></i>
-                        <span>Wash bay which status is <strong>Available</strong> can be booking.</span>
+                        <span><strong>Available</strong> = ready to book · <strong>Unavailable</strong> = admin offline · <strong>Maintenance</strong> = under repair. Booked bays show as Unavailable per time slot.</span>
                     </div>
                 </div>
             </form>

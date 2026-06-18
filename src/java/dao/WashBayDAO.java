@@ -194,6 +194,90 @@ public class WashBayDAO {
         return wb.isAvailable();
     }
     
+    private static final String SLOT_STATUS_SQL =
+            "CASE "
+            + "WHEN wb.Status = 'Maintenance' THEN 'Maintenance' "
+            + "WHEN wb.Status = 'Unavailable' THEN 'Unavailable' "
+            + "WHEN EXISTS ("
+            + "  SELECT 1 FROM Bookings b "
+            + "  WHERE b.WashBayID = wb.WashBayID "
+            + "    AND b.TimeSlotID = ? "
+            + "    AND b.Status NOT IN ('Cancelled', 'NoShow')"
+            + ") THEN 'Unavailable' "
+            + "ELSE 'Available' END";
+
+    public List<dto.WashBaySlotDTO> getWashBaysForTimeSlot(int timeSlotId) {
+        List<dto.WashBaySlotDTO> list = new ArrayList<>();
+        Connection cn = null;
+        try {
+            cn = DBUtils.getConnection();
+            String sql = "SELECT wb.WashBayID, wb.BayName, wb.Description, wb.Status AS BaseStatus, "
+                    + SLOT_STATUS_SQL + " AS SlotStatus "
+                    + "FROM WashBays wb ORDER BY wb.BayName";
+            PreparedStatement st = cn.prepareStatement(sql);
+            st.setInt(1, timeSlotId);
+            ResultSet rs = st.executeQuery();
+            while (rs.next()) {
+                list.add(new dto.WashBaySlotDTO(
+                        rs.getInt("WashBayID"),
+                        rs.getString("BayName"),
+                        rs.getString("Description"),
+                        rs.getString("BaseStatus"),
+                        rs.getString("SlotStatus")
+                ));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (cn != null) {
+                    cn.close();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return list;
+    }
+
+    public List<dto.WashBaySlotDTO> getAvailableWashBaysForTimeSlot(int timeSlotId) {
+        List<dto.WashBaySlotDTO> all = getWashBaysForTimeSlot(timeSlotId);
+        List<dto.WashBaySlotDTO> available = new ArrayList<>();
+        for (dto.WashBaySlotDTO bay : all) {
+            if (bay.isSelectable()) {
+                available.add(bay);
+            }
+        }
+        return available;
+    }
+
+    public boolean isWashBayBookableInSlot(int washBayId, int timeSlotId) {
+        Connection cn = null;
+        try {
+            cn = DBUtils.getConnection();
+            String sql = "SELECT " + SLOT_STATUS_SQL + " AS SlotStatus "
+                    + "FROM WashBays wb WHERE wb.WashBayID = ?";
+            PreparedStatement st = cn.prepareStatement(sql);
+            st.setInt(1, timeSlotId);
+            st.setInt(2, washBayId);
+            ResultSet rs = st.executeQuery();
+            if (rs.next()) {
+                return WashBay.AVAILABLE.equalsIgnoreCase(rs.getString("SlotStatus"));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (cn != null) {
+                    cn.close();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return false;
+    }
+
     public boolean updateWashBay(WashBay wb) {
         boolean result = false;
         Connection cn = null;

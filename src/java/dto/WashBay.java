@@ -73,6 +73,10 @@ public class WashBay {
     public boolean isMaintenance() {
         return MAINTENANCE.equalsIgnoreCase(status);
     }
+
+    public boolean isUnavailable() {
+        return UNAVAILABLE.equalsIgnoreCase(status);
+    }
     
 
     

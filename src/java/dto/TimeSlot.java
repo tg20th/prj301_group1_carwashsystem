@@ -6,13 +6,13 @@ public class TimeSlot {
     private String timeslotID;
     private LocalDateTime start;
     private LocalDateTime end;
-    private String status;
+    private boolean isFull;
 
-    public TimeSlot(String timeslotID, LocalDateTime start, LocalDateTime end, String status) {
+    public TimeSlot(String timeslotID, LocalDateTime start, LocalDateTime end, boolean isFull) {
         this.timeslotID = timeslotID;
         this.start = start;
         this.end = end;
-        this.status = status;
+        this.isFull = isFull;
     }
 
     public String getTimeslotID() {
@@ -39,15 +39,15 @@ public class TimeSlot {
         this.end = end;
     }
 
-    public String getStatus() {
-        return status;
+    public boolean isFull() {
+        return isFull;
     }
 
-    public void setStatus(String status) {
-        this.status = status;
+    public void setFull(boolean full) {
+        isFull = full;
     }
 
     public boolean isAvailable() {
-        return TimeSlotDTO.AVAILABLE.equals(status);
+        return !isFull;
     }
 }
