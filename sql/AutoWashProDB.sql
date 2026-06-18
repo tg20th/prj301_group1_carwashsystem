@@ -220,22 +220,15 @@ CREATE TABLE Promotions (
     PromoCode NVARCHAR(50) UNIQUE NULL,
     PromotionName NVARCHAR(100) NOT NULL,
 
-    TargetType NVARCHAR(20) NOT NULL DEFAULT 'All', -- 'All', 'Tier', 'Customer'
+    TargetType NVARCHAR(20) NOT NULL DEFAULT 'All', -- 'All', 'Tier'
 
-    DiscountPercent INT NULL,
-    DiscountAmount DECIMAL(18,0) NULL,
+    DiscountPercent INT NOT NULL,
 
     StartDate DATE,
     EndDate DATE,
     Description NVARCHAR(255),
     IsActive BIT NOT NULL DEFAULT 1,
-
-    CONSTRAINT CK_Promotion_Discount CHECK (
-        (DiscountPercent IS NOT NULL AND DiscountAmount IS NULL)
-        OR
-        (DiscountPercent IS NULL AND DiscountAmount IS NOT NULL)
-    ),
-    CONSTRAINT CK_Promotion_Target CHECK (TargetType IN ('All', 'Tier', 'Customer'))
+    CONSTRAINT CK_Promotion_Target CHECK (TargetType IN ('All', 'Tier'))
 );
 
 -- =====================================================
@@ -249,16 +242,6 @@ CREATE TABLE PromotionTiers (
     CONSTRAINT FK_PromoTiers_Tier FOREIGN KEY(TierID) REFERENCES LoyaltyTiers(TierID)
 );
 
--- =====================================================
--- 13.2. PROMOTION CUSTOMERS
--- =====================================================
-CREATE TABLE PromotionCustomers (
-    PromotionID INT NOT NULL,
-    CustomerID INT NOT NULL,
-    PRIMARY KEY(PromotionID, CustomerID),
-    CONSTRAINT FK_PromoCust_Promo FOREIGN KEY(PromotionID) REFERENCES Promotions(PromotionID) ON DELETE CASCADE,
-    CONSTRAINT FK_PromoCust_Cust FOREIGN KEY(CustomerID) REFERENCES Customers(CustomerID)
-);
 
 -- =====================================================
 -- 14. REWARDS

@@ -53,6 +53,9 @@ public class AdminDashboardController extends HttpServlet {
         PromotionDAO p = new PromotionDAO();
         
         BookingDAO b = new BookingDAO();
+        
+        int result = b.markNoShowBookings();
+        result = p.autoUpdateStatus();
 
         request.setAttribute("TOTALCUSTOMER", c.getTotalCustomer());
         request.setAttribute("TOTALACCPENDING", ad.getTotalPendingAccount());
@@ -62,7 +65,7 @@ public class AdminDashboardController extends HttpServlet {
         request.setAttribute("REVENUEMONTH", i.getTotalRevenueMonth());
         request.setAttribute("LISTOFTIER", t.getAllTier());
         request.setAttribute("LISTSERVICES", s.getAllServices());
-        request.setAttribute("LISTOFPROMOTION", p.getAllPromotion());
+        request.setAttribute("LISTOFPROMOTION", p.getAllPromotionActive());
         request.setAttribute("LISTOFBOOKING", b.getAllBookToday());
 
         request.getRequestDispatcher("admin_dashboard.jsp").forward(request, response);
