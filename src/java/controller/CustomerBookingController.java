@@ -291,8 +291,7 @@ public class CustomerBookingController extends HttpServlet {
             BookingDAO bookingDAO = new BookingDAO();
             int result = bookingDAO.createCustomerBooking(booking);
             if (result > 0) {
-                request.setAttribute("SUCCESS_MSG", "Booking created successfully! Booking ID: " + booking.getBookingID());
-                handlePage(request, response, customer);
+                response.sendRedirect("PaymentController?bookingId=" + booking.getBookingID());
                 return;
             }
 

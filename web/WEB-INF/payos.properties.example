@@ -1,0 +1,17 @@
+# Copy file này thành payos.properties và điền key từ my.payos.vn
+payos.client.id=YOUR_CLIENT_ID
+payos.api.key=YOUR_API_KEY
+payos.checksum.key=YOUR_CHECKSUM_KEY
+
+# URL public (ngrok) + context path — bắt buộc để returnUrl/webhook hoạt động
+# Ví dụ: https://abc123.ngrok-free.app/CarWashSystem
+payos.return.base.url=https://YOUR-NGROK-URL/CarWashSystem
+
+# URL bạn dùng mở app (thường localhost — giữ session)
+payos.app.url=http://localhost:8080/CarWashSystem
+
+# Không đổi trừ khi payOS đổi endpoint
+payos.base.url=https://api-merchant.payos.vn
+
+# true = test giả lập, không chuyển tiền thật. Đặt false khi deploy thật.
+payos.sandbox.mode=true
