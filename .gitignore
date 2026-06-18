@@ -67,8 +67,11 @@ desktop.ini
 *.bak
 *.old
 
+# Secrets
+web/WEB-INF/payos.properties
+
 # ==========================================
-# Notes: 
+# Notes:
 # - Giữ lại các file .jar trong /lib và web/WEB-INF/lib
 # - Giữ src/, web/, nbproject/ (trừ private), build.xml
 # ==========================================

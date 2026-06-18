@@ -94,6 +94,39 @@ public class ServicePricesDAO {
         return list;
     }
 
+    public ServicePrices getPriceByServiceAndVehicleType(int serviceId, int vehicleTypeId) {
+        Connection cn = null;
+        try {
+            cn = DBUtils.getConnection();
+            String sql = "SELECT [ServiceID], [VehicleTypeID], [Price], [DurationMinutes] "
+                    + "FROM [dbo].[ServicePrices] "
+                    + "WHERE [ServiceID] = ? AND [VehicleTypeID] = ?";
+            PreparedStatement st = cn.prepareStatement(sql);
+            st.setInt(1, serviceId);
+            st.setInt(2, vehicleTypeId);
+            ResultSet rs = st.executeQuery();
+            if (rs.next()) {
+                ServicePrices sp = new ServicePrices();
+                sp.setServiceID(rs.getInt("ServiceID"));
+                sp.setVehicleTypeID(rs.getInt("VehicleTypeID"));
+                sp.setPrice(rs.getBigDecimal("Price"));
+                sp.setDurations(rs.getInt("DurationMinutes"));
+                return sp;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (cn != null) {
+                    cn.close();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return null;
+    }
+
     public int updateServicePrice(ServicePrices sp) {
         int result = 0;
         Connection cn = null;

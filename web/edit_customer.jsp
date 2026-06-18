@@ -1,3 +1,4 @@
+<%@page import="dto.Business"%>
 <%@page import="dto.Account"%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%
@@ -12,6 +13,16 @@
     // Tạo initials cho avatar
     String initials = (a.getFirstName() != null && !a.getFirstName().isEmpty() ? a.getFirstName().substring(0, 1) : "")
             + (a.getLastName() != null && !a.getLastName().isEmpty() ? a.getLastName().substring(0, 1) : "");
+
+    Business bus = (Business) session.getAttribute("BUS");
+
+    String dashboardURL;
+
+    if (bus != null) {
+        dashboardURL = "BusinessDashboardController";
+    } else {
+        dashboardURL = "CustomerDashBoardController";
+    }
 %>
 <!DOCTYPE html>
 <html lang="en">
@@ -41,7 +52,7 @@
     <body style="background-color: var(--bg-card);">
 
         <div class="position-absolute top-0 start-0 p-4 z-3 animate-fade-up">
-            <a href="MainController?action=dashboard" class="d-inline-flex align-items-center bg-white rounded-pill shadow-sm px-4 py-2 text-dark fw-medium text-decoration-none transition-hover border border-light">
+            <a href="<%=dashboardURL%>" class="d-inline-flex align-items-center bg-white rounded-pill shadow-sm px-4 py-2 text-dark fw-medium text-decoration-none transition-hover border border-light">
                 <i class="bi bi-arrow-left me-2"></i> Back to Dashboard
             </a>
         </div>

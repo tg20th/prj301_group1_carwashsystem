@@ -22,17 +22,17 @@
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link d-flex align-items-center" href="WashBayMgmtController">
+                <a class="nav-link d-flex align-items-center" href="WashBayController?action=list">
                     <i class="bi bi-droplet me-3"></i> Wash Bays
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link d-flex align-items-center" href="SlotScheduleController">
-                    <i class="bi bi-clock-history me-3"></i> Slot Schedule
+                <a class="nav-link d-flex align-items-center" href="TimeSlotController">
+                    <i class="bi bi-clock-history me-3"></i> Time Slot Management
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link d-flex align-items-center" href="ManageServiceController">
+                <a class="nav-link d-flex align-items-center" href="ServiceController?action=list">
                     <i class="bi bi-tools me-3"></i> Services
                 </a>
             </li>
