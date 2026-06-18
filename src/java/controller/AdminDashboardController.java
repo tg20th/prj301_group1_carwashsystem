@@ -41,7 +41,7 @@ public class AdminDashboardController extends HttpServlet {
         CustomerDAO c = new CustomerDAO();
 
         AccountDAO ad = new AccountDAO();
-
+        
         VehicleDAO v = new VehicleDAO();
 
         InvoiceDAO i = new InvoiceDAO();
@@ -53,7 +53,8 @@ public class AdminDashboardController extends HttpServlet {
         PromotionDAO p = new PromotionDAO();
         
         BookingDAO b = new BookingDAO();
-
+        int result = b.markNoShowBookings();
+        
         request.setAttribute("TOTALCUSTOMER", c.getTotalCustomer());
         request.setAttribute("TOTALACCPENDING", ad.getTotalPendingAccount());
         request.setAttribute("TOTALVEHICLE", v.getTotalVehicle());

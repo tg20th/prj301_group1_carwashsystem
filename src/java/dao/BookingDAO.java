@@ -107,7 +107,7 @@ public class BookingDAO {
         }
         return list;
     }
-    
+
     public int updateStatusOfBooking(int id, String status) {
         int result = 0;
         Connection cn = null;
@@ -137,4 +137,34 @@ public class BookingDAO {
         return result;
     }
 
+    public int markNoShowBookings() {
+        int result = 0;
+        Connection cn = null;
+
+        try {
+            cn = DBUtils.getConnection();
+            String sql = "UPDATE b\n"
+                    + "SET b.Status = 'NoShow'\n"
+                    + "FROM Bookings b JOIN TimeSlots t \n"
+                    + "ON b.TimeSlotID = t.TimeSlotID\n"
+                    + "WHERE DATEADD(MINUTE, 15, t.StartTime) <= GETDATE() \n"
+                    + "AND b.Status = 'Confirmed';";
+
+            PreparedStatement st = cn.prepareStatement(sql);
+            result = st.executeUpdate();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (cn != null) {
+                    cn.close();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        return result;
+    }
 }
