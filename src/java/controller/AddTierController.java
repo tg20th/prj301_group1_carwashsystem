@@ -5,6 +5,7 @@
 package controller;
 
 import dao.TierDAO;
+import dto.Account;
 import dto.Tier;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -33,6 +34,12 @@ public class AddTierController extends HttpServlet {
      */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        Account account = (Account) request.getSession().getAttribute("ACCOUNT");
+        
+        if (account == null) {
+            request.getRequestDispatcher("MainController").forward(request, response);
+            return;
+        }
 
         try {
             request.setCharacterEncoding("UTF-8");

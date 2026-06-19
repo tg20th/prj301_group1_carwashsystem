@@ -44,6 +44,10 @@ public class UpdateVehicleController extends HttpServlet {
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
         Account acc = (Account) request.getSession().getAttribute("ACCOUNT");
+        if (acc == null) {
+            request.getRequestDispatcher("MainController").forward(request, response);
+            return;
+        }
         String url;
         try {
             int vehicleID = Integer.parseInt(request.getParameter("vehicleID"));

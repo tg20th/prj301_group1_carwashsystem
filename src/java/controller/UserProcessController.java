@@ -32,6 +32,13 @@ public class UserProcessController extends HttpServlet {
      */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        Account account = (Account) request.getSession().getAttribute("ACCOUNT");
+        
+        if (account == null) {
+            request.getRequestDispatcher("MainController").forward(request, response);
+            return;
+        }
+        
         int id = Integer.parseInt(request.getParameter("userId"));
         String action = request.getParameter("action");
         AccountDAO ad = new AccountDAO();

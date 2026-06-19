@@ -5,6 +5,7 @@
 package controller;
 
 import dao.TierDAO;
+import dto.Account;
 import java.io.IOException;
 import java.io.PrintWriter;
 import javax.servlet.ServletException;
@@ -31,6 +32,12 @@ public class ManageTiersController extends HttpServlet {
      */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        Account a = (Account) request.getSession().getAttribute("ACCOUNT");
+        if (a == null) {
+            request.getRequestDispatcher("MainController").forward(request, response);
+            return;
+        }
+        
         TierDAO t = new TierDAO();
         request.setAttribute("LISTOFTIER", t.getAllTier());
         

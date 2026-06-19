@@ -4,6 +4,9 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 
 <!DOCTYPE html>
+<c:if test="account == null">
+    <jsp:forward page="index.jsp"/>
+</c:if>
 <html lang="en">
     <head>
         <meta charset="UTF-8">

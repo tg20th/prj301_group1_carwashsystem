@@ -1,6 +1,7 @@
 package controller;
 
 import dao.TierDAO;
+import dto.Account;
 import dto.Tier;
 import java.io.IOException;
 import java.util.List;
@@ -17,6 +18,12 @@ public class UpdateTierController extends HttpServlet {
             throws ServletException, IOException {
 
         request.setCharacterEncoding("UTF-8"); // Đảm bảo nhận tiếng Việt từ form không bị lỗi font
+        Account account = (Account) request.getSession().getAttribute("ACCOUNT");
+        
+        if (account == null) {
+            request.getRequestDispatcher("MainController").forward(request, response);
+            return;
+        }
 
         try {
             // GIỮ NGUYÊN KIỂU DỮ LIỆU BAN ĐẦU CỦA BẠN

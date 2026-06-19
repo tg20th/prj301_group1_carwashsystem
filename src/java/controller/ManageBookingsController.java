@@ -5,6 +5,7 @@
 package controller;
 
 import dao.BookingDAO;
+import dto.Account;
 import java.io.IOException;
 import java.io.PrintWriter;
 import javax.servlet.ServletException;
@@ -31,6 +32,12 @@ public class ManageBookingsController extends HttpServlet {
      */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        Account a = (Account) request.getSession().getAttribute("ACCOUNT");
+        if (a == null) {
+            request.getRequestDispatcher("MainController").forward(request, response);
+            return;
+        }
+        
         BookingDAO b = new BookingDAO();
         int result= b.markNoShowBookings();
         request.setAttribute("LISTOFBOOKING", b.getAllBookToday());

@@ -19,7 +19,7 @@ public class RemoveVehicleController extends HttpServlet {
             throws ServletException, IOException {
         HttpSession session = request.getSession(false);
         if (session == null || session.getAttribute("ACCOUNT") == null) {
-            response.sendRedirect("index.jsp");
+            response.sendRedirect("MainController?action=home");
             return;
         }
         try {

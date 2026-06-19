@@ -39,7 +39,7 @@ public class VehicleRequestController extends HttpServlet {
         response.setContentType("text/html;charset=UTF-8");
         Account acc = (Account) request.getSession().getAttribute("ACCOUNT");
         if (acc == null) {
-            response.sendRedirect("login.jsp");
+            response.sendRedirect("index.jsp");
             return;
         }
         try {
@@ -54,7 +54,7 @@ public class VehicleRequestController extends HttpServlet {
                 request.getRequestDispatcher("error_page.jsp").forward(request, response);
             } catch (Exception ex) {
                 ex.printStackTrace();
-                response.sendRedirect("adminDashboard.jsp");
+                response.sendRedirect("admin_dashboard.jsp");
             }
         }
     }
