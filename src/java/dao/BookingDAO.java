@@ -181,14 +181,7 @@ public class BookingDAO {
 
         try {
             cn = DBUtils.getConnection();
-            String sql = "UPDATE Bookings SET Status = ? WHERE BookingID = ?";
-
-            PreparedStatement st = cn.prepareStatement(sql);
-            st.setString(1, status);
-            st.setInt(2, id);
-
-            result = st.executeUpdate();
-
+            result = updateStatusOfBooking(id, status, cn);
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
@@ -474,7 +467,6 @@ public class BookingDAO {
         }
     }
 
-
     public int confirmBooking(int bookingId) {
         return updateStatusOfBooking(bookingId, "Confirmed");
     }
@@ -591,40 +583,77 @@ public class BookingDAO {
     }
 
     public int cancelBooking(int bookingId) {
-        Integer slotId = getTimeSlotIdByBooking(bookingId);
-        int result = updateStatusOfBooking(bookingId, "Cancelled");
-        if (result > 0 && slotId != null) {
-            new TimeSlotDAO().syncSlotFullness(slotId);
-        }
-        return result;
-    }
-
-    private Integer getTimeSlotIdByBooking(int bookingId) {
         Connection cn = null;
         try {
             cn = DBUtils.getConnection();
-            String sql = "SELECT TimeSlotID FROM Bookings WHERE BookingID = ?";
-            PreparedStatement st = cn.prepareStatement(sql);
-            st.setInt(1, bookingId);
-            ResultSet rs = st.executeQuery();
-            if (rs.next()) {
-                int slotId = rs.getInt("TimeSlotID");
-                return rs.wasNull() ? null : slotId;
+            cn.setAutoCommit(false);
+
+            Booking booking = getBookingEntityById(bookingId, cn);
+            if (booking == null) {
+                cn.rollback();
+                return 0;
             }
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                if (cn != null) {
-                    cn.close();
+            if ("Cancelled".equalsIgnoreCase(booking.getStatus())) {
+                cn.rollback();
+                return 0;
+            }
+
+            if ("Unpaid".equalsIgnoreCase(booking.getPaymentStatus())
+                    && booking.getPaymentLinkId() != null
+                    && !booking.getPaymentLinkId().isEmpty()) {
+                new service.PayOSService().cancelPaymentLink(booking.getPaymentLinkId());
+            }
+
+            if (booking.getInvoiceID() > 0) {
+                InvoiceDAO invoiceDAO = new InvoiceDAO();
+                PointTransactionDAO pointDAO = new PointTransactionDAO();
+                String payStatus = invoiceDAO.getPaymentStatus(booking.getInvoiceID(), cn);
+                if ("Paid".equalsIgnoreCase(payStatus)) {
+                    pointDAO.reversePointsForInvoice(
+                            booking.getCustomerID(), booking.getInvoiceID(), bookingId, cn);
+                    invoiceDAO.updatePaymentStatus(booking.getInvoiceID(), "Cancelled", cn);
                 }
-            } catch (Exception e) {
-                e.printStackTrace();
+            }
+
+            String sql = "UPDATE Bookings SET Status = 'Cancelled', "
+                    + "PaymentStatus = CASE WHEN PaymentStatus = 'Paid' THEN PaymentStatus ELSE 'Cancelled' END "
+                    + "WHERE BookingID = ?";
+            PreparedStatement cancelSt = cn.prepareStatement(sql);
+            cancelSt.setInt(1, bookingId);
+            int result = cancelSt.executeUpdate();
+            if (result <= 0) {
+                cn.rollback();
+                return 0;
+            }
+
+            cn.commit();
+
+            Integer slotId = getTimeSlotIdByBooking(bookingId);
+            if (slotId != null) {
+                new TimeSlotDAO().syncSlotFullness(slotId);
+            }
+            return result;
+        } catch (Exception e) {
+            if (cn != null) {
+                try {
+                    cn.rollback();
+                } catch (SQLException ex) {
+                    ex.printStackTrace();
+                }
+            }
+            e.printStackTrace();
+            return 0;
+        } finally {
+            if (cn != null) {
+                try {
+                    cn.setAutoCommit(true);
+                    cn.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
             }
         }
-        return null;
     }
-
 
     public int markNoShowBookings() {
         int result = 0;
@@ -659,3 +688,61 @@ public class BookingDAO {
 
 }
 
+public int markNoShowBookings() {
+    int result = 0;
+    Connection cn = null;
+
+    try {
+        cn = DBUtils.getConnection();
+        String sql = "UPDATE b "
+                + "SET b.Status = 'NoShow' "
+                + "FROM Bookings b JOIN TimeSlots t "
+                + "ON b.TimeSlotID = t.TimeSlotID "
+                + "WHERE DATEADD(MINUTE, 15, t.StartTime) <= GETDATE() "
+                + "AND b.Status = 'Confirmed'";
+
+        PreparedStatement st = cn.prepareStatement(sql);
+        result = st.executeUpdate();
+
+    } catch (Exception e) {
+        e.printStackTrace();
+    } finally {
+        try {
+            if (cn != null) {
+                cn.close();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    return result;
+}
+
+private Integer getTimeSlotIdByBooking(int bookingId) {
+    Connection cn = null;
+    try {
+        cn = DBUtils.getConnection();
+        String sql = "SELECT TimeSlotID FROM Bookings WHERE BookingID = ?";
+        PreparedStatement st = cn.prepareStatement(sql);
+        st.setInt(1, bookingId);
+
+        ResultSet rs = st.executeQuery();
+        if (rs.next()) {
+            int slotId = rs.getInt("TimeSlotID");
+            return rs.wasNull() ? null : slotId;
+        }
+    } catch (Exception e) {
+        e.printStackTrace();
+    } finally {
+        try {
+            if (cn != null) {
+                cn.close();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    return null;
+}
+}

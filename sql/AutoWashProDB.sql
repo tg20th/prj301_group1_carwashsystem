@@ -359,13 +359,19 @@ CREATE TABLE Bookings (
     Status NVARCHAR(30) NOT NULL DEFAULT 'Pending',
     Notes NVARCHAR(255),
 
+    PaymentOrderCode BIGINT NULL,
+    PaymentLinkId NVARCHAR(64) NULL,
+    PaymentStatus NVARCHAR(20) NOT NULL DEFAULT 'Unpaid',
+    PaymentExpiredAt DATETIME NULL,
+
     CONSTRAINT FK_Bookings_Customers FOREIGN KEY(CustomerID) REFERENCES Customers(CustomerID),
     CONSTRAINT FK_Bookings_Vehicles FOREIGN KEY(VehicleID) REFERENCES Vehicles(VehicleID),
     CONSTRAINT FK_Bookings_Services FOREIGN KEY(ServiceID) REFERENCES Services(ServiceID),
     CONSTRAINT FK_Bookings_WashBays FOREIGN KEY(WashBayID) REFERENCES WashBays(WashBayID),
     CONSTRAINT FK_Bookings_TimeSlots FOREIGN KEY(TimeSlotID) REFERENCES TimeSlots(TimeSlotID),
     CONSTRAINT FK_Bookings_Invoices FOREIGN KEY(InvoiceID) REFERENCES Invoices(InvoiceID),
-    CONSTRAINT CK_Bookings_Status CHECK (Status IN ('Pending', 'Confirmed', 'InProgress', 'Completed', 'Cancelled', 'NoShow'))
+    CONSTRAINT CK_Bookings_Status CHECK (Status IN ('Pending', 'Confirmed', 'InProgress', 'Completed', 'Cancelled', 'NoShow')),
+    CONSTRAINT CK_Bookings_PaymentStatus CHECK (PaymentStatus IN ('Unpaid', 'Paid', 'Expired', 'Cancelled'))
 );
 GO
 

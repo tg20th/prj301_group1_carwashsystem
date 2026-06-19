@@ -165,6 +165,127 @@ body.admin-body {
     color: #0a58ca;
 }
 
+/* Tùy chỉnh Table & Hierarchy */
+.tracking-tight {
+    letter-spacing: -0.025em;
+}
+.table-custom th {
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    border-bottom: 1px solid #eaedf1;
+    padding-bottom: 1rem;
+}
+.table-custom td {
+    vertical-align: middle;
+    border-bottom: 1px solid #f8f9fa;
+    padding: 1.25rem 0.5rem;
+}
+.user-row {
+    transition: background-color 0.2s ease;
+}
+.user-row:hover {
+    background-color: #fcfcfd;
+}
+.tr-frozen {
+    opacity: 0.7;
+    background-color: #fcfcfd;
+}
+
+/* Avatar trung tính & Màu sắc đồng bộ Role */
+.avatar-img {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 1rem;
+}
+.avatar-customer {
+    background-color: #f1f3f5;
+    color: #495057;
+    border: 1px solid #e9ecef;
+}
+.avatar-business {
+    background-color: #e7f5ff;
+    color: #1971c2;
+    border: 1px solid #a5d8ff;
+}
+.avatar-admin {
+    background-color: #f3f0ff;
+    color: #845ef7;
+    border: 1px solid #d0bfff;
+}
+
+/* Badges Role (Gray, Blue, Purple) */
+.badge-role {
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    padding: 0.4em 0.8em;
+    border-radius: 8px;
+}
+.role-customer {
+    background-color: #f1f3f5;
+    color: #495057;
+    border: 1px solid #dee2e6;
+}
+.role-business {
+    background-color: #e7f5ff;
+    color: #1971c2;
+    border: 1px solid #a5d8ff;
+}
+.role-admin {
+    background-color: #f3f0ff;
+    color: #845ef7;
+    border: 1px solid #d0bfff;
+}
+
+/* Badges Status */
+.badge-status {
+    font-size: 0.8rem;
+    font-weight: 700;
+    padding: 0.4em 1em;
+    border-radius: 50rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+.status-active {
+    background: #dcfce7;
+    color: #14532d;
+}
+.status-active .status-dot {
+    background: #16a34a;
+}
+.status-frozen {
+    background: #fee2e2;
+    color: #7f1d1d;
+}
+.status-frozen .status-dot {
+    background: #dc2626;
+}
+.dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+}
+
+/* Toolbar Input */
+.filter-input {
+    background-color: #fff;
+    border: 1px solid #dee2e6;
+    color: #495057;
+    transition: all 0.2s ease;
+    font-size: 0.875rem;
+}
+.filter-input:focus-within, .filter-input:focus {
+    border-color: #adb5bd;
+    box-shadow: 0 0.125rem 0.25rem rgba(0,0,0,0.05);
+    outline: none;
+}
 /* =========================================
    Time Slot Management
    ========================================= */

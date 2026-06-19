@@ -4,9 +4,11 @@
  */
 package controller;
 
-import dao.BookingDAO;
+import dao.AccountDAO;
+import dto.Account;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.List;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -17,8 +19,8 @@ import javax.servlet.http.HttpServletResponse;
  *
  * @author Lan
  */
-@WebServlet(name = "ManageBookingsController", urlPatterns = {"/ManageBookingsController"})
-public class ManageBookingsController extends HttpServlet {
+@WebServlet(name = "ManageUserController", urlPatterns = {"/ManageUserController"})
+public class ManageUserController extends HttpServlet {
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -31,10 +33,56 @@ public class ManageBookingsController extends HttpServlet {
      */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        BookingDAO b = new BookingDAO();
-        int result= b.markNoShowBookings();
-        request.setAttribute("LISTOFBOOKING", b.getAllBookToday());
-        request.getRequestDispatcher("booking_viewdetails.jsp").forward(request, response);
+
+        String search = request.getParameter("search");
+        String userType = request.getParameter("userType");
+        String status = request.getParameter("status");
+
+        if (search == null) {
+            search = "";
+        }
+        if (userType == null) {
+            userType = "ALL";
+        }
+        if (status == null) {
+            status = "ALL";
+        }
+
+        int page = 1;
+        int pageSize = 10;
+
+        try {
+            page = Integer.parseInt(request.getParameter("page"));
+        } catch (Exception e) {
+        }
+
+        AccountDAO a = new AccountDAO();
+
+        // summary statistics
+        int totalUsers = a.getAllUser().size();
+        int totalUserActive = a.getUserByStatus("Active").size();
+        int totalUserFrozen = a.getUserByStatus("Frozen").size();
+
+        // FILTER + PAGING
+        List<Account> list = a.filterUsers(status, userType, search, page, pageSize);
+        
+
+        int totalFilteredUsers = a.getTotalFilteredUsers(status, userType, search);
+        int totalPages = (int) Math.ceil((double) totalFilteredUsers / pageSize);
+
+        request.setAttribute("LISTOFUSER", list);
+        request.setAttribute("selectedStatus", status);
+        request.setAttribute("selectedUserType", userType);
+
+        request.setAttribute("totalFilteredUsers", totalFilteredUsers);
+        request.setAttribute("totalUsers", totalUsers);
+        request.setAttribute("activeUsers", totalUserActive);
+        request.setAttribute("frozenUsers", totalUserFrozen);
+
+        request.setAttribute("totalPages", totalPages);
+        request.setAttribute("currentPage", page);
+
+        request.getRequestDispatcher("manage_user.jsp").forward(request, response);
     }
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">

@@ -9,25 +9,25 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class BusinessDAO {
-
+    
     public int creatBussiness(Business b) {
         int result = 0;
         Connection cn = null;
-
+        
         try {
             cn = DBUtils.getConnection();
             String sql = "  INSERT INTO BusinessCustomers "
                     + "([CustomerID], [CompanyName], [TaxCode], [CompanyAddress]) "
                     + "VALUES (?, ?, ?, ?)";
-
+            
             PreparedStatement st = cn.prepareStatement(sql);
             st.setInt(1, b.getCusID());
             st.setString(2, b.getBusinessName());
             st.setString(3, b.getTaxCode());
             st.setString(4, b.getCompanyAddress());
-
+            
             result = st.executeUpdate();
-
+            
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
@@ -39,10 +39,10 @@ public class BusinessDAO {
                 e.printStackTrace();
             }
         }
-
+        
         return result;
     }
-
+    
     private Business getBussinessField(String sql, String value) {
         Connection cn = null;
         Business result = null;
@@ -51,14 +51,14 @@ public class BusinessDAO {
             if (cn != null) {
                 PreparedStatement st = cn.prepareStatement(sql);
                 st.setString(1, value);
-
+                
                 ResultSet table = st.executeQuery();
                 while (table.next()) {
                     int busID = table.getInt("CustomerID");
                     String busName = table.getString("CompanyName");
                     String taxCode = table.getString("TaxCode");
                     String address = table.getString("CompanyAddress");
-
+                    
                     result = new Business(busID, busName, taxCode, address);
                 }
             }
@@ -75,7 +75,7 @@ public class BusinessDAO {
         }
         return result;
     }
-
+    
     public Business getBussinessByCusID(int id) {
         Connection cn = null;
         Business result = null;
@@ -91,7 +91,7 @@ public class BusinessDAO {
                         + "  WHERE c.CustomerID = ?";
                 PreparedStatement st = cn.prepareStatement(sql);
                 st.setInt(1, id);
-
+                
                 ResultSet table = st.executeQuery();
                 while (table.next()) {
                     String email = table.getString("Email");
@@ -101,7 +101,7 @@ public class BusinessDAO {
                     String busName = table.getString("CompanyName");
                     String taxCode = table.getString("TaxCode");
                     String address = table.getString("CompanyAddress");
-
+                    
                     result = new Business(cusName, email, phone, busName, taxCode, address);
                 }
             }
@@ -118,7 +118,7 @@ public class BusinessDAO {
         }
         return result;
     }
-
+    
     public Business getBussinessByName(String name) {
         Business result = null;
         String sql = "SELECT [CustomerID]\n"
@@ -126,11 +126,11 @@ public class BusinessDAO {
                 + "      ,[CompanyAddress]\n"
                 + "  FROM [AutoWashProDB].[dbo].[BusinessCustomers] \n"
                 + "  WHERE [CompanyName] = ?";
-
+        
         result = getBussinessField(sql, name);
         return result;
     }
-
+    
     public Business getBussinessByTax(String tax) {
         Business result = null;
         String sql = "SELECT [CustomerID]\n"
@@ -139,15 +139,15 @@ public class BusinessDAO {
                 + "      ,[CompanyAddress]\n"
                 + "  FROM [AutoWashProDB].[dbo].[BusinessCustomers] \n"
                 + "  WHERE [TaxCode] = ?";
-
+        
         result = getBussinessField(sql, tax);
         return result;
     }
-
+    
     public int updateBussiness(int id, String name, String tax, String address) {
         int result = 0;
         Connection cn = null;
-
+        
         try {
             cn = DBUtils.getConnection();
             String sql = "  UPDATE BusinessCustomers\n"
@@ -155,15 +155,15 @@ public class BusinessDAO {
                     + "      ,[TaxCode] = ?\n"
                     + "      ,[CompanyAddress] = ?\n"
                     + "      WHERE CustomerID = ?";
-
+            
             PreparedStatement st = cn.prepareStatement(sql);
             st.setString(1, name);
             st.setString(2, tax);
             st.setString(3, address);
             st.setInt(4, id);
-
+            
             result = st.executeUpdate();
-
+            
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
@@ -175,10 +175,10 @@ public class BusinessDAO {
                 e.printStackTrace();
             }
         }
-
+        
         return result;
     }
-
+    
     public List<Business> getAllPendingBus() {
         List<Business> list = new ArrayList<>();
         Connection cn = null;
@@ -191,10 +191,10 @@ public class BusinessDAO {
                     + "  ON c.AccountID = a.AccountID\n"
                     + "  JOIN BusinessCustomers b ON b.CustomerID = c.CustomerID\n"
                     + "  WHERE [Status] = 'Pending'";
-
+            
             PreparedStatement st = cn.prepareStatement(sql);
             ResultSet table = st.executeQuery();
-
+            
             while (table.next()) {
                 int id = table.getInt("AccountID");
                 String name = table.getString("FullName");
@@ -204,11 +204,11 @@ public class BusinessDAO {
                 String tax = table.getString("TaxCode");
                 String address = table.getString("CompanyAddress");
                 String status = table.getString("Status");
-
+                
                 Business b = new Business(id, name, email, phone, status, companyName, tax, address);
                 list.add(b);
             }
-
+            
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
@@ -220,7 +220,7 @@ public class BusinessDAO {
                 e.printStackTrace();
             }
         }
-
+        
         return list;
     }
     
@@ -231,12 +231,12 @@ public class BusinessDAO {
         try {
             cn = DBUtils.getConnection();
             String sql = "  UPDATE Accounts SET Status = 'Active' WHERE AccountID = ?";
-
+            
             PreparedStatement st = cn.prepareStatement(sql);
             st.setInt(1, id);
-
+            
             result = st.executeUpdate();
-
+            
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
@@ -248,7 +248,7 @@ public class BusinessDAO {
                 e.printStackTrace();
             }
         }
-
+        
         return result;
     }
     
@@ -259,13 +259,13 @@ public class BusinessDAO {
         try {
             cn = DBUtils.getConnection();
             String sql = "  UPDATE Accounts SET Status = 'Rejected', [RejectReason] = ? WHERE AccountID = ?";
-
+            
             PreparedStatement st = cn.prepareStatement(sql);
             st.setString(1, descrip);
             st.setInt(2, id);
-
+            
             result = st.executeUpdate();
-
+            
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
@@ -277,8 +277,53 @@ public class BusinessDAO {
                 e.printStackTrace();
             }
         }
-
+        
         return result;
     }
-
+    
+    public List<Business> getBusinessHavePendingVehicles() {
+        List<Business> list = new ArrayList<>();
+        Connection cn = null;
+        try {
+            cn = DBUtils.getConnection();
+            String sql = " SELECT c.CustomerID, a.Email,a.Phone,\n"
+                    + "        (a.LastName + ' ' + a.FirstName) AS FullName,\n"
+                    + "        b.CompanyName, b.TaxCode,b.CompanyAddress,\n"
+                    + "        COUNT(v.VehicleID) AS PendingCount \n"
+                    + "     FROM BusinessCustomers b \n"
+                    + "     JOIN Customers c ON b.CustomerID=c.CustomerID \n"
+                    + "     JOIN Accounts a ON c.AccountID=a.AccountID \n"
+                    + "     JOIN Vehicles v ON c.CustomerID=v.CustomerID \n"
+                    + "     WHERE v.Status='Pending' \n"
+                    + "     GROUP BY   c.CustomerID,\n"
+                    + "                a.Email,a.Phone, a.LastName,a.FirstName,\n"
+                    + "                b.CompanyName,b.TaxCode,b.CompanyAddress";
+            PreparedStatement st = cn.prepareStatement(sql);
+            ResultSet rs = st.executeQuery();
+            while (rs.next()) {
+                Business b = new Business();
+                b.setCusID(rs.getInt("CustomerID"));
+                b.setEmail(rs.getString("Email"));
+                b.setPhone(rs.getString("Phone"));
+                b.setContractName(rs.getString("FullName"));
+                b.setBusinessName(rs.getString("CompanyName"));
+                b.setTaxCode(rs.getString("TaxCode"));
+                b.setCompanyAddress(rs.getString("CompanyAddress"));
+                b.setPendingVehicleCount(rs.getInt("PendingCount"));
+                list.add(b);        
+            }
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (cn != null) {
+                    cn.close();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return list;
+    }
 }

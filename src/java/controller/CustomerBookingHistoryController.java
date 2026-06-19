@@ -60,7 +60,8 @@ public class CustomerBookingHistoryController extends HttpServlet {
             }
             int result = bookingDAO.cancelBooking(bookingId);
             if (result > 0) {
-                request.setAttribute("SUCCESS_MSG", "Booking cancelled successfully.");
+                request.setAttribute("SUCCESS_MSG",
+                        "Booking cancelled successfully. Loyalty points reversed if payment was completed.");
             } else {
                 request.setAttribute("ERROR_MSG", "Could not cancel booking. Please try again.");
             }

@@ -470,7 +470,7 @@
                             <div class="total-amount" id="sumTotal">—</div>
                         </div>
 
-                        <button type="submit" id="submitBtn" class="btn-proceed" disabled>Confirm Booking</button>
+                        <button type="submit" id="submitBtn" class="btn-proceed" disabled>Confirm &amp; Pay Now</button>
 
                         <div class="help-box">
                             <div class="field-label mb-1" style="font-size:0.82rem;"><i class="bi bi-headset"></i> We can help you</div>

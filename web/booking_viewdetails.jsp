@@ -164,7 +164,7 @@
                                         <input type="hidden" name="action" value="checkout">
                                         <input type="hidden" name="id" value="<%= b.getBookingID()%>">
                                         <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill px-3 fw-medium">
-                                            Check Out
+                                            Complete Wash
                                         </button>
                                     </form>
                                     <% } else if ("Completed".equalsIgnoreCase(status)) { %>

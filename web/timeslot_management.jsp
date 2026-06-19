@@ -122,8 +122,8 @@
                     <i class="fa-solid <%= statusIcon %> me-1"></i><%= statusLabel %>
                 </div>
                 <div class="slot-card-hint small">
-                    <%= slot.getAvailableBayCount() %>/<%= slot.getTotalBayCount() %> bays free
-                    <% if (slot.getBookedCount() > 0) { %> · <%= slot.getBookedCount() %> booked<% } %>
+                    <%= slot.getBookedCount() %>/<%= slot.getTotalBayCount() %> booked
+                    · <%= slot.getAvailableBayCount() %> free
                 </div>
                 <div class="slot-card-hint small">Click to view bookings</div>
             </div>
