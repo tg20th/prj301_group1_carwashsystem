@@ -193,17 +193,17 @@
         </main>
 
         <script>
-            // 1. Chuẩn bị dữ liệu từ Server (JSTL loop xuất ra JS an toàn)
+            // 1. Chuẩn bị dữ liệu từ Server
             const labels = [];
             const revenues = [];
             const bookings = [];
             <c:forEach var="s" items="${STATS_LIST}">
-            labels.push('Month ${s.month}');
+            labels.push('Tháng ${s.month}');
             revenues.push(${s.totalRevenue});
             bookings.push(${s.totalBooking});
             </c:forEach>
 
-            // 2. Cấu hình biểu đồ Combo (Bar + Line) - Thiết kế Vibrant SaaS
+            // 2. Cấu hình biểu đồ Combo (Bar + Line)
             const comboCtx = document.getElementById('comboChart');
             if (comboCtx) {
                 new Chart(comboCtx, {
@@ -212,64 +212,28 @@
                         labels: labels,
                         datasets: [{
                                 type: 'bar',
-                                label: 'Revenue (VND)',
+                                label: 'Revenue (₫)',
                                 data: revenues,
-                                backgroundColor: 'rgba(99, 102, 241, 0.85)', // Màu Indigo hiện đại
-                                hoverBackgroundColor: 'rgba(99, 102, 241, 1)',
-                                borderRadius: 4, // Bo tròn đầu cột
-                                borderSkipped: false,
+                                backgroundColor: 'rgba(13, 110, 253, 0.8)',
                                 yAxisID: 'y'
                             }, {
                                 type: 'line',
                                 label: 'Bookings',
                                 data: bookings,
-                                borderColor: '#10b981', // Màu Emerald
-                                backgroundColor: '#10b981',
-                                borderWidth: 3,
-                                pointBackgroundColor: '#fff',
-                                pointBorderColor: '#10b981',
-                                pointBorderWidth: 2,
-                                pointRadius: 4,
-                                pointHoverRadius: 6,
-                                tension: 0.3, // Đường cong mượt
+                                borderColor: '#198754',
+                                backgroundColor: '#198754',
                                 yAxisID: 'y1'
                             }]
                     },
                     options: {
                         responsive: true,
                         maintainAspectRatio: false,
-                        interaction: {
-                            mode: 'index',
-                            intersect: false,
-                        },
-                        plugins: {
-                            legend: {
-                                position: 'top',
-                                labels: {usePointStyle: true, boxWidth: 8, font: {family: 'Inter', weight: '600'}}
-                            },
-                            tooltip: {
-                                backgroundColor: 'rgba(15, 23, 42, 0.9)',
-                                titleFont: {family: 'Inter', size: 13},
-                                bodyFont: {family: 'Inter', size: 13},
-                                padding: 10,
-                                cornerRadius: 8
-                            }
-                        },
+                        animation: false,
+                        events: [],
                         scales: {
-                            x: {
-                                grid: {display: false, drawBorder: false},
-                                ticks: {font: {family: 'Inter', weight: '500'}, color: '#64748b'}
-                            },
-                            y: {
-                                type: 'linear', position: 'left',
-                                grid: {color: '#f1f5f9', borderDash: [5, 5]},
-                                ticks: {font: {family: 'Inter'}, color: '#64748b'}
-                            },
-                            y1: {
-                                type: 'linear', position: 'right',
-                                grid: {drawOnChartArea: false},
-                                ticks: {font: {family: 'Inter'}, color: '#64748b'}
-                            }
+                            x: {grid: {display: false}},
+                            y: {type: 'linear', position: 'left'},
+                            y1: {type: 'linear', position: 'right', grid: {drawOnChartArea: false}}
                         }
                     }
                 });
@@ -292,28 +256,16 @@
                         labels: payLabels,
                         datasets: [{
                                 data: payData,
-                                // Bảng màu Vibrant
-                                backgroundColor: ['#6366f1', '#10b981', '#f59e0b', '#0ea5e9', '#a855f7'],
-                                borderWidth: 0,
-                                hoverOffset: 4
+                                backgroundColor: ['#0d6efd', '#198754', '#ffc107', '#0dcaf0', '#6c757d']
                             }]
                     },
                     options: {
                         responsive: true,
                         maintainAspectRatio: false,
-                        plugins: {
-                            legend: {
-                                position: 'bottom',
-                                labels: {usePointStyle: true, padding: 20, font: {family: 'Inter', weight: '600'}}
-                            },
-                            tooltip: {
-                                backgroundColor: 'rgba(15, 23, 42, 0.9)',
-                                bodyFont: {family: 'Inter', size: 13},
-                                padding: 10,
-                                cornerRadius: 8
-                            }
-                        },
-                        cutout: '75%' // Khoảng trống giữa bánh bự hơn cho thanh thoát
+                        animation: false,
+                        events: [],
+                        plugins: {legend: {position: 'bottom'}},
+                        cutout: '70%'
                     }
                 });
             }
