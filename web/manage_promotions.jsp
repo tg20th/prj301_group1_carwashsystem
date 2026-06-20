@@ -211,9 +211,10 @@
                                                 <i class="bi bi-pencil-square"></i>
                                             </button>
 
-                                            <form action="ManagePromotionsController" method="POST" class="m-0 p-0">
-                                                <input type="hidden" name="action" value="toggleStatus">
+                                            <form action="CudPromotionController" method="POST" class="m-0 p-0">
+                                                <input type="hidden" name="action" value="toogleStatus">
                                                 <input type="hidden" name="id" value="${promo.promotionID}">
+                                                <input type="hidden" name="isActive" value="${promo.active}">
                                                 <c:choose>
                                                     <c:when test="${promo.active}">
                                                         <button type="submit" class="btn btn-outline-danger rounded-pill px-3 fw-bold bg-white" title="Deactivate" onclick="return confirm('Stop this promotion?');">
@@ -274,15 +275,15 @@
                         <h5 class="modal-title fw-bolder text-dark" id="modalTitle"><i class="bi bi-magic text-dark me-2"></i>Create New Campaign</h5>
                         <button type="button" class="btn-close shadow-none" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
-                    <form action="ManagePromotionsController" method="POST">
+                    <form action="CudPromotionController" method="POST">
                         <input type="hidden" name="action" id="formAction" value="add">
                         <input type="hidden" name="promoId" id="modalPromoId">
 
                         <div class="modal-body px-4 py-4" style="background-color: #f8fafc;">
                             <div class="row g-4">
                                 <div class="col-md-5">
-                                    <label class="fw-bold text-dark mb-2 small text-uppercase">Promo Code</label>
-                                    <input type="text" class="form-control vibrant-input text-uppercase font-monospace" name="promoCode" id="modalPromoCode" placeholder="SUMMER25 (Leave blank for Auto)">
+                                    <label class="fw-bold text-dark mb-2 small text-uppercase">Promo Code <span class="text-danger">*</span> </label>
+                                    <input type="text" class="form-control vibrant-input text-uppercase font-monospace" required="" name="promoCode" id="modalPromoCode" placeholder="SUMMER25 (Leave blank for Auto)">
                                 </div>
                                 <div class="col-md-7">
                                     <label class="fw-bold text-dark mb-2 small text-uppercase">Campaign Name <span class="text-danger">*</span></label>
@@ -316,11 +317,11 @@
 
                                 <div class="col-md-6">
                                     <label class="fw-bold text-dark mb-2 small text-uppercase">Start Date</label>
-                                    <input type="date" class="form-control vibrant-input" name="startDate" id="modalStartDate">
+                                    <input type="date" class="form-control vibrant-input" name="startDate" id="modalStartDate" required="">
                                 </div>
                                 <div class="col-md-6">
                                     <label class="fw-bold text-dark mb-2 small text-uppercase">End Date</label>
-                                    <input type="date" class="form-control vibrant-input" name="endDate" id="modalEndDate">
+                                    <input type="date" class="form-control vibrant-input" name="endDate" id="modalEndDate" required="">
                                 </div>
 
                                 <div class="col-12">
