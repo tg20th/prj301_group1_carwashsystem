@@ -505,3 +505,299 @@ body.admin-body {
     background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
     border-bottom: 1px solid #e2e8f0;
 }
+
+/* =========================================
+   User Management
+   ========================================= */
+
+/* Typography */
+.tracking-tight {
+    letter-spacing: -0.025em;
+}
+
+/* Gradients & Shadows cho KPI */
+.gradient-primary {
+    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+    color: white;
+}
+.gradient-success {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: white;
+}
+.gradient-danger {
+    background: linear-gradient(135deg, #f43f5e 0%, #e11d48 100%);
+    color: white;
+}
+.gradient-warning {
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    color: white;
+}
+
+/* Tùy chỉnh nút Đen (Black) cho hiệu ứng mượt hơn */
+.btn-dark-custom {
+    background-color: #0f172a;
+    color: white;
+    border: none;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+.btn-dark-custom:hover {
+    background-color: #1e293b;
+    transform: translateY(-2px);
+    box-shadow: 0 10px 15px -3px rgba(15, 23, 42, 0.25);
+    color: white;
+}
+
+/* Card & Table Hover */
+.glass-card {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.2);
+}
+.user-row {
+    transition: all 0.3s ease;
+}
+.user-row:hover {
+    background-color: #f8fafc;
+    transform: scale(1.002);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    z-index: 10;
+    position: relative;
+    border-radius: 8px;
+}
+.tr-frozen {
+    opacity: 0.7;
+    background-color: #fcfcfd;
+}
+
+/* Avatar trung tính & Màu sắc đồng bộ Role */
+.avatar-img {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 1rem;
+}
+.avatar-customer {
+    background-color: #f1f3f5;
+    color: #495057;
+    border: 1px solid #e9ecef;
+}
+.avatar-business {
+    background-color: #e7f5ff;
+    color: #1971c2;
+    border: 1px solid #a5d8ff;
+}
+.avatar-admin {
+    background-color: #f3f0ff;
+    color: #845ef7;
+    border: 1px solid #d0bfff;
+}
+
+/* Badges Role (Gray, Blue, Purple) */
+.badge-role {
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    padding: 0.4em 0.8em;
+    border-radius: 8px;
+}
+.role-customer {
+    background-color: #f1f3f5;
+    color: #495057;
+    border: 1px solid #dee2e6;
+}
+.role-business {
+    background-color: #e7f5ff;
+    color: #1971c2;
+    border: 1px solid #a5d8ff;
+}
+.role-admin {
+    background-color: #f3f0ff;
+    color: #845ef7;
+    border: 1px solid #d0bfff;
+}
+
+/* Badges Status */
+.badge-status {
+    font-size: 0.8rem;
+    font-weight: 700;
+    padding: 0.4em 1em;
+    border-radius: 50rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+.status-active {
+    background: #dcfce7;
+    color: #14532d;
+}
+.status-active .status-dot {
+    background: #16a34a;
+}
+.status-frozen {
+    background: #fee2e2;
+    color: #7f1d1d;
+}
+.status-frozen .status-dot {
+    background: #dc2626;
+}
+.status-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+/* Forms & Inputs (Viền focus sang màu Đen Xám) */
+.vibrant-input {
+    border: 2px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 0.6rem 1rem;
+    font-weight: 500;
+    color: #1e293b;
+    transition: all 0.3s;
+}
+.vibrant-input:focus {
+    border-color: #0f172a;
+    box-shadow: 0 0 0 4px rgba(15, 23, 42, 0.15);
+    outline: none;
+}
+
+/* =========================================
+   Car Management
+   ========================================= */
+
+/* Typography */
+.tracking-tight {
+    letter-spacing: -0.025em;
+}
+
+/* Gradients & Shadows cho KPI */
+.gradient-primary {
+    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+    color: white;
+}
+.gradient-success {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: white;
+}
+
+/* Nút Đen (Black) chuẩn SaaS */
+.btn-dark-custom {
+    background-color: #0f172a;
+    color: white;
+    border: none;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+.btn-dark-custom:hover {
+    background-color: #1e293b;
+    transform: translateY(-2px);
+    box-shadow: 0 10px 15px -3px rgba(15, 23, 42, 0.25);
+    color: white;
+}
+
+/* Hiệu ứng nổi Card & Table Hover */
+.glass-card {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.2);
+}
+.business-row {
+    transition: all 0.3s ease;
+}
+.business-row:hover {
+    background-color: #f8fafc;
+    transform: scale(1.002);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    z-index: 10;
+    position: relative;
+    border-radius: 8px;
+}
+
+/* Custom Modal */
+.modal-content-custom {
+    border-radius: 20px;
+    border: none;
+    overflow: hidden;
+}
+.modal-header-custom {
+    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+    border-bottom: 1px solid #e2e8f0;
+}
+/* =========================================
+   Admin Dashboard
+   ========================================= */
+
+/* Typography */
+.tracking-tight {
+    letter-spacing: -0.025em;
+}
+
+/* Gradients & Shadows cho KPI */
+.gradient-primary {
+    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+    color: white;
+}
+.gradient-success {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: white;
+}
+.gradient-warning {
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    color: white;
+}
+.gradient-danger {
+    background: linear-gradient(135deg, #f43f5e 0%, #e11d48 100%);
+    color: white;
+}
+.gradient-info {
+    background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
+    color: white;
+}
+.gradient-purple {
+    background: linear-gradient(135deg, #a855f7 0%, #7e22ce 100%);
+    color: white;
+}
+
+/* Nút Đen (Black) chuẩn SaaS */
+.btn-dark-custom {
+    background-color: #0f172a;
+    color: white;
+    border: none;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+.btn-dark-custom:hover {
+    background-color: #1e293b;
+    transform: translateY(-2px);
+    box-shadow: 0 10px 15px -3px rgba(15, 23, 42, 0.25);
+    color: white;
+}
+
+/* Hiệu ứng nổi Card Hover */
+.glass-card {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.2);
+}
+.hover-scale {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.hover-scale:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 20px -8px rgba(0,0,0,0.1) !important;
+    z-index: 2;
+}
+
+/* Custom Table Row - Tăng khoảng cách cho mượt mắt */
+.custom-row {
+    transition: all 0.2s ease;
+}
+.custom-row:hover {
+    background-color: #f8fafc;
+}
+.table-spaced td {
+    vertical-align: middle;
+}

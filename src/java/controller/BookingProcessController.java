@@ -5,6 +5,7 @@
 package controller;
 
 import dao.BookingDAO;
+import dto.Account;
 import java.io.IOException;
 import java.io.PrintWriter;
 import javax.servlet.ServletException;
@@ -31,6 +32,13 @@ public class BookingProcessController extends HttpServlet {
      */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        Account account = (Account) request.getSession().getAttribute("ACCOUNT");
+        
+        if (account == null) {
+            request.getRequestDispatcher("MainController").forward(request, response);
+            return;
+        }
+        
         String action = request.getParameter("action");
         String bookingID = request.getParameter("id");
 

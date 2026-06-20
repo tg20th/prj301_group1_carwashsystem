@@ -5,6 +5,9 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 
 <!DOCTYPE html>
+<c:if test="account == null">
+    <jsp:forward page="index.jsp"/>
+</c:if>
 <%
     // Lấy danh sách Tier từ Servlet truyền sang
     List<Tier> listTier = (List<Tier>) request.getAttribute("LISTOFTIER");

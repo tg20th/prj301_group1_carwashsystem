@@ -5,6 +5,9 @@
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 
 <!DOCTYPE html>
+<c:if test="account == null">
+    <jsp:forward page="index.jsp"/>
+</c:if>
 <html lang="en">
     <head>
         <meta charset="UTF-8">
@@ -17,13 +20,22 @@
         <link href="css/admin.css?v=1.1" rel="stylesheet">
         
         <link href="css/manage_users.css" rel="stylesheet">
+
+        <style>
+            body {
+                background-color: #f4f7fe;
+                font-family: 'Inter', sans-serif;
+                color: #334155;
+            }
+        </style>
     </head>
-    <body class="admin-body bg-light">
+    <body class="admin-body">
 
         <jsp:include page="admin_sidebar.jsp"/>
 
         <main class="main-wrapper p-4 p-lg-5 animate-fade-up">
 
+            <!-- THÔNG BÁO TỪ BACKEND -->
             <c:if test="${not empty error}">
                 <div class="alert alert-danger border-0 bg-danger bg-opacity-10 text-danger rounded-4 p-3 mb-4 shadow-sm d-flex align-items-center">
                     <i class="bi bi-exclamation-circle-fill me-2 fs-5"></i>
@@ -40,68 +52,71 @@
             </c:if>
 
             <div class="mb-4 pb-2">
-                <h2 class="fw-bold text-dark mb-1 fs-3 tracking-tight">User Directory</h2>
-                <p class="text-muted fw-medium small mb-0">Overview and manage system access.</p>
+                <h2 class="fw-bolder text-dark mb-1 fs-2 tracking-tight">User Directory</h2>
+                <p class="text-secondary fw-medium mb-0">Overview and manage system access.</p>
             </div>
 
+            <!-- VIBRANT KPI CARDS -->
             <div class="row g-4 mb-4">
                 <div class="col-md-4">
-                    <div class="bg-white p-4 rounded-4 shadow-sm border border-light h-100 d-flex align-items-center gap-4">
-                        <div class="bg-light text-secondary rounded-circle d-flex align-items-center justify-content-center" style="width: 56px; height: 56px;">
-                            <i class="bi bi-people-fill fs-4"></i>
+                    <div class="glass-card p-4 rounded-4 shadow-sm h-100 d-flex align-items-center gap-4">
+                        <div class="gradient-primary rounded-circle d-flex align-items-center justify-content-center shadow" style="width: 65px; height: 65px;">
+                            <i class="bi bi-people-fill fs-3"></i>
                         </div>
                         <div>
-                            <div class="text-muted fw-semibold text-uppercase small mb-1" style="font-size: 0.7rem; letter-spacing: 0.5px;">Total Users</div>
-                            <h2 class="fw-bold text-dark mb-0 tracking-tight">${totalUsers != null ? totalUsers : 0}</h2>
+                            <div class="text-muted fw-bold text-uppercase small mb-1" style="letter-spacing: 1px;">Total Users</div>
+                            <h2 class="fw-bolder text-dark mb-0 tracking-tight" style="font-size: 2.2rem;">${totalUsers != null ? totalUsers : 0}</h2>
                         </div>
                     </div>
                 </div>
                 <div class="col-md-4">
-                    <div class="bg-white p-4 rounded-4 shadow-sm border border-light h-100 d-flex align-items-center gap-4">
-                        <div class="bg-success bg-opacity-10 text-success rounded-circle d-flex align-items-center justify-content-center" style="width: 56px; height: 56px;">
-                            <i class="bi bi-check-circle-fill fs-4"></i>
+                    <div class="glass-card p-4 rounded-4 shadow-sm h-100 d-flex align-items-center gap-4">
+                        <div class="gradient-success rounded-circle d-flex align-items-center justify-content-center shadow" style="width: 65px; height: 65px;">
+                            <i class="bi bi-check-circle-fill fs-3"></i>
                         </div>
                         <div>
-                            <div class="text-muted fw-semibold text-uppercase small mb-1" style="font-size: 0.7rem; letter-spacing: 0.5px;">Active Accounts</div>
-                            <h2 class="fw-bold text-dark mb-0 tracking-tight">${activeUsers != null ? activeUsers : 0}</h2>
+                            <div class="text-muted fw-bold text-uppercase small mb-1" style="letter-spacing: 1px;">Active Accounts</div>
+                            <h2 class="fw-bolder text-dark mb-0 tracking-tight" style="font-size: 2.2rem;">${activeUsers != null ? activeUsers : 0}</h2>
                         </div>
                     </div>
                 </div>
                 <div class="col-md-4">
-                    <div class="bg-white p-4 rounded-4 shadow-sm border border-light h-100 d-flex align-items-center gap-4">
-                        <div class="bg-danger bg-opacity-10 text-danger rounded-circle d-flex align-items-center justify-content-center" style="width: 56px; height: 56px;">
-                            <i class="bi bi-snow fs-4"></i>
+                    <div class="glass-card p-4 rounded-4 shadow-sm h-100 d-flex align-items-center gap-4">
+                        <div class="gradient-danger rounded-circle d-flex align-items-center justify-content-center shadow" style="width: 65px; height: 65px;">
+                            <i class="bi bi-snow fs-3"></i>
                         </div>
                         <div>
-                            <div class="text-muted fw-semibold text-uppercase small mb-1" style="font-size: 0.7rem; letter-spacing: 0.5px;">Frozen Accounts</div>
-                            <h2 class="fw-bold text-dark mb-0 tracking-tight">${frozenUsers != null ? frozenUsers : 0}</h2>
+                            <div class="text-muted fw-bold text-uppercase small mb-1" style="letter-spacing: 1px;">Frozen Accounts</div>
+                            <h2 class="fw-bolder text-dark mb-0 tracking-tight" style="font-size: 2.2rem;">${frozenUsers != null ? frozenUsers : 0}</h2>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div class="bg-white rounded-4 shadow-sm border border-light overflow-hidden d-flex flex-column">
+            <!-- MAIN TABLE CONTAINER -->
+            <div class="glass-card rounded-4 shadow-sm overflow-hidden d-flex flex-column">
 
+                <!-- TOOLBAR TÌM KIẾM -->
                 <div class="p-4 border-bottom border-light">
                     <form id="filterForm" action="ManageUserController" method="POST" class="m-0 p-0 d-flex flex-column flex-md-row justify-content-between align-items-center gap-3">
                         
                         <input type="hidden" id="pageInput" name="page" value="${empty param.page ? 1 : param.page}">
                         
-                        <div class="position-relative w-100" style="max-width: 350px;">
-                            <i class="bi bi-search position-absolute text-muted" style="top: 50%; transform: translateY(-50%); left: 16px; font-size: 0.9rem;"></i>
-                            <input type="text" name="search" value="${param.search}" class="form-control filter-input rounded-pill ps-5 py-2 w-100 shadow-none" placeholder="Search by name, email..." onkeypress="if(event.key === 'Enter') { submitFilter(); return false; }">
+                        <div class="position-relative w-100" style="max-width: 400px;">
+                            <i class="bi bi-search position-absolute text-muted" style="top: 50%; transform: translateY(-50%); left: 18px; font-size: 1rem;"></i>
+                            <input type="text" name="search" value="${param.search}" class="form-control vibrant-input rounded-pill ps-5 w-100" placeholder="Search by name, email..." onkeypress="if(event.key === 'Enter') { document.getElementById('pageInput').value = 1; this.form.submit(); return false; }">
                         </div>
 
                         <div class="d-flex gap-2 w-100 justify-content-md-end">
-                            <select name="userType" class="form-select filter-input rounded-pill py-2 ps-3 pe-5 shadow-none fw-medium cursor-pointer" style="width: auto; min-width: 130px;" onchange="submitFilter()">
-                                <option value="ALL" ${param.userType == 'ALL' ? 'selected' : ''}>All Roles</option>
+                            <select name="userType" class="form-select vibrant-input rounded-pill cursor-pointer" style="width: auto; min-width: 150px;" onchange="document.getElementById('pageInput').value = 1; this.form.submit()">
+                                <option value="ALL" ${param.userType == 'ALL' ? 'selected' : ''}>Role: All</option>
                                 <option value="Customer" ${param.userType == 'Customer' ? 'selected' : ''}>Customer</option>
                                 <option value="Business" ${param.userType == 'Business' ? 'selected' : ''}>Business</option>
                                 <option value="Admin" ${param.userType == 'Admin' ? 'selected' : ''}>Admin</option>
                             </select>
 
-                            <select name="status" class="form-select filter-input rounded-pill py-2 ps-3 pe-5 shadow-none fw-medium cursor-pointer" style="width: auto; min-width: 130px;" onchange="submitFilter()">
-                                <option value="ALL" ${param.status == 'ALL' ? 'selected' : ''}>All Status</option>
+                            <select name="status" class="form-select vibrant-input rounded-pill cursor-pointer" style="width: auto; min-width: 140px;" onchange="document.getElementById('pageInput').value = 1; this.form.submit()">
+                                <option value="ALL" ${param.status == 'ALL' ? 'selected' : ''}>Status: All</option>
                                 <option value="Active" ${param.status == 'Active' ? 'selected' : ''}>Active</option>
                                 <option value="Frozen" ${param.status == 'Frozen' ? 'selected' : ''}>Frozen</option>
                             </select>
@@ -109,16 +124,17 @@
                     </form>
                 </div>
 
+                <!-- TABLE DỮ LIỆU -->
                 <div class="table-responsive flex-grow-1" style="min-height: 400px;">
-                    <table class="table table-custom table-borderless mb-0">
+                    <table class="table table-borderless mb-0">
                         <thead class="bg-transparent">
-                            <tr>
-                                <th class="text-muted text-uppercase ps-4 pt-4 pb-3" style="width: 25%;">User Profile</th>
-                                <th class="text-muted text-uppercase pt-4 pb-3" style="width: 15%;">Role</th>
-                                <th class="text-muted text-uppercase pt-4 pb-3" style="width: 25%;">Contact Details</th>
-                                <th class="text-muted text-uppercase pt-4 pb-3" style="width: 15%;">Last Active</th>
-                                <th class="text-muted text-uppercase pt-4 pb-3" style="width: 10%;">Status</th>
-                                <th class="text-muted text-uppercase text-end pe-4 pt-4 pb-3" style="width: 10%;">Action</th>
+                            <tr class="border-bottom" style="border-color: #eaedf1;">
+                                <th class="text-muted text-uppercase fw-bold ps-4 py-3" style="font-size: 0.75rem; letter-spacing: 1px; width: 25%;">User Profile</th>
+                                <th class="text-muted text-uppercase fw-bold py-3" style="font-size: 0.75rem; letter-spacing: 1px; width: 15%;">Role</th>
+                                <th class="text-muted text-uppercase fw-bold py-3" style="font-size: 0.75rem; letter-spacing: 1px; width: 25%;">Contact Details</th>
+                                <th class="text-muted text-uppercase fw-bold py-3" style="font-size: 0.75rem; letter-spacing: 1px; width: 15%;">Last Active</th>
+                                <th class="text-muted text-uppercase fw-bold py-3" style="font-size: 0.75rem; letter-spacing: 1px; width: 10%;">Status</th>
+                                <th class="text-muted text-uppercase fw-bold text-end pe-4 py-3" style="font-size: 0.75rem; letter-spacing: 1px; width: 10%;">Action</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -126,17 +142,19 @@
                             <c:if test="${empty LISTOFUSER}">
                                 <tr>
                                     <td colspan="6" class="text-center py-5">
-                                        <i class="bi bi-inbox fs-1 text-muted d-block mb-3" style="opacity: 0.2;"></i>
-                                        <h5 class="fw-bold text-dark mb-1">No accounts found</h5>
-                                        <p class="text-muted small">No users match your query or database is empty.</p>
+                                        <div class="gradient-warning rounded-circle d-inline-flex align-items-center justify-content-center mb-3 shadow" style="width: 80px; height: 80px;">
+                                            <i class="bi bi-people fs-1 text-white"></i>
+                                        </div>
+                                        <h4 class="fw-bold text-dark">No Accounts Found</h4>
+                                        <p class="text-muted">No users match your query or database is empty.</p>
                                     </td>
                                 </tr>
                             </c:if>
 
                             <c:forEach var="user" items="${LISTOFUSER}">
-                                <tr class="user-row ${user.status == 'Frozen' ? 'tr-frozen' : ''}">
+                                <tr class="user-row border-bottom ${user.status == 'Frozen' ? 'tr-frozen' : ''}" style="border-color: #f1f5f9;">
                                     
-                                    <td class="ps-4">
+                                    <td class="ps-4 py-3">
                                         <div class="d-flex align-items-center gap-3">
                                             <c:choose>
                                                 <c:when test="${user.typeUser == 'Admin'}">
@@ -151,13 +169,13 @@
                                             </c:choose>
                                             
                                             <div>
-                                                <div class="fw-bold text-dark" style="font-size: 0.95rem;">${user.firstName} ${user.lastName}</div>
-                                                <div class="text-muted mt-1" style="font-size: 0.75rem;">ID: #${user.accountID}</div>
+                                                <div class="fw-bolder text-dark" style="font-size: 1rem;">${user.firstName} ${user.lastName}</div>
+                                                <div class="text-muted fw-bold font-monospace mt-1" style="font-size: 0.75rem;">ID: #${user.accountID}</div>
                                             </div>
                                         </div>
                                     </td>
 
-                                    <td>
+                                    <td class="py-3 align-middle">
                                         <c:choose>
                                             <c:when test="${user.typeUser == 'Admin'}">
                                                 <span class="badge-role role-admin">ADMIN</span>
@@ -171,45 +189,41 @@
                                         </c:choose>
                                     </td>
 
-                                    <td>
-                                        <div class="text-dark fw-medium" style="font-size: 0.85rem;">${user.email}</div>
-                                        <div class="text-muted mt-1" style="font-size: 0.8rem;">${user.phone}</div>
+                                    <td class="py-3 align-middle">
+                                        <div class="text-dark fw-medium" style="font-size: 0.85rem;"><i class="bi bi-envelope text-primary me-2"></i>${user.email}</div>
+                                        <div class="text-muted mt-1" style="font-size: 0.8rem;"><i class="bi bi-telephone text-secondary me-2"></i>${user.phone}</div>
                                     </td>
 
-                                    <td>
+                                    <td class="py-3 align-middle">
                                         <div class="text-muted" style="font-size: 0.85rem;">
-                                            ${empty user.lastLoginAt ? '<span class="fst-italic opacity-50">Not recorded</span>' : user.lastLoginAt}
+                                            ${empty user.lastLoginAt ? '<span class="text-danger fst-italic">Not recorded</span>' : user.lastLoginAt}
                                         </div>
                                     </td>
 
-                                    <td>
+                                    <td class="py-3 align-middle">
                                         <c:choose>
                                             <c:when test="${user.status == 'Active'}">
-                                                <div class="badge-status status-active">
-                                                    <span class="status-dot"></span> ACTIVE
-                                                </div>
+                                                <div class="fw-bolder text-success small"><span class="status-dot bg-success shadow-sm"></span> ACTIVE</div>
                                             </c:when>
                                             <c:otherwise>
-                                                <div class="badge-status status-frozen">
-                                                    <span class="status-dot"></span> FROZEN
-                                                </div>
+                                                <div class="fw-bolder text-danger small"><span class="status-dot bg-danger shadow-sm"></span> FROZEN</div>
                                             </c:otherwise>
                                         </c:choose>
                                     </td>
 
-                                    <td class="text-end pe-4">
+                                    <td class="text-end pe-4 py-3 align-middle">
                                         <form action="UserProcessController" method="POST" class="m-0 p-0">
                                             <input type="hidden" name="userId" value="${user.accountID}">
                                             <c:choose>
                                                 <c:when test="${user.status == 'Active'}">
                                                     <input type="hidden" name="action" value="freeze">
-                                                    <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill px-4 fw-medium transition-hover" onclick="return confirm('Freeze this account? User will be disconnected.');">
+                                                    <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill px-4 fw-bold shadow-sm bg-white" onclick="return confirm('Freeze this account? User will be disconnected.');">
                                                         Freeze
                                                     </button>
                                                 </c:when>
                                                 <c:otherwise>
                                                     <input type="hidden" name="action" value="activate">
-                                                    <button type="submit" class="btn btn-sm btn-dark rounded-pill px-4 fw-medium transition-hover" onclick="return confirm('Reactivate this account?');">
+                                                    <button type="submit" class="btn btn-sm btn-dark-custom rounded-pill px-4 fw-bold shadow-sm" onclick="return confirm('Reactivate this account?');">
                                                         Activate
                                                     </button>
                                                 </c:otherwise>
@@ -223,6 +237,7 @@
                     </table>
                 </div>
 
+                <!-- PHÂN TRANG -->
                 <c:set var="currentPage" value="${empty param.page ? 1 : param.page}" />
                 <fmt:parseNumber var="totalPages" integerOnly="true" value="${(totalUsers + 9) / 10}" />
                 
@@ -232,25 +247,28 @@
                 
                 <div class="bg-transparent p-4 border-top border-light d-flex flex-column flex-md-row justify-content-between align-items-center">
                     
-                    <span class="text-muted fw-medium small">
+                    <span class="text-muted fw-bold small">
                         Showing page <strong class="text-dark">${currentPage}</strong> of <strong class="text-dark">${totalPages}</strong>
                     </span>
                     
-                    <div class="d-flex gap-1 mt-3 mt-md-0">
+                    <div class="d-flex gap-2 mt-3 mt-md-0">
+                        <!-- Nút Prev -->
                         <button type="button" onclick="goToPage(${currentPage - 1})"
-                           class="btn btn-sm btn-white border bg-white fw-bold ${currentPage <= 1 ? 'disabled opacity-50' : ''}" style="pointer-events: ${currentPage <= 1 ? 'none' : 'auto'}">
+                           class="btn btn-light rounded-circle fw-bold shadow-sm border ${currentPage <= 1 ? 'disabled opacity-50' : ''}" style="width: 40px; height: 40px; pointer-events: ${currentPage <= 1 ? 'none' : 'auto'}">
                            <i class="bi bi-chevron-left"></i>
                         </button>
 
+                        <!-- Số trang -->
                         <c:forEach begin="1" end="${totalPages}" var="i">
                             <button type="button" onclick="goToPage(${i})"
-                               class="btn btn-sm fw-medium px-3 py-1 ${currentPage == i ? 'btn-dark text-white' : 'btn-white border bg-white text-dark'}">
+                               class="btn rounded-circle fw-bold shadow-sm ${currentPage == i ? 'btn-dark-custom border-0' : 'btn-light border text-dark'}" style="width: 40px; height: 40px;">
                                ${i}
                             </button>
                         </c:forEach>
 
+                        <!-- Nút Next -->
                         <button type="button" onclick="goToPage(${currentPage + 1})"
-                           class="btn btn-sm btn-white border bg-white fw-bold ${currentPage >= totalPages ? 'disabled opacity-50' : ''}" style="pointer-events: ${currentPage >= totalPages ? 'none' : 'auto'}">
+                           class="btn btn-light rounded-circle fw-bold shadow-sm border ${currentPage >= totalPages ? 'disabled opacity-50' : ''}" style="width: 40px; height: 40px; pointer-events: ${currentPage >= totalPages ? 'none' : 'auto'}">
                            <i class="bi bi-chevron-right"></i>
                         </button>
                     </div>
@@ -261,20 +279,12 @@
 
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
         <script>
-            // Hàm xử lý tìm kiếm/lọc: Ép quay lại trang 1 và gửi bằng POST
-            function submitFilter() {
-                document.getElementById('pageInput').value = 1;
-                document.getElementById('filterForm').submit();
-            }
-
-            // Hàm xử lý chuyển trang: Truyền số trang vào input ẩn và gửi bằng POST
             function goToPage(pageNumber) {
                 document.getElementById('pageInput').value = pageNumber;
                 document.getElementById('filterForm').submit();
             }
 
             document.addEventListener("DOMContentLoaded", function () {
-                // Tắt thông báo alert tự động
                 setTimeout(function () {
                     let alerts = document.querySelectorAll('.alert');
                     alerts.forEach(function (alert) {

@@ -5,6 +5,7 @@
 package controller;
 
 import dao.PromotionDAO;
+import dto.Account;
 import dto.Promotion;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -33,6 +34,12 @@ public class ManagePromotionsController extends HttpServlet {
      */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        
+        Account a = (Account) request.getSession().getAttribute("ACCOUNT");
+        if (a == null) {
+            request.getRequestDispatcher("MainController").forward(request, response);
+            return;
+        }
         
         PromotionDAO dao = new PromotionDAO();
         

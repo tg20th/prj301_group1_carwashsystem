@@ -5,6 +5,9 @@
 <fmt:setLocale value="fr_FR" />
 
 <!DOCTYPE html>
+<c:if test="account == null">
+    <jsp:forward page="MainController?action=home"/>
+</c:if>
 <html lang="en">
     <head>
         <meta charset="UTF-8">

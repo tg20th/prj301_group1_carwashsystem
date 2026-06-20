@@ -7,6 +7,9 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
 <!DOCTYPE html>
+<c:if test="account == null">
+    <jsp:forward page="index.jsp"/>
+</c:if>
 <%
     List<Booking> listBooking = (List<Booking>) request.getAttribute("LISTOFBOOKING");
     DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");

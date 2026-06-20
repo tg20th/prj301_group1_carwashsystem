@@ -1,7 +1,12 @@
 
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
+<%@taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+
 
 <!DOCTYPE html>
+<c:if test="account == null">
+    <jsp:forward page="MainController?action=home"/>
+</c:if>
 <html>
 
     <head>

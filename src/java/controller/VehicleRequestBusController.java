@@ -38,7 +38,7 @@ public class VehicleRequestBusController extends HttpServlet {
 
         Account acc = (Account) request.getSession().getAttribute("ACCOUNT");
         if (acc == null) {
-            response.sendRedirect("login.jsp");
+            response.sendRedirect("MainController?action=home");
             return;
         }
         try {

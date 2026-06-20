@@ -55,8 +55,8 @@
                 <span class="text-muted small fw-bold text-uppercase" style="font-size: 0.65rem; padding-left: 1rem;">Customers</span>
             </li>
             <li class="nav-item">
-                <a class="nav-link d-flex align-items-center" href="UsersMgmtController">
-                    <i class="bi bi-people me-3"></i> Users Mgmt
+                <a class="nav-link d-flex align-items-center" href="ManageUserController">
+                    <i class="bi bi-people me-3"></i> Users Management
                 </a>
             </li>
             <li class="nav-item">
