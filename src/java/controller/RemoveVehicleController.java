@@ -1,86 +1,70 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
- */
 package controller;
 
 import dao.VehicleDAO;
+import dto.Account;
+import dto.Business;
+import dto.Vehicle;
 import java.io.IOException;
-import java.io.PrintWriter;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
-/**
- *
- * @author PC
- */
 @WebServlet(name = "RemoveVehicleController", urlPatterns = {"/RemoveVehicleController"})
 public class RemoveVehicleController extends HttpServlet {
 
-    /**
-     * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
-     * methods.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        int vehicleId = Integer.parseInt(request.getParameter("vehicleID"));
-        VehicleDAO vehicleDAO = new VehicleDAO();
-        int result = vehicleDAO.deleteVehicle(vehicleId);
-        String message = "";
-        if(result==0){
-            message = "Remove vehicle fail!";
-        } else {
-            message = "Remove vehicle successful!";
+        HttpSession session = request.getSession(false);
+        if (session == null || session.getAttribute("ACCOUNT") == null) {
+            response.sendRedirect("MainController?action=home");
+            return;
         }
-        request.setAttribute("MESSAGE", message);
-        request.getRequestDispatcher("CustomerDashBoardController").forward(request, response);
+        try {
+            int vehicleID = Integer.parseInt(request.getParameter("vehicleID"));
+            VehicleDAO dao = new VehicleDAO();
+            int result = dao.deleteVehicle(vehicleID);
+            if (result > 0) {
+                request.setAttribute("SUCCESS", "Remove vehicle successful!");
+            } else {
+                request.setAttribute("ERROR", "Remove vehicle failed!");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            try {
+                request.setAttribute("ERROR", "System error: " + e.getMessage());
+                request.getRequestDispatcher("error_page.jsp").forward(request, response);
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+            return;
+        }
+
+        if (session.getAttribute("BUS") != null) {
+            request.getRequestDispatcher("BusinessDashboardController").forward(request, response);
+        } else {
+            request.getRequestDispatcher("CustomerDashBoardController").forward(request, response);
+        }
     }
 
-    // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
-    /**
-     * Handles the HTTP <code>GET</code> method.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+
         processRequest(request, response);
     }
 
-    /**
-     * Handles the HTTP <code>POST</code> method.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+
         processRequest(request, response);
     }
 
-    /**
-     * Returns a short description of the servlet.
-     *
-     * @return a String containing servlet description
-     */
     @Override
     public String getServletInfo() {
         return "Short description";
-    }// </editor-fold>
-
+    }
 }

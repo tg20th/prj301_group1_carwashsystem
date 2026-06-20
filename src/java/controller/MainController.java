@@ -4,11 +4,21 @@
  */
 package controller;
 
+import dao.BusinessDAO;
+import dao.VehicleBrandDAO;
 import dao.VehicleDAO;
+import dao.VehicleModelDAO;
+import dto.Account;
+import dao.VehicleModelDAO;
+import dto.Business;
 import dto.Vehicle;
+import dto.VehicleBrand;
+import dto.VehicleModel;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import javax.servlet.ServletException;
+import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -19,6 +29,11 @@ import javax.servlet.http.HttpServletResponse;
  * @author Lan
  */
 @WebServlet("/MainController")
+@MultipartConfig(
+        fileSizeThreshold = 1024 * 1024,
+        maxFileSize = 1024 * 1024 * 10,
+        maxRequestSize = 1024 * 1024 * 50
+)
 public class MainController extends HttpServlet {
 
     /**
@@ -55,12 +70,63 @@ public class MainController extends HttpServlet {
                 case "logout":
                     url = "LogoutController";
                     break;
-                case "dashboard":
-                    url = "CustomerDashBoardController";
+//                case "dashboard":
+//                    Account acc = (Account) request.getSession().getAttribute("ACCOUNT");
+//                    if (acc == null) {
+//                        url = "index.jsp";
+//                        break;
+//                    }
+//                    Business bus = (Business) request.getSession().getAttribute("BUS");
+//                    if (bus != null) {
+//                        url = "BusinessDashboardController";
+//                    } else {
+//                        url = "CustomerDashBoardController";
+//                    }
+//                    break;
+                case "pending_page":
+                    url = "pending_page.jsp";
                     break;
                 case "AddVehicle_page":
                     url = "addVehicle.jsp";
                     break;
+                case "getVehicleData":
+                    response.setContentType("application/json;charset=UTF-8");
+                    try ( PrintWriter out = response.getWriter()) {
+                        VehicleBrandDAO brandDAO = new VehicleBrandDAO();
+                        VehicleModelDAO modelDAO = new VehicleModelDAO();
+
+                        ArrayList<VehicleBrand> brands = brandDAO.getAllBrands();
+                        ArrayList<VehicleModel> models = modelDAO.getAllModels();
+
+                        StringBuilder json = new StringBuilder();
+                        json.append("{\"brands\":[");
+
+                        for (int i = 0; i < brands.size(); i++) {
+                            VehicleBrand b = brands.get(i);
+                            String name = b.getBrandName().replace("\"", "\\\"");
+                            json.append("{\"brandID\":").append(b.getBrandID())
+                                    .append(",\"brandName\":\"").append(name).append("\"}");
+                            if (i < brands.size() - 1) {
+                                json.append(",");
+                            }
+                        }
+                        json.append("],\"models\":[");
+
+                        for (int i = 0; i < models.size(); i++) {
+                            VehicleModel m = models.get(i);
+                            String name = m.getModelName().replace("\"", "\\\"");
+                            json.append("{\"modelID\":").append(m.getModelID())
+                                    .append(",\"brandID\":").append(m.getBrandID())
+                                    .append(",\"modelName\":\"").append(name).append("\"}");
+                            if (i < models.size() - 1) {
+                                json.append(",");
+                            }
+                        }
+                        json.append("]}");
+
+                        out.print(json.toString());
+                    }
+                    return; // prevent forward, we already wrote JSON response
                 case "AddVehicle":
                     url = "AddVehicleController";
                     break;
@@ -73,7 +139,13 @@ public class MainController extends HttpServlet {
                         int vehicleID = Integer.parseInt(vIDStr);
                         VehicleDAO dao = new VehicleDAO();
                         Vehicle v = dao.getVehicleByID(vehicleID);
+                        VehicleBrandDAO brandDAO = new VehicleBrandDAO();
+                        VehicleModelDAO modelDAO = new VehicleModelDAO();
+                        ArrayList<VehicleBrand> brandList = brandDAO.getAllBrands();
+                        ArrayList<VehicleModel> modelList = modelDAO.getAllModels();
                         request.setAttribute("VEHICLE", v);
+                        request.setAttribute("BRAND_LIST", brandList);
+                        request.setAttribute("MODEL_LIST", modelList);
                         url = "updateVehicle.jsp";
                     } else {
                         url = "CustomerDashBoardController";
@@ -88,6 +160,63 @@ public class MainController extends HttpServlet {
                 case "saveaccount":
                     url = "SaveAccountController";
                     break;
+                case "AddBusinessVehicle_page":
+                    url = "addBusinessVehicle.jsp";
+                    break;
+                case "AddBusinessVehicles":
+                    url = "AddBusinessVehiclesController";
+                    break;
+                case "resubmit_registration":
+                    url = "UpdateRegistrationController";
+                    break;
+                case "admin_dashboard":
+                    url = "AdminDashboardController";
+                    break;
+                case "booking_admin":
+                    url = "ManageBookingsController";
+                    break;
+                case "timeslot_schedule":
+                    url = "TimeSlotController";
+                    break;
+                case "vehicle_request":
+                    url = "VehicleRequestController";
+                    break;
+                case "business_request":
+                    url = "BusinessRequestsController";
+                    break;
+                case "manage_user":
+                    url = "ManageUserController";
+                    break;
+                case "manage_tier":
+                    url = "ManageTiersController";
+                    break;
+                case "manage_promotion":
+                    url = "ManagePromotionsController";
+                    break;
+                case "process_user":
+                    url = "UserProcessController";
+                    break;
+                case "process_booking":
+                    url = "BookingProcessController";
+                    break;
+                case "reject":
+                    url = "RejectBusinessController";
+                    break;
+                case "approve":
+                    url = "ApproveBusinessController";
+                    break;
+                case "add_tier":
+                    url = "AddTierController";
+                    break;
+                case "update_tier":
+                    url = "UpdateTierController";
+                    break;
+                case "update_status_tier":
+                    url = "RemoveTierController";
+                    break;
+                case "Revenue":
+                    url = "RevenueController";
+                    break;
                 default:
                     url = "index.jsp";
                     break;
@@ -95,6 +224,11 @@ public class MainController extends HttpServlet {
             request.getRequestDispatcher(url).forward(request, response);
         } catch (Exception e) {
             e.printStackTrace();
+            try {
+                response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Internal server error: " + e.getMessage());
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
         }
     }
 

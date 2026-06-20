@@ -2,6 +2,7 @@
 package dto;
 
 import java.sql.Date;
+import java.sql.Timestamp;
 
 public class Account {
     private int accountID;
@@ -11,8 +12,12 @@ public class Account {
     private String password;
     private String phone;
     private String email;
-    private boolean status;
+    private String status;
     private Date createAt;
+    private java.sql.Timestamp lastLoginAt; 
+    private String reasonRejected;
+    
+    private String typeUser; //dung de phan biet loai khach hang
 
     public Account() {
     }
@@ -37,7 +42,7 @@ public class Account {
     }
     
 
-    public Account(int accountID, int roleID, String firstName, String lastName, String password, String phone, String email, boolean status, Date createAt) {
+    public Account(int accountID, int roleID, String firstName, String lastName, String password, String phone, String email, String status, Date createAt) {
         this.accountID = accountID;
         this.roleID = roleID;
         this.firstName = firstName;
@@ -49,7 +54,7 @@ public class Account {
         this.createAt = createAt;
     }
 
-    public Account(int roleID, String firstName, String lastName, String password, String phone, String email, boolean status, Date createAt) {
+    public Account(int roleID, String firstName, String lastName, String password, String phone, String email, String status, Date createAt) {
         this.roleID = roleID;
         this.firstName = firstName;
         this.lastName = lastName;
@@ -60,7 +65,7 @@ public class Account {
         this.createAt = createAt;
     }
 
-    public Account(String firstName, String lastName, String password, String phone, String email, boolean status, Date createAt) {
+    public Account(String firstName, String lastName, String password, String phone, String email, String status, Date createAt) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.password = password;
@@ -87,6 +92,45 @@ public class Account {
         this.createAt = createAt;
     }
 
+    public Account(int accountID, String firstName, String lastName, String password, String phone, String email, String status) {
+        this.accountID = accountID;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.password = password;
+        this.phone = phone;
+        this.email = email;
+        this.status = status;
+    }
+
+    public Account(int accountID, String firstName, String lastName, String phone, String email, String status, Timestamp lastLoginAt, String typeUser) {
+        this.accountID = accountID;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.phone = phone;
+        this.email = email;
+        this.status = status;
+        this.lastLoginAt = lastLoginAt;
+        this.typeUser = typeUser;
+    }
+
+    public String getReasonRejected() {
+        return reasonRejected;
+    }
+
+    public void setReasonRejected(String reasonRejected) {
+        this.reasonRejected = reasonRejected;
+    }
+
+    public String getTypeUser() {
+        return typeUser;
+    }
+
+    public void setTypeUser(String typeUser) {
+        this.typeUser = typeUser;
+    }
+
+    
+
     public int getAccountID() {
         return accountID;
     }
@@ -103,11 +147,11 @@ public class Account {
         this.roleID = roleID;
     }
 
-    public boolean isStatus() {
+    public String getStatus() {
         return status;
     }
 
-    public void setStatus(boolean status) {
+    public void setStatus(String status) {
         this.status = status;
     }
 
@@ -157,6 +201,14 @@ public class Account {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public Timestamp getLastLoginAt() {
+        return lastLoginAt;
+    }
+
+    public void setLastLoginAt(Timestamp lastLoginAt) {
+        this.lastLoginAt = lastLoginAt;
     }
     
 }

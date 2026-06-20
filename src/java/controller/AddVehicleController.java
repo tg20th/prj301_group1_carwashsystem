@@ -4,22 +4,34 @@
  */
 package controller;
 
+import dao.CustomerDAO;
 import dao.VehicleDAO;
+import dbutils.LicensePlateUtils;
+import dto.Account;
 import dto.Customer;
 import dto.Vehicle;
+import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.nio.file.Paths;
 import javax.servlet.ServletException;
+import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.Part;
 
 /**
  *
  * @author Minh Khanh
  */
 @WebServlet(name = "AddVehicleController", urlPatterns = {"/AddVehicleController"})
+@MultipartConfig(
+        fileSizeThreshold = 1024 * 1024,
+        maxFileSize = 1024 * 1024 * 10,
+        maxRequestSize = 1024 * 1024 * 50
+)
 public class AddVehicleController extends HttpServlet {
 
     /**
@@ -74,35 +86,113 @@ public class AddVehicleController extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        int result = 0;
-        Customer c = (Customer) request.getSession().getAttribute("CUSTOMER");
-        int cusID = c.getCusID();
-        String licensePlate = request.getParameter("licensePlate").toUpperCase();
-        String brand = request.getParameter("brand");
-        String model = request.getParameter("model");
-        String color = request.getParameter("color");
-        
-        Vehicle v = new Vehicle(cusID, licensePlate, brand, model, color, true);
-        VehicleDAO d = new VehicleDAO();
-        Vehicle found = d.getVeByPlate(licensePlate);
-        if (found == null) {
-            result = d.createVehicle(v);
-            if (result > 0) {
-                request.setAttribute("SUCCESS", "Vehicle added successfully");
-            } else {
-                request.setAttribute("ERROR", "Cannot add vehicle");
+        try {
+            // Use ACCOUNT (set at login) instead of CUSTOMER (only set after visiting dashboard)
+            // This prevents unwanted redirect to login page when submitting the add form.
+            Account account = (Account) request.getSession().getAttribute("ACCOUNT");
+            if (account == null) {
+                response.sendRedirect("MainController?action=home");
+                return;
             }
-        } else if (found.getCustomerID() != cusID) {
-            request.setAttribute("ERROR", "Vehicle already belongs to another customer");
-        } else if (!found.isActive()) {
-            result = d.reactivateVehicle(v);
-            if (result > 0) {
-                request.setAttribute("SUCCESS", "Vehicle added successfully");
-            } else {
-                request.setAttribute("ERROR", "Cannot add vehicle");
+
+            // Load fresh Customer to get reliable cusID (more robust)
+            CustomerDAO cusDAO = new CustomerDAO();
+            Customer customer = cusDAO.getCustomerByAccountID(account.getAccountID());
+            if (customer == null) {
+                response.sendRedirect("MainController?action=home");
+                return;
             }
-        } else {
-            request.setAttribute("error", "Vehicle already exists in your account.");
+            int cusID = customer.getCusID();
+
+            // Safe parameter extraction
+            String licensePlate = LicensePlateUtils.normalize(request.getParameter("licensePlate"));
+
+            if (licensePlate == null || licensePlate.isEmpty()) {
+                request.setAttribute("ERROR", "License plate is required.");
+                request.getRequestDispatcher("addVehicle.jsp").forward(request, response);
+                return;
+            }
+
+            if (!LicensePlateUtils.isValid(licensePlate)) {
+                request.setAttribute("ERROR", LicensePlateUtils.FORMAT_MESSAGE);
+                request.getRequestDispatcher("addVehicle.jsp").forward(request, response);
+                return;
+            }
+
+            String modelIDStr = request.getParameter("modelID");
+            int modelID = 0;
+            if (modelIDStr != null && !modelIDStr.trim().isEmpty()) {
+                modelID = Integer.parseInt(modelIDStr);
+            }
+
+            if (modelID <= 0) {
+                request.setAttribute("ERROR", "Please select a valid vehicle model.");
+                request.getRequestDispatcher("addVehicle.jsp").forward(request, response);
+                return;
+            }
+
+            // Manufacture year - allow empty (nullable) - matches UpdateVehicleController behavior
+            String yearStr = request.getParameter("manufactureYear");
+            Integer manufactureYear = null;
+            if (yearStr != null && !yearStr.trim().isEmpty()) {
+                manufactureYear = Integer.parseInt(yearStr);
+            }
+
+            String color = request.getParameter("color");
+
+            // === IMAGE HANDLING (consistent with UpdateVehicleController) ===
+            String imageURL = null;
+            Part imagePart = request.getPart("image");
+            if (imagePart != null && imagePart.getSize() > 0) {
+                String uploadPath = getServletContext().getRealPath("/") + "vehicleImages";
+                File uploadDir = new File(uploadPath);
+                if (!uploadDir.exists()) {
+                    uploadDir.mkdir();
+                }
+                String fileName = Paths.get(imagePart.getSubmittedFileName()).getFileName().toString();
+                // Make filename unique to avoid collisions
+                String uniqueFileName = System.currentTimeMillis() + "_" + fileName;
+                imagePart.write(uploadPath + File.separator + uniqueFileName);
+                imageURL = "vehicleImages/" + uniqueFileName;
+            }
+
+            String status = "Pending";
+
+            Vehicle v = new Vehicle(cusID, modelID, licensePlate, color, manufactureYear, imageURL, status);
+
+            VehicleDAO d = new VehicleDAO();
+            Vehicle found = (licensePlate != null && !licensePlate.isEmpty()) ? d.getVeByPlate(licensePlate) : null;
+
+            int result = 0;
+            if (found == null) {
+                result = d.createVehicle(v);
+                if (result > 0) {
+                    request.setAttribute("SUCCESS", "Vehicle added successfully");
+                } else {
+                    request.setAttribute("ERROR", "Cannot add vehicle");
+                }
+            } else if (found.getCustomerID() != cusID) {
+                request.setAttribute("ERROR", "Vehicle already belongs to another customer");
+            } else if (found.getStatus().equalsIgnoreCase("Frozen")) {
+                // Reuse the vehicle object for reactivation (it now has the new image if uploaded)
+                result = d.reactivateVehicle(v);
+                if (result > 0) {
+                    request.setAttribute("SUCCESS", "Vehicle added successfully");
+                } else {
+                    request.setAttribute("ERROR", "Cannot add vehicle");
+                }
+            } else {
+                request.setAttribute("error", "Vehicle already exists in your account.");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            try {
+                request.setAttribute("ERROR", "Error processing request: " + e.getMessage());
+                request.getRequestDispatcher("error_page.jsp").forward(request, response);
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+            return;
         }
         request.getRequestDispatcher("addVehicle.jsp").forward(request, response);
     }

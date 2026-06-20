@@ -1,0 +1,1019 @@
+/* =========================================
+   Elite Auto - Admin Dashboard CSS
+   ========================================= */
+:root {
+    --bg-card: #ffffff;
+    --text-main: #0a0a0a;
+    --text-muted: #6b7280;
+    --sidebar-width: 260px;
+    --border-light: #e5e7eb;
+}
+
+body.admin-body {
+    background-color: #f9fafb;
+    font-family: 'Inter', sans-serif;
+    overflow-x: hidden;
+    /* Đã xóa display: flex; để tránh xung đột với layout fixed */
+}
+
+/* Sidebar */
+.sidebar {
+    width: var(--sidebar-width);
+    height: 100vh;
+    background: var(--bg-card);
+    border-right: 1px solid var(--border-light);
+    position: fixed;
+    display: flex;
+    flex-direction: column;
+    z-index: 1000;
+}
+
+/* Main Content */
+.main-wrapper {
+    /* Sử dụng margin-left thay vì chặn lề 0px !important */
+    margin-left: var(--sidebar-width);
+    width: calc(100% - var(--sidebar-width));
+    min-height: 100vh;
+}
+
+/* Navigation Links */
+.nav-link {
+    color: var(--text-muted);
+    font-weight: 500;
+    padding: 0.6rem 1rem;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+.nav-link:hover, .nav-link.active {
+    background: #f3f4f6;
+    color: var(--text-main);
+}
+
+/* KPI & Component Cards */
+.kpi-icon {
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+    font-size: 1.25rem;
+}
+
+.bay-card {
+    border: 1px solid var(--border-light);
+    padding: 1rem;
+    border-radius: 12px;
+    background-color: var(--bg-card);
+    transition: all 0.3s ease;
+}
+.bay-card:hover {
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
+}
+
+.bay-icon {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.slot-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid var(--border-light);
+}
+
+/* Promo & Action Cards */
+.action-card {
+    border: 1px solid var(--border-light);
+    border-radius: 16px;
+    transition: all 0.3s ease;
+}
+.action-card:hover {
+    border-color: var(--text-main);
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
+    transform: translateY(-3px);
+}
+
+/* Utilities */
+.transition-hover {
+    transition: all 0.3s ease;
+}
+.transition-hover:hover {
+    opacity: 0.8;
+}
+.cursor-pointer {
+    cursor: pointer;
+}
+
+.animate-fade-up {
+    animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* =========================================
+   Table & Badges CSS
+   ========================================= */
+
+/* Custom Table Styling */
+.table-custom th {
+    color: var(--text-muted);
+    font-weight: 600;
+    font-size: 0.85rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--border-light) !important;
+}
+
+.table-custom td {
+    vertical-align: middle;
+    padding: 1rem 0.5rem;
+    font-size: 0.9rem;
+}
+
+.table-custom tr {
+    border-bottom: 1px solid #f3f4f6;
+}
+
+.table-custom tr:last-child {
+    border-bottom: none;
+}
+
+/* Soft Badges for Status */
+.badge-soft-warning {
+    background-color: rgba(255, 193, 7, 0.15);
+    color: #b38600;
+}
+
+.badge-soft-success {
+    background-color: rgba(25, 135, 84, 0.15);
+    color: #146c43;
+}
+
+.badge-soft-primary {
+    background-color: rgba(13, 110, 253, 0.15);
+    color: #0a58ca;
+}
+
+/* Tùy chỉnh Table & Hierarchy */
+.tracking-tight {
+    letter-spacing: -0.025em;
+}
+.table-custom th {
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    border-bottom: 1px solid #eaedf1;
+    padding-bottom: 1rem;
+}
+.table-custom td {
+    vertical-align: middle;
+    border-bottom: 1px solid #f8f9fa;
+    padding: 1.25rem 0.5rem;
+}
+.user-row {
+    transition: background-color 0.2s ease;
+}
+.user-row:hover {
+    background-color: #fcfcfd;
+}
+.tr-frozen {
+    opacity: 0.7;
+    background-color: #fcfcfd;
+}
+
+/* Avatar trung tính & Màu sắc đồng bộ Role */
+.avatar-img {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 1rem;
+}
+.avatar-customer {
+    background-color: #f1f3f5;
+    color: #495057;
+    border: 1px solid #e9ecef;
+}
+.avatar-business {
+    background-color: #e7f5ff;
+    color: #1971c2;
+    border: 1px solid #a5d8ff;
+}
+.avatar-admin {
+    background-color: #f3f0ff;
+    color: #845ef7;
+    border: 1px solid #d0bfff;
+}
+
+/* Badges Role (Gray, Blue, Purple) */
+.badge-role {
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    padding: 0.4em 0.8em;
+    border-radius: 8px;
+}
+.role-customer {
+    background-color: #f1f3f5;
+    color: #495057;
+    border: 1px solid #dee2e6;
+}
+.role-business {
+    background-color: #e7f5ff;
+    color: #1971c2;
+    border: 1px solid #a5d8ff;
+}
+.role-admin {
+    background-color: #f3f0ff;
+    color: #845ef7;
+    border: 1px solid #d0bfff;
+}
+
+/* Badges Status */
+.badge-status {
+    font-size: 0.8rem;
+    font-weight: 700;
+    padding: 0.4em 1em;
+    border-radius: 50rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+.status-active {
+    background: #dcfce7;
+    color: #14532d;
+}
+.status-active .status-dot {
+    background: #16a34a;
+}
+.status-frozen {
+    background: #fee2e2;
+    color: #7f1d1d;
+}
+.status-frozen .status-dot {
+    background: #dc2626;
+}
+.dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+}
+
+/* Toolbar Input */
+.filter-input {
+    background-color: #fff;
+    border: 1px solid #dee2e6;
+    color: #495057;
+    transition: all 0.2s ease;
+    font-size: 0.875rem;
+}
+.filter-input:focus-within, .filter-input:focus {
+    border-color: #adb5bd;
+    box-shadow: 0 0.125rem 0.25rem rgba(0,0,0,0.05);
+    outline: none;
+}
+/* =========================================
+   Time Slot Management
+   ========================================= */
+.timeslot-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 1rem;
+}
+
+.slot-card {
+    aspect-ratio: 1;
+    border-radius: 16px;
+    padding: 1.25rem 1rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    border: 2px solid transparent;
+    position: relative;
+}
+
+.slot-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px -8px rgba(0, 0, 0, 0.15);
+}
+
+.slot-card-available {
+    background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+    border-color: #6ee7b7;
+    color: #065f46;
+}
+
+.slot-card-unavailable {
+    background: linear-gradient(135deg, #fef2f2 0%, #fecaca 100%);
+    border-color: #f87171;
+    color: #991b1b;
+}
+
+.slot-card-maintenance {
+    background: linear-gradient(135deg, #fffbeb 0%, #fde68a 100%);
+    border-color: #fbbf24;
+    color: #92400e;
+}
+
+.slot-card-time {
+    font-size: 1rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    line-height: 1.3;
+}
+
+.slot-card-status {
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+}
+
+.slot-card-actions {
+    display: flex;
+    gap: 0.35rem;
+    margin-top: 0.75rem;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.slot-card:hover .slot-card-actions {
+    opacity: 1;
+}
+
+.slot-card-hint {
+    margin-top: 0.5rem;
+    opacity: 0.8;
+    max-width: 100%;
+}
+
+.slot-legend {
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.slot-legend.slot-available {
+    background: #d1fae5;
+    color: #065f46;
+}
+
+.slot-legend.slot-unavailable {
+    background: #fecaca;
+    color: #991b1b;
+}
+
+.slot-legend.slot-maintenance {
+    background: #fde68a;
+    color: #92400e;
+}
+
+/* =========================================
+   Promotion Management
+   ========================================= */
+/* Typography */
+.tracking-tight {
+    letter-spacing: -0.025em;
+}
+
+/* Gradients & Shadows cho KPI */
+.gradient-primary {
+    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+    color: white;
+}
+.gradient-success {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: white;
+}
+.gradient-danger {
+    background: linear-gradient(135deg, #f43f5e 0%, #e11d48 100%);
+    color: white;
+}
+.gradient-warning {
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    color: white;
+}
+
+/* Tùy chỉnh nút Đen (Black) cho hiệu ứng mượt hơn */
+.btn-dark-custom {
+    background-color: #0f172a;
+    color: white;
+    border: none;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+.btn-dark-custom:hover {
+    background-color: #1e293b;
+    transform: translateY(-2px);
+    box-shadow: 0 10px 15px -3px rgba(15, 23, 42, 0.25);
+    color: white;
+}
+
+/* Card & Table Hover */
+.glass-card {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.2);
+}
+.promo-row {
+    transition: all 0.3s ease;
+}
+.promo-row:hover {
+    background-color: #f8fafc;
+    transform: scale(1.002);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    z-index: 10;
+    position: relative;
+    border-radius: 8px;
+}
+
+/* Badges */
+.badge-target {
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    padding: 0.4em 0.8em;
+    border-radius: 6px;
+}
+.target-all {
+    background-color: #e0f2fe;
+    color: #0284c7;
+}
+.target-tier {
+    background-color: #f3e8ff;
+    color: #7e22ce;
+}
+.target-customer {
+    background-color: #ffedd5;
+    color: #b45309;
+}
+
+.badge-discount {
+    font-size: 0.85rem;
+    font-weight: 800;
+    padding: 0.4em 1em;
+    border-radius: 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+/* Status Dots */
+.status-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+    margin-right: 5px;
+}
+
+/* Forms & Inputs (Viền focus sang màu Đen Xám) */
+.vibrant-input {
+    border: 2px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 0.6rem 1rem;
+    font-weight: 500;
+    color: #1e293b;
+    transition: all 0.3s;
+}
+.vibrant-input:focus {
+    border-color: #0f172a;
+    box-shadow: 0 0 0 4px rgba(15, 23, 42, 0.15);
+    outline: none;
+}
+
+.modal-content {
+    border-radius: 20px;
+    border: none;
+    overflow: hidden;
+}
+.modal-header {
+    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+    border-bottom: 1px solid #e2e8f0;
+}
+
+/* =========================================
+   User Management
+   ========================================= */
+
+/* Typography */
+.tracking-tight {
+    letter-spacing: -0.025em;
+}
+
+/* Gradients & Shadows cho KPI */
+.gradient-primary {
+    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+    color: white;
+}
+.gradient-success {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: white;
+}
+.gradient-danger {
+    background: linear-gradient(135deg, #f43f5e 0%, #e11d48 100%);
+    color: white;
+}
+.gradient-warning {
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    color: white;
+}
+
+/* Tùy chỉnh nút Đen (Black) cho hiệu ứng mượt hơn */
+.btn-dark-custom {
+    background-color: #0f172a;
+    color: white;
+    border: none;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+.btn-dark-custom:hover {
+    background-color: #1e293b;
+    transform: translateY(-2px);
+    box-shadow: 0 10px 15px -3px rgba(15, 23, 42, 0.25);
+    color: white;
+}
+
+/* Card & Table Hover */
+.glass-card {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.2);
+}
+.user-row {
+    transition: all 0.3s ease;
+}
+.user-row:hover {
+    background-color: #f8fafc;
+    transform: scale(1.002);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    z-index: 10;
+    position: relative;
+    border-radius: 8px;
+}
+.tr-frozen {
+    opacity: 0.7;
+    background-color: #fcfcfd;
+}
+
+/* Avatar trung tính & Màu sắc đồng bộ Role */
+.avatar-img {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 1rem;
+}
+.avatar-customer {
+    background-color: #f1f3f5;
+    color: #495057;
+    border: 1px solid #e9ecef;
+}
+.avatar-business {
+    background-color: #e7f5ff;
+    color: #1971c2;
+    border: 1px solid #a5d8ff;
+}
+.avatar-admin {
+    background-color: #f3f0ff;
+    color: #845ef7;
+    border: 1px solid #d0bfff;
+}
+
+/* Badges Role (Gray, Blue, Purple) */
+.badge-role {
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    padding: 0.4em 0.8em;
+    border-radius: 8px;
+}
+.role-customer {
+    background-color: #f1f3f5;
+    color: #495057;
+    border: 1px solid #dee2e6;
+}
+.role-business {
+    background-color: #e7f5ff;
+    color: #1971c2;
+    border: 1px solid #a5d8ff;
+}
+.role-admin {
+    background-color: #f3f0ff;
+    color: #845ef7;
+    border: 1px solid #d0bfff;
+}
+
+/* Badges Status */
+.badge-status {
+    font-size: 0.8rem;
+    font-weight: 700;
+    padding: 0.4em 1em;
+    border-radius: 50rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+.status-active {
+    background: #dcfce7;
+    color: #14532d;
+}
+.status-active .status-dot {
+    background: #16a34a;
+}
+.status-frozen {
+    background: #fee2e2;
+    color: #7f1d1d;
+}
+.status-frozen .status-dot {
+    background: #dc2626;
+}
+.status-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+/* Forms & Inputs (Viền focus sang màu Đen Xám) */
+.vibrant-input {
+    border: 2px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 0.6rem 1rem;
+    font-weight: 500;
+    color: #1e293b;
+    transition: all 0.3s;
+}
+.vibrant-input:focus {
+    border-color: #0f172a;
+    box-shadow: 0 0 0 4px rgba(15, 23, 42, 0.15);
+    outline: none;
+}
+
+/* =========================================
+   Car Management
+   ========================================= */
+
+/* Typography */
+.tracking-tight {
+    letter-spacing: -0.025em;
+}
+
+/* Gradients & Shadows cho KPI */
+.gradient-primary {
+    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+    color: white;
+}
+.gradient-success {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: white;
+}
+
+/* Nút Đen (Black) chuẩn SaaS */
+.btn-dark-custom {
+    background-color: #0f172a;
+    color: white;
+    border: none;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+.btn-dark-custom:hover {
+    background-color: #1e293b;
+    transform: translateY(-2px);
+    box-shadow: 0 10px 15px -3px rgba(15, 23, 42, 0.25);
+    color: white;
+}
+
+/* Hiệu ứng nổi Card & Table Hover */
+.glass-card {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.2);
+}
+.business-row {
+    transition: all 0.3s ease;
+}
+.business-row:hover {
+    background-color: #f8fafc;
+    transform: scale(1.002);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    z-index: 10;
+    position: relative;
+    border-radius: 8px;
+}
+
+/* Custom Modal */
+.modal-content-custom {
+    border-radius: 20px;
+    border: none;
+    overflow: hidden;
+}
+.modal-header-custom {
+    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+    border-bottom: 1px solid #e2e8f0;
+}
+/* =========================================
+   Admin Dashboard
+   ========================================= */
+
+/* Typography */
+.tracking-tight {
+    letter-spacing: -0.025em;
+}
+
+/* Gradients & Shadows cho KPI */
+.gradient-primary {
+    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+    color: white;
+}
+.gradient-success {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: white;
+}
+.gradient-warning {
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    color: white;
+}
+.gradient-danger {
+    background: linear-gradient(135deg, #f43f5e 0%, #e11d48 100%);
+    color: white;
+}
+.gradient-info {
+    background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
+    color: white;
+}
+.gradient-purple {
+    background: linear-gradient(135deg, #a855f7 0%, #7e22ce 100%);
+    color: white;
+}
+
+/* Nút Đen (Black) chuẩn SaaS */
+.btn-dark-custom {
+    background-color: #0f172a;
+    color: white;
+    border: none;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+.btn-dark-custom:hover {
+    background-color: #1e293b;
+    transform: translateY(-2px);
+    box-shadow: 0 10px 15px -3px rgba(15, 23, 42, 0.25);
+    color: white;
+}
+
+/* Hiệu ứng nổi Card Hover */
+.glass-card {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.2);
+}
+.hover-scale {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.hover-scale:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 20px -8px rgba(0,0,0,0.1) !important;
+    z-index: 2;
+}
+
+/* Custom Table Row - Tăng khoảng cách cho mượt mắt */
+.custom-row {
+    transition: all 0.2s ease;
+}
+.custom-row:hover {
+    background-color: #f8fafc;
+}
+.table-spaced td {
+    vertical-align: middle;
+}
+
+/* =========================================
+   Tier Management
+   ========================================= */
+
+/* Typography */
+.tracking-tight {
+    letter-spacing: -0.025em;
+}
+
+/* Gradients & Shadows cho KPI */
+.gradient-primary {
+    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+    color: white;
+}
+.gradient-success {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: white;
+}
+.gradient-warning {
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    color: white;
+}
+.gradient-danger {
+    background: linear-gradient(135deg, #f43f5e 0%, #e11d48 100%);
+    color: white;
+}
+
+/* Nút Đen (Black) chuẩn SaaS */
+.btn-dark-custom {
+    background-color: #0f172a;
+    color: white;
+    border: none;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+.btn-dark-custom:hover {
+    background-color: #1e293b;
+    transform: translateY(-2px);
+    box-shadow: 0 10px 15px -3px rgba(15, 23, 42, 0.25);
+    color: white;
+}
+
+/* Hiệu ứng nổi Card & Table Hover */
+.glass-card {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.2);
+}
+.hover-scale {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.hover-scale:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 20px -8px rgba(0,0,0,0.1) !important;
+    z-index: 2;
+}
+
+.tier-row {
+    transition: all 0.3s ease;
+}
+.tier-row:hover {
+    background-color: #f8fafc;
+    transform: scale(1.002);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    z-index: 10;
+    position: relative;
+    border-radius: 8px;
+}
+
+/* Forms & Inputs (Viền focus sang màu Đen Xám) */
+.vibrant-input {
+    border: 2px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 0.6rem 1rem;
+    font-weight: 500;
+    color: #1e293b;
+    transition: all 0.3s;
+}
+.vibrant-input:focus {
+    border-color: #0f172a;
+    box-shadow: 0 0 0 4px rgba(15, 23, 42, 0.15);
+    outline: none;
+}
+
+/* Custom Modal */
+.modal-content-custom {
+    border-radius: 20px;
+    border: none;
+    overflow: hidden;
+}
+.modal-header-custom {
+    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+    border-bottom: 1px solid #e2e8f0;
+}
+
+/* =========================================
+   Revenue
+   ========================================= */
+/* Typography */
+.tracking-tight {
+    letter-spacing: -0.025em;
+}
+
+/* Gradients & Shadows cho KPI */
+.gradient-primary {
+    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+    color: white;
+}
+.gradient-success {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: white;
+}
+.gradient-warning {
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    color: white;
+}
+.gradient-info {
+    background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
+    color: white;
+}
+.gradient-purple {
+    background: linear-gradient(135deg, #a855f7 0%, #7e22ce 100%);
+    color: white;
+}
+
+/* Nút Đen (Black) chuẩn SaaS */
+.btn-dark-custom {
+    background-color: #0f172a;
+    color: white;
+    border: none;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+.btn-dark-custom:hover {
+    background-color: #1e293b;
+    transform: translateY(-2px);
+    box-shadow: 0 10px 15px -3px rgba(15, 23, 42, 0.25);
+    color: white;
+}
+
+/* Hiệu ứng nổi Card & Table Hover */
+.glass-card {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.2);
+}
+.hover-scale {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.hover-scale:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 20px -8px rgba(0,0,0,0.1) !important;
+    z-index: 2;
+}
+
+/* Input & Select */
+.vibrant-input {
+    border: 2px solid #e2e8f0;
+    font-weight: 600;
+    color: #1e293b;
+    transition: all 0.3s;
+}
+.vibrant-input:focus {
+    border-color: #6366f1;
+    box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.15);
+    outline: none;
+}
+
+.custom-row:hover {
+    background-color: #f8fafc;
+}
+
+
+/* =========================================
+   Booking View Details
+   ========================================= */
+
+.tracking-tight {
+    letter-spacing: -0.025em;
+}
+
+.booking-row {
+    transition: background-color 0.3s ease;
+}
+.booking-row:hover {
+    background-color: #f8fafc;
+}
+
+/* Custom Tab Buttons */
+.filter-btn {
+    transition: all 0.3s ease;
+    border: 1px solid transparent;
+}
+.filter-btn:hover {
+    background-color: #f1f5f9;
+    color: #0f172a !important;
+}
+.filter-btn.active {
+    background-color: #0f172a !important;
+    color: white !important;
+    box-shadow: 0 4px 6px -1px rgba(15, 23, 42, 0.2);
+    border-color: #0f172a;
+}
+
+/* Nút Đen (Black) chuẩn SaaS */
+.btn-dark-custom {
+    background-color: #0f172a;
+    color: white;
+    border: none;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+.btn-dark-custom:hover {
+    background-color: #1e293b;
+    transform: translateY(-2px);
+    box-shadow: 0 10px 15px -3px rgba(15, 23, 42, 0.25);
+    color: white;
+}
