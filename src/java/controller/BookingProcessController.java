@@ -52,8 +52,10 @@ public class BookingProcessController extends HttpServlet {
             // 1. KHI NHẤN CHECK-IN
             if ("checkin".equals(actionAdmin)) {
 
-                result = bd.updateStatusOfBooking(bookingId, "InProgress");
-                if (result < 1) {
+                result = bd.checkInBooking(bookingId);
+                if (result == -2) {
+                    request.setAttribute("error", "Only confirmed (paid) bookings can be checked in.");
+                } else if (result < 1) {
                     request.setAttribute("error", "Check in fail. Please try again!");
 
                 } else {

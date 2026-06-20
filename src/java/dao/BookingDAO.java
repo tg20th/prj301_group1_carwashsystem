@@ -559,6 +559,26 @@ public class BookingDAO {
         return updateStatusOfBooking(bookingId, "Confirmed");
     }
 
+    public int checkInBooking(int bookingId) {
+        Connection cn = null;
+        try {
+            cn = DBUtils.getConnection();
+            Booking booking = getBookingEntityById(bookingId, cn);
+            if (booking == null) {
+                return -1;
+            }
+            if (!"Confirmed".equalsIgnoreCase(booking.getStatus())) {
+                return -2;
+            }
+            return updateStatusOfBooking(bookingId, "InProgress", cn);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return 0;
+        } finally {
+            closeQuietly(cn);
+        }
+    }
+
     public List<Booking> getBookingsByCustomerId(int customerId) {
         List<Booking> list = new ArrayList<>();
         Connection cn = null;
