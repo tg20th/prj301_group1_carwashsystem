@@ -11,6 +11,9 @@ import dao.WashBayDAO;
 import dto.Account;
 import dto.Business;
 import dto.Customer;
+import dto.DiscountRequest;
+import dto.DiscountResult;
+import dto.Promotion;
 import dto.Service;
 import dto.ServicePrices;
 import dto.Tier;
@@ -19,6 +22,8 @@ import dto.Vehicle;
 import dto.WashBaySlotDTO;
 import java.io.IOException;
 import java.io.PrintWriter;
+import service.DiscountEngine;
+import service.InvoiceAutoCancelService;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -79,6 +84,9 @@ public class BusinessBookingController extends HttpServlet {
             case "prices":
                 handlePrices(request, response, customer);
                 return;
+            case "previewDiscount":
+                handlePreviewDiscount(request, response, customer);
+                return;
             case "submit":
                 handleSubmit(request, response, customer);
                 return;
@@ -90,6 +98,8 @@ public class BusinessBookingController extends HttpServlet {
     private void handlePage(HttpServletRequest request, HttpServletResponse response,
             Customer customer, Business business)
             throws ServletException, IOException {
+        new InvoiceAutoCancelService().cancelExpiredPendingInvoices();
+
         VehicleDAO vehicleDAO = new VehicleDAO();
         ServicesDAO servicesDAO = new ServicesDAO();
         List<Vehicle> allVehicles = vehicleDAO.getVehiclesByCustomerID(customer.getCusID());
@@ -102,6 +112,8 @@ public class BusinessBookingController extends HttpServlet {
         List<Service> services = servicesDAO.getAllServices();
 
         enrichTierBookingLimits(request, customer);
+        DiscountEngine discountEngine = new DiscountEngine();
+        request.setAttribute("PROMO_LIST", discountEngine.getEligiblePromotions(customer.getCusID(), customer.getTierID()));
         request.setAttribute("VEHICLES", vehicles);
         request.setAttribute("SERVICES", services);
         request.setAttribute("BUSINESS_NAME", business.getBusinessName());
@@ -142,6 +154,19 @@ public class BusinessBookingController extends HttpServlet {
         }
         if (slot.getStartTime() != null) {
             return slot.getStartTime().toLocalDate();
+        }
+        return null;
+    }
+
+    private String validateSlotLeadTime(int slotId) {
+        TimeSlotDAO slotDAO = new TimeSlotDAO();
+        TimeSlotDTO slot = slotDAO.getSlotById(slotId);
+        if (slot == null) {
+            return "Selected time slot was not found.";
+        }
+        if (!slotDAO.isSlotBookable(slot)) {
+            return "Please choose a time slot at least "
+                    + TimeSlotDAO.BOOKING_LEAD_MINUTES + " minutes from now.";
         }
         return null;
     }
@@ -192,6 +217,12 @@ public class BusinessBookingController extends HttpServlet {
         try {
             int slotId = Integer.parseInt(request.getParameter("slotId"));
             int vehicleCount = Integer.parseInt(request.getParameter("vehicleCount"));
+            String slotError = validateSlotLeadTime(slotId);
+            if (slotError != null) {
+                out.print("{\"success\":false,\"message\":\"" + escapeJson(slotError) + "\"}");
+                out.flush();
+                return;
+            }
             LocalDate slotDate = resolveSlotDate(slotId);
             if (slotDate == null) {
                 out.print("{\"success\":false,\"message\":\"Time slot not found.\"}");
@@ -287,6 +318,91 @@ public class BusinessBookingController extends HttpServlet {
         out.flush();
     }
 
+    private void handlePreviewDiscount(HttpServletRequest request, HttpServletResponse response, Customer customer)
+            throws IOException {
+        response.setContentType("application/json;charset=UTF-8");
+        PrintWriter out = response.getWriter();
+        try {
+            int serviceId = Integer.parseInt(request.getParameter("serviceId"));
+            String[] vehicleIdParams = request.getParameterValues("vehicleIds");
+            Integer promotionId = parseOptionalPromotionId(request.getParameter("promotionId"));
+            if (vehicleIdParams == null || vehicleIdParams.length == 0) {
+                out.print("{\"success\":false,\"message\":\"Select at least one vehicle.\"}");
+                out.flush();
+                return;
+            }
+
+            VehicleDAO vehicleDAO = new VehicleDAO();
+            ServicePricesDAO priceDAO = new ServicePricesDAO();
+            long subTotal = 0;
+            int maxDuration = 0;
+            StringBuilder items = new StringBuilder("[");
+            for (int i = 0; i < vehicleIdParams.length; i++) {
+                int vehicleId = Integer.parseInt(vehicleIdParams[i]);
+                if (!vehicleDAO.isVehicleOwnedByCustomer(vehicleId, customer.getCusID())) {
+                    out.print("{\"success\":false,\"message\":\"Invalid vehicle selection.\"}");
+                    out.flush();
+                    return;
+                }
+                Integer vehicleTypeId = vehicleDAO.getVehicleTypeIdByVehicleId(vehicleId);
+                ServicePrices price = priceDAO.getPriceByServiceAndVehicleType(serviceId, vehicleTypeId);
+                if (price == null) {
+                    out.print("{\"success\":false,\"message\":\"Price not configured for a selected vehicle.\"}");
+                    out.flush();
+                    return;
+                }
+                Vehicle vehicle = vehicleDAO.getVehicleByID(vehicleId);
+                if (i > 0) {
+                    items.append(",");
+                }
+                long unitPrice = price.getPrice().longValue();
+                subTotal += unitPrice;
+                maxDuration = Math.max(maxDuration, price.getDurations());
+                items.append("{")
+                        .append("\"vehicleId\":").append(vehicleId).append(",")
+                        .append("\"plate\":\"").append(escapeJson(vehicle != null ? vehicle.getLicensePlate() : "")).append("\",")
+                        .append("\"name\":\"").append(escapeJson(vehicle != null
+                                ? vehicle.getBrandName() + " " + vehicle.getModelName() : "")).append("\",")
+                        .append("\"price\":").append(unitPrice).append(",")
+                        .append("\"duration\":").append(price.getDurations())
+                        .append("}");
+            }
+            items.append("]");
+
+            DiscountEngine discountEngine = new DiscountEngine();
+            DiscountResult result = discountEngine.calculate(
+                    new DiscountRequest(customer.getCusID(), customer.getTierID(), subTotal, promotionId));
+
+            int remainingUses = 0;
+            if (result.getAppliedPromotionId() != null) {
+                List<Promotion> eligible = discountEngine.getEligiblePromotions(
+                        customer.getCusID(), customer.getTierID());
+                for (Promotion promo : eligible) {
+                    if (promo.getPromotionID() == result.getAppliedPromotionId()) {
+                        remainingUses = promo.getRemainingUses();
+                        break;
+                    }
+                }
+            }
+
+            out.print("{\"success\":true"
+                    + ",\"total\":" + result.getSubTotal()
+                    + ",\"subTotal\":" + result.getSubTotal()
+                    + ",\"discountAmount\":" + result.getDiscountAmount()
+                    + ",\"finalAmount\":" + result.getFinalAmount()
+                    + ",\"discountPercent\":" + result.getDiscountPercent()
+                    + ",\"promotionId\":" + (result.getAppliedPromotionId() != null ? result.getAppliedPromotionId() : "null")
+                    + ",\"promotionName\":\"" + escapeJson(result.getPromotionName() != null ? result.getPromotionName() : "") + "\""
+                    + ",\"remainingUses\":" + remainingUses
+                    + ",\"maxDuration\":" + maxDuration
+                    + ",\"items\":" + items
+                    + "}");
+        } catch (NumberFormatException e) {
+            out.print("{\"success\":false,\"message\":\"Invalid service or vehicle.\"}");
+        }
+        out.flush();
+    }
+
     private void handleSubmit(HttpServletRequest request, HttpServletResponse response, Customer customer)
             throws IOException, ServletException {
         try {
@@ -294,6 +410,7 @@ public class BusinessBookingController extends HttpServlet {
             int serviceId = Integer.parseInt(request.getParameter("serviceId"));
             int slotId = Integer.parseInt(request.getParameter("slotId"));
             String notes = request.getParameter("notes");
+            Integer promotionId = parseOptionalPromotionId(request.getParameter("promotionId"));
 
             if (vehicleIdParams == null || vehicleIdParams.length == 0) {
                 forwardError(request, response, customer, "Please select at least one vehicle.");
@@ -305,6 +422,11 @@ public class BusinessBookingController extends HttpServlet {
                 vehicleIds.add(Integer.parseInt(param));
             }
 
+            String slotError = validateSlotLeadTime(slotId);
+            if (slotError != null) {
+                forwardError(request, response, customer, slotError);
+                return;
+            }
             LocalDate slotDate = resolveSlotDate(slotId);
             if (slotDate == null) {
                 forwardError(request, response, customer, "Selected time slot was not found.");
@@ -325,7 +447,7 @@ public class BusinessBookingController extends HttpServlet {
 
             BookingDAO bookingDAO = new BookingDAO();
             BookingDAO.BusinessBookingResult result = bookingDAO.createBusinessBookings(
-                    customer.getCusID(), slotId, serviceId, vehicleIds, notes);
+                    customer.getCusID(), customer.getTierID(), slotId, serviceId, vehicleIds, notes, promotionId);
             if (result != null) {
                 response.sendRedirect("BusinessPaymentController?invoiceId=" + result.getInvoiceId());
                 return;
@@ -354,6 +476,18 @@ public class BusinessBookingController extends HttpServlet {
             }
         }
         return LocalDate.now();
+    }
+
+    private Integer parseOptionalPromotionId(String raw) {
+        if (raw == null || raw.trim().isEmpty() || "auto".equalsIgnoreCase(raw.trim())) {
+            return null;
+        }
+        try {
+            int id = Integer.parseInt(raw.trim());
+            return id > 0 ? id : null;
+        } catch (NumberFormatException e) {
+            return null;
+        }
     }
 
     private String escapeJson(String value) {

@@ -7,8 +7,12 @@
     <jsp:forward page="index.jsp"/>
 </c:if>
 <%
+    Integer invoiceId = (Integer) request.getAttribute("INVOICE_ID");
     Integer bookingId = (Integer) request.getAttribute("BOOKING_ID");
     Integer amount = (Integer) request.getAttribute("AMOUNT");
+    Integer subTotal = (Integer) request.getAttribute("SUB_TOTAL");
+    Integer discountAmount = (Integer) request.getAttribute("DISCOUNT_AMOUNT");
+    String promotionName = (String) request.getAttribute("PROMOTION_NAME");
     String qrCode = (String) request.getAttribute("QR_CODE");
     String checkoutUrl = (String) request.getAttribute("CHECKOUT_URL");
     String errorMsg = (String) request.getAttribute("ERROR_MSG");
@@ -45,12 +49,32 @@
             <% } else if (qrCode != null) { %>
             <div id="qrcode" class="d-flex justify-content-center mb-3"></div>
             <div class="bg-light rounded-4 p-3 text-start mb-3">
+                <% if (invoiceId != null) { %>
+                <div class="d-flex justify-content-between mb-2">
+                    <span class="text-muted small">Mã hóa đơn</span>
+                    <span class="fw-semibold font-monospace">#<%= invoiceId %></span>
+                </div>
+                <% } %>
+                <% if (bookingId != null) { %>
                 <div class="d-flex justify-content-between mb-2">
                     <span class="text-muted small">Mã booking</span>
                     <span class="fw-semibold font-monospace">#<%= bookingId %></span>
                 </div>
+                <% } %>
+                <% if (subTotal != null) { %>
                 <div class="d-flex justify-content-between mb-2">
-                    <span class="text-muted small">Số tiền</span>
+                    <span class="text-muted small">Tạm tính</span>
+                    <span><%= String.format("%,d", subTotal) %> VND</span>
+                </div>
+                <% } %>
+                <% if (discountAmount != null && discountAmount > 0) { %>
+                <div class="d-flex justify-content-between mb-2 text-success">
+                    <span class="small">Giảm giá<% if (promotionName != null && !promotionName.isEmpty()) { %> (<%= promotionName %>)<% } %></span>
+                    <span>-<%= String.format("%,d", discountAmount) %> VND</span>
+                </div>
+                <% } %>
+                <div class="d-flex justify-content-between mb-2">
+                    <span class="text-muted small">Thanh toán</span>
                     <span class="fw-bold"><%= String.format("%,d", amount) %> VND</span>
                 </div>
                 <div class="d-flex justify-content-between">
@@ -73,7 +97,11 @@
                 <strong>Chế độ sandbox:</strong> không cần chuyển tiền thật. Bấm nút bên dưới để giả lập thanh toán thành công.
             </div>
             <form action="PaymentSandboxController" method="post" class="mt-2">
+                <% if (invoiceId != null) { %>
+                <input type="hidden" name="invoiceId" value="<%= invoiceId %>">
+                <% } else if (bookingId != null) { %>
                 <input type="hidden" name="bookingId" value="<%= bookingId %>">
+                <% } %>
                 <button type="submit" class="btn btn-success btn-sm rounded-pill w-100">
                     <i class="bi bi-check-circle me-1"></i> Giả lập thanh toán (sandbox)
                 </button>
@@ -87,12 +115,13 @@
         </div>
     </div>
 
-    <% if (qrCode != null && bookingId != null) { %>
+    <% if (qrCode != null && (invoiceId != null || bookingId != null)) { %>
     <textarea id="qrData" class="d-none"><%= qrCode %></textarea>
     <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
     <script>
         const qrData = document.getElementById('qrData').value;
-        const bookingId = <%= bookingId %>;
+        const invoiceId = <%= invoiceId != null ? invoiceId : "null" %>;
+        const bookingId = <%= bookingId != null ? bookingId : "null" %>;
         QRCode.toCanvas(document.createElement('canvas'), qrData, { width: 240, margin: 1 }, function (err, canvas) {
             if (!err) document.getElementById('qrcode').appendChild(canvas);
         });
@@ -100,7 +129,10 @@
         let secondsLeft = 15 * 60;
         const countdownEl = document.getElementById('countdown');
         setInterval(() => {
-            if (secondsLeft <= 0) return;
+            if (secondsLeft <= 0) {
+                window.location.replace('CustomerBookingHistoryController');
+                return;
+            }
             secondsLeft--;
             const m = String(Math.floor(secondsLeft / 60)).padStart(2, '0');
             const s = String(secondsLeft % 60).padStart(2, '0');
@@ -109,10 +141,20 @@
 
         async function checkPaid() {
             try {
-                const res = await fetch('PaymentStatusController?bookingId=' + bookingId);
+                const statusUrl = invoiceId
+                    ? 'PaymentStatusController?invoiceId=' + invoiceId
+                    : 'PaymentStatusController?bookingId=' + bookingId;
+                const res = await fetch(statusUrl);
                 const data = await res.json();
+                if (data.success && data.expired) {
+                    window.location.replace('CustomerBookingHistoryController');
+                    return true;
+                }
                 if (data.success && (data.status === 'Confirmed' || data.paymentStatus === 'Paid')) {
-                    window.location.replace('PaymentSuccessController?bookingId=' + bookingId);
+                    const successUrl = invoiceId
+                        ? 'PaymentSuccessController?invoiceId=' + invoiceId
+                        : 'PaymentSuccessController?bookingId=' + bookingId;
+                    window.location.replace(successUrl);
                     return true;
                 }
             } catch (e) { /* ignore */ }
