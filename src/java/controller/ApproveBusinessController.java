@@ -60,9 +60,14 @@ public class ApproveBusinessController extends HttpServlet {
         if(result < 1) {
             request.setAttribute("error", "Approve fail. Please try again!");
         } else {
-            request.setAttribute("success", "Approve successfully!");
             Business b = bd.getBussinessByCusID(findCus.getCusID());
-            EmailUtils.sendApproveEmail(b.getEmail(), b.getBusinessName());
+            boolean emailSent = EmailUtils.sendApproveEmail(b.getEmail(), b.getBusinessName());
+            if (emailSent) {
+                request.setAttribute("success", "Approve successfully!");
+            } else {
+                request.setAttribute("success",
+                        "Approve successfully! Notification email could not be sent (rate limit). Please inform the business manually.");
+            }
             
         }
         request.getRequestDispatcher("BusinessRequestsController").forward(request, response);

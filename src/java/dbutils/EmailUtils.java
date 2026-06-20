@@ -35,6 +35,27 @@ public class EmailUtils {
         });
     }
 
+    private static final long MIN_SEND_INTERVAL_MS = 1200;
+    private static final int MAX_RETRIES = 3;
+    private static final Object SEND_LOCK = new Object();
+    private static long lastSendTime = 0;
+
+    private static void waitForRateLimit() throws InterruptedException {
+        synchronized (SEND_LOCK) {
+            long now = System.currentTimeMillis();
+            long waitMs = MIN_SEND_INTERVAL_MS - (now - lastSendTime);
+            if (waitMs > 0) {
+                Thread.sleep(waitMs);
+            }
+            lastSendTime = System.currentTimeMillis();
+        }
+    }
+
+    private static boolean isRateLimitError(Exception e) {
+        String message = e.getMessage();
+        return message != null && message.contains("Too many emails per second");
+    }
+
     public static boolean sendEmail(String receiver, String subject, String htmlContent) {
         try {
             Session session = getSession();
@@ -44,10 +65,23 @@ public class EmailUtils {
             message.setSubject(subject);
             message.setContent(htmlContent, "text/html; charset=UTF-8");
 
-            Transport.send(message);
-            return true;
+            for (int attempt = 0; attempt < MAX_RETRIES; attempt++) {
+                try {
+                    waitForRateLimit();
+                    Transport.send(message);
+                    return true;
+                } catch (Exception e) {
+                    if (isRateLimitError(e) && attempt < MAX_RETRIES - 1) {
+                        Thread.sleep(1500L * (attempt + 1));
+                        continue;
+                    }
+                    System.err.println("Failed to send email to " + receiver + ": " + e.getMessage());
+                    return false;
+                }
+            }
+            return false;
         } catch (Exception e) {
-            e.printStackTrace();
+            System.err.println("Failed to prepare email for " + receiver + ": " + e.getMessage());
             return false;
         }
     }
@@ -83,7 +117,7 @@ public class EmailUtils {
              + "</div>";
     }
 
-    public static void sendApproveEmail(String email, String businessName) {
+    public static boolean sendApproveEmail(String email, String businessName) {
         String subject = "Elite Auto - Business Registration Approved";
         
         // Nội dung chính của email Approve (Thêm style nhẹ nhàng, text xám đậm)
@@ -100,10 +134,10 @@ public class EmailUtils {
                 + "<p style=\"margin: 0;\">Best regards,<br><b style=\"color: #111827;\">The Elite Auto Team</b></p>";
 
         String finalHtml = getBaseEmailTemplate("Registration Approved \u2705", body);
-        sendEmail(email, subject, finalHtml);
+        return sendEmail(email, subject, finalHtml);
     }
 
-    public static void sendRevisionEmail(String email, String businessName, String reason) {
+    public static boolean sendRevisionEmail(String email, String businessName, String reason) {
         String subject = "Elite Auto - Application Rejected";
         
         // Nội dung chính của email Reject/Revision
@@ -126,6 +160,6 @@ public class EmailUtils {
                 + "<p style=\"margin: 0;\">Best regards,<br><b style=\"color: #111827;\">The Elite Auto Team</b></p>";
 
         String finalHtml = getBaseEmailTemplate("Action Required: Revision \u26A0\uFE0F", body);
-        sendEmail(email, subject, finalHtml);
+        return sendEmail(email, subject, finalHtml);
     }
 }
