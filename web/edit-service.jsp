@@ -2,6 +2,9 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
 <c:set var="isEdit" value="${not empty SERVICE}" />
+<c:if test="${empty sessionScope.ACCOUNT}">
+    <jsp:forward page="index.jsp"/>
+</c:if>
 
 <!DOCTYPE html>
 <html lang="en">

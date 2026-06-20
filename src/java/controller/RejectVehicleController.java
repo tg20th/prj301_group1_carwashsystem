@@ -35,7 +35,7 @@ public class RejectVehicleController extends HttpServlet {
         response.setContentType("text/html;charset=UTF-8");
         Account acc = (Account) request.getSession().getAttribute("ACCOUNT");
         if (acc == null) {
-            response.sendRedirect("login.jsp");
+            response.sendRedirect("MainController?action=home");
             return;
         }
         try {

@@ -38,7 +38,7 @@ public class UpdateRegistrationController extends HttpServlet {
             throws ServletException, IOException {
         Account a = (Account) request.getSession().getAttribute("ACCOUNT");
         if (a == null) {
-            request.getRequestDispatcher("index.jsp").forward(request, response);
+            request.getRequestDispatcher("MainController").forward(request, response);
             return;
         }
 

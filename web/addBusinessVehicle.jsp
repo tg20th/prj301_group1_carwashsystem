@@ -1,7 +1,18 @@
 
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
+<%@taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 
+
+<%
+    if (session.getAttribute("ACCOUNT") == null || session.getAttribute("BUS") == null) {
+        response.sendRedirect("MainController?action=home");
+        return;
+    }
+%>
 <!DOCTYPE html>
+<c:if test="${empty sessionScope.ACCOUNT}">
+    <jsp:forward page="index.jsp"/>
+</c:if>
 <html>
 
     <head>
@@ -101,13 +112,9 @@
                             <% }%>
 
                             <!-- FORM -->
-                            <form action="MainController"
+                            <form action="AddBusinessVehiclesController"
                                   method="post"
                                   enctype="multipart/form-data">
-
-                                <input type="hidden"
-                                       name="action"
-                                       value="AddBusinessVehicles">
 
                                 <!-- CSV -->
                                 <div class="mb-4">
@@ -164,11 +171,13 @@
 
                                     </h6>
 
-                                    <pre class="mb-0">
-LicensePlate,Brand,Model,Color,Year,Image
-51A12345,Toyota,Vios,Black,2022,51A12345.jpg
-59B88888,Honda,City,White,2023,59B88888.png
-                                    </pre>
+                                    <pre class="mb-0">LicensePlate,Brand,Model,Color,Year,Image
+51A-12345,Toyota,Vios,Black,2022,51A-12345.jpg
+59B-88888,Honda,City,White,2023,59B-88888.png</pre>
+                                    <p class="small text-muted mb-0 mt-2">
+                                        License plate format: <strong>63A-12345</strong> (2 digits, 1 letter, hyphen, 5 digits).
+                                        Brand and Model must match names in the system (e.g. Toyota, Vios).
+                                    </p>
 
                                 </div>
 

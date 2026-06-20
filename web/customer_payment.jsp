@@ -1,4 +1,11 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
+<%@taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+
+
+<!DOCTYPE html>
+<c:if test="${empty sessionScope.ACCOUNT}">
+    <jsp:forward page="index.jsp"/>
+</c:if>
 <%
     Integer bookingId = (Integer) request.getAttribute("BOOKING_ID");
     Integer amount = (Integer) request.getAttribute("AMOUNT");

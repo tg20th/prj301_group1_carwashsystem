@@ -33,6 +33,12 @@ public class ManageUserController extends HttpServlet {
      */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        
+        Account acc = (Account) request.getSession().getAttribute("ACCOUNT");
+        if (acc == null) {
+            request.getRequestDispatcher("MainController").forward(request, response);
+            return;
+        }
 
         String search = request.getParameter("search");
         String userType = request.getParameter("userType");

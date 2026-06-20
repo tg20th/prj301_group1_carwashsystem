@@ -5,6 +5,7 @@
 package controller;
 
 import dao.BusinessDAO;
+import dto.Account;
 import java.io.IOException;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -30,6 +31,13 @@ public class BusinessRequestsController extends HttpServlet {
      */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+
+        Account account = (Account) request.getSession().getAttribute("ACCOUNT");
+
+        if (account == null) {
+            response.sendRedirect("MainController?action=home");
+            return;
+        }
         BusinessDAO b = new BusinessDAO();
         request.setAttribute("LIST_BUSINESS_REQUESTS", b.getAllPendingBus());
         request.getRequestDispatcher("business_request.jsp").forward(request, response);

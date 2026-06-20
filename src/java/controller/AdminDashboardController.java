@@ -31,12 +31,12 @@ public class AdminDashboardController extends HttpServlet {
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
-//        Account account = (Account) request.getSession().getAttribute("ACCOUNT");
-//        
-//        if (account == null) {
-//            request.getRequestDispatcher("index.jsp");
-//            return;
-//        }
+        Account account = (Account) request.getSession().getAttribute("ACCOUNT");
+        
+        if (account == null) {
+            request.getRequestDispatcher("index.jsp").forward(request, response);
+            return;
+        }
 
         CustomerDAO c = new CustomerDAO();
 

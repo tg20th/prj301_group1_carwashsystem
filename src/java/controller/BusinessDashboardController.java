@@ -4,6 +4,7 @@
  */
 package controller;
 
+import dao.BookingDAO;
 import dao.BusinessDAO;
 import dao.CustomerDAO;
 import dao.PromotionDAO;
@@ -64,6 +65,8 @@ public class BusinessDashboardController extends HttpServlet {
                 request.setAttribute("POINT_BALANCE", pointBalance);
                 request.setAttribute("TIER", tierDAO.getTier(customer.getTierID()));
                 request.setAttribute("NEXTREWARD", rewardDAO.getNextReward(pointBalance));
+                request.setAttribute("ACTIVE_BOOKING_COUNT",
+                        new BookingDAO().countActiveBookingsByCustomerId(customer.getCusID()));
             } else {
                 request.setAttribute("ERROR", "Customer information not found.");
             }

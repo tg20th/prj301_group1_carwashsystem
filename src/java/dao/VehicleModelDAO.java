@@ -44,6 +44,28 @@ public class VehicleModelDAO {
         return list;
     }
 
+    public Integer getModelIDByBrandAndModel(String brandName, String modelName) {
+        String sql = "SELECT vm.ModelID "
+                + "FROM VehicleModels vm "
+                + "INNER JOIN VehicleBrands vb ON vm.BrandID = vb.BrandID "
+                + "WHERE vb.BrandName = ? AND vm.ModelName = ? "
+                + "AND vm.IsActive = 1 AND vb.IsActive = 1";
+
+        try (Connection cn = DBUtils.getConnection();
+                PreparedStatement st = cn.prepareStatement(sql)) {
+            st.setString(1, brandName.trim());
+            st.setString(2, modelName.trim());
+            try (ResultSet rs = st.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt("ModelID");
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
     public ArrayList<VehicleModel> getAllModels() {
         ArrayList<VehicleModel> list = new ArrayList<>();
         Connection cn = null;

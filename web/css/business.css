@@ -1,0 +1,76 @@
+/* Business portal — shared with customer Elite Auto theme */
+body.bus-page {
+    background-color: var(--bg-card, #f3f4f6);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    min-height: 100vh;
+}
+
+.bus-card {
+    background: #fff;
+    border-radius: 1rem;
+    border: 1px solid var(--border-light, #e5e7eb);
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06);
+}
+
+.bus-stat-card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.bus-stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+}
+
+.bus-table thead th {
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: #94a3b8;
+    border-bottom-width: 1px;
+}
+
+.bus-table tbody tr:hover {
+    background-color: #f8fafc;
+}
+
+.bus-vehicle-img {
+    width: 72px;
+    height: 48px;
+    object-fit: cover;
+    border-radius: 8px;
+    border: 1px solid #e5e7eb;
+}
+
+.bus-filter-btn.active {
+    background: #212529 !important;
+    color: #fff !important;
+}
+
+.bus-booking-row {
+    transition: background-color 0.2s ease;
+}
+
+.bus-nav-link.active {
+    background: #f1f5f9;
+    color: #0f172a !important;
+    font-weight: 600;
+}
+
+.bus-pay-card {
+    max-width: 480px;
+    border-radius: 1.25rem;
+}
+
+.bus-booking-wrap {
+    max-width: 1140px;
+    margin: 0 auto;
+    padding: 2rem 1rem 3rem;
+}
+
+.bus-booking-card {
+    background: #fff;
+    border-radius: 16px;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 4px 24px rgba(15, 23, 42, 0.06);
+    padding: 1.75rem 2rem;
+}
