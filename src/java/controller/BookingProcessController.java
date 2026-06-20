@@ -40,6 +40,8 @@ public class BookingProcessController extends HttpServlet {
         }
 
         String action = request.getParameter("action");
+        
+        String actionAdmin = request.getParameter("actionAdmin");
         String bookingID = request.getParameter("id");
 
         if (bookingID != null && !bookingID.isEmpty()) {
@@ -48,7 +50,7 @@ public class BookingProcessController extends HttpServlet {
             int result = 0;
 
             // 1. KHI NHẤN CHECK-IN
-            if ("checkin".equals(action)) {
+            if ("checkin".equals(actionAdmin)) {
 
                 result = bd.updateStatusOfBooking(bookingId, "InProgress");
                 if (result < 1) {
@@ -75,7 +77,7 @@ public class BookingProcessController extends HttpServlet {
                     autoCheckoutThread.start();
                     request.setAttribute("success", "Check in successfully!");
                 }
-            } else if ("checkout".equals(action)) {
+            } else if ("checkout".equals(actionAdmin)) {
                 String paymentMethod = request.getParameter("paymentMethod");
                 int points = bd.completeBookingWithPayment(bookingId, paymentMethod);
                 if (points < 0) {

@@ -31,11 +31,11 @@ public class BusinessRequestsController extends HttpServlet {
      */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        
+
         Account account = (Account) request.getSession().getAttribute("ACCOUNT");
-        
+
         if (account == null) {
-            request.getRequestDispatcher("MainController").forward(request, response);
+            response.sendRedirect("MainController?action=home");
             return;
         }
         BusinessDAO b = new BusinessDAO();

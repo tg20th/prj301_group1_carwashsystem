@@ -34,7 +34,7 @@ public class ManageBookingsController extends HttpServlet {
             throws ServletException, IOException {
         Account a = (Account) request.getSession().getAttribute("ACCOUNT");
         if (a == null) {
-            request.getRequestDispatcher("MainController").forward(request, response);
+            response.sendRedirect("MainController?action=home");;
             return;
         }
         

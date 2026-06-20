@@ -3,7 +3,7 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 
 <!DOCTYPE html>
-<c:if test="account == null">
+<c:if test="${empty sessionScope.ACCOUNT}">
     <jsp:forward page="index.jsp"/>
 </c:if>
 <html lang="en">
@@ -131,57 +131,69 @@
         </div>
     </main>
 
+    <!-- Modal View Detail -->
     <div class="modal fade" id="detailModal" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered modal-lg">
-            <div class="modal-content border-0 shadow" style="border-radius: 1.5rem;" id="modalContentShell">
-                </div>
+            <div class="modal-content border-0 shadow" style="border-radius: 1.5rem;" id="modalContentShell"></div>
         </div>
     </div>
 
+   
     <div class="modal fade" id="approveModal" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered modal-sm">
             <div class="modal-content border-0 shadow" style="border-radius: 1.5rem;">
-                <div class="modal-body p-4 text-center">
-                    <div class="mb-3 mt-2">
-                        <i class="bi bi-check-circle-fill text-success" style="font-size: 3.5rem;"></i>
+                <form action="MainController" method="POST">
+                    <input type="hidden" name="action" value="approve">
+                    <input type="hidden" name="id" id="approveIdInput">
+                    
+                    <div class="modal-body p-4 text-center">
+                        <div class="mb-3 mt-2">
+                            <i class="bi bi-check-circle-fill text-success" style="font-size: 3.5rem;"></i>
+                        </div>
+                        <h5 class="fw-bold text-dark mb-2">Confirm Approval?</h5>
+                        <p class="text-muted small mb-4">Are you sure you want to approve the business account for <span id="approveIdText" class="fw-bold text-dark"></span>?</p>
+                        <div class="d-flex gap-2 justify-content-center">
+                            <button type="button" class="btn btn-light rounded-pill px-4 fw-medium transition-hover" data-bs-dismiss="modal">Cancel</button>
+                            <button type="submit" class="btn btn-success rounded-pill px-4 fw-medium shadow-sm transition-hover" style="background-color: #059669; border-color: #059669;">Approve Now</button>
+                        </div>
                     </div>
-                    <h5 class="fw-bold text-dark mb-2">Confirm Approval?</h5>
-                    <p class="text-muted small mb-4">Are you sure you want to approve the business account for <span id="approveIdText" class="fw-bold text-dark"></span>?</p>
-                    <div class="d-flex gap-2 justify-content-center">
-                        <button type="button" class="btn btn-light rounded-pill px-4 fw-medium transition-hover" data-bs-dismiss="modal">Cancel</button>
-                        <button type="button" class="btn btn-success rounded-pill px-4 fw-medium shadow-sm transition-hover" onclick="submitApprove()" style="background-color: #059669; border-color: #059669;">Approve Now</button>
-                    </div>
-                </div>
+                </form>
             </div>
         </div>
     </div>
 
+    
     <div class="modal fade" id="rejectModal" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered modal-md"> 
             <div class="modal-content border-0 shadow" style="border-radius: 1.5rem;">
-                <div class="modal-body p-4 text-center">
-                    <div class="mb-3 mt-2">
-                        <i class="bi bi-x-circle-fill text-danger" style="font-size: 3.5rem;"></i>
-                    </div>
-                    <h5 class="fw-bold text-dark mb-2">Confirm Rejection?</h5>
-                    <p class="text-muted small mb-3">Are you sure you want to reject the registration request for <span id="rejectIdText" class="fw-bold text-dark"></span>?</p>
+                <form action="MainController" method="POST" onsubmit="return validateRejectForm()">
+                    <input type="hidden" name="action" value="reject">
+                    <input type="hidden" name="id" id="rejectIdInput">
                     
-                    <div class="text-start mb-3">
-                        <label class="small text-muted fw-semibold mb-2 ms-1">Rejection Reason <span class="text-danger">*</span></label>
-                        <textarea id="rejectReasonInput" class="form-control border-0 bg-light py-2 px-3 shadow-none small text-dark" 
-                                  style="border-radius: 0.75rem; resize: none; font-size: 0.85rem;" rows="3" 
-                                  placeholder="Please write down the reason for rejection..."></textarea>
+                    <div class="modal-body p-4 text-center">
+                        <div class="mb-3 mt-2">
+                            <i class="bi bi-x-circle-fill text-danger" style="font-size: 3.5rem;"></i>
+                        </div>
+                        <h5 class="fw-bold text-dark mb-2">Confirm Rejection?</h5>
+                        <p class="text-muted small mb-3">Are you sure you want to reject the registration request for <span id="rejectIdText" class="fw-bold text-dark"></span>?</p>
                         
-                        <div id="rejectErrorMsg" class="text-danger small mt-2 fw-medium d-none" style="font-size: 0.8rem;">
-                            <i class="bi bi-exclamation-circle-fill me-1"></i> Please provide a reason before submitting.
+                        <div class="text-start mb-3">
+                            <label class="small text-muted fw-semibold mb-2 ms-1">Rejection Reason <span class="text-danger">*</span></label>
+                            <textarea id="rejectReasonInput" name="reason" class="form-control border-0 bg-light py-2 px-3 shadow-none small text-dark" 
+                                      style="border-radius: 0.75rem; resize: none; font-size: 0.85rem;" rows="3" 
+                                      placeholder="Please write down the reason for rejection..."></textarea>
+                            
+                            <div id="rejectErrorMsg" class="text-danger small mt-2 fw-medium d-none" style="font-size: 0.8rem;">
+                                <i class="bi bi-exclamation-circle-fill me-1"></i> Please provide a reason before submitting.
+                            </div>
+                        </div>
+
+                        <div class="d-flex gap-2 justify-content-end border-top pt-3 mt-2">
+                            <button type="button" class="btn btn-light rounded-pill px-4 fw-medium transition-hover" data-bs-dismiss="modal">Cancel</button>
+                            <button type="submit" class="btn btn-danger rounded-pill px-4 fw-medium shadow-sm transition-hover">Reject Account</button>
                         </div>
                     </div>
-
-                    <div class="d-flex gap-2 justify-content-end border-top pt-3 mt-2">
-                        <button type="button" class="btn btn-light rounded-pill px-4 fw-medium transition-hover" data-bs-dismiss="modal">Cancel</button>
-                        <button type="button" class="btn btn-danger rounded-pill px-4 fw-medium shadow-sm transition-hover" onclick="submitReject()">Reject Account</button>
-                    </div>
-                </div>
+                </form>
             </div>
         </div>
     </div>
@@ -207,8 +219,6 @@
         };
 
         // ==================== MODAL LOGIC ====================
-        let currentActionId = null;
-
         function viewDetail(btnElement) {
             const id = btnElement.getAttribute('data-id');
             const company = btnElement.getAttribute('data-company');
@@ -229,10 +239,10 @@
                         <hr class="border-light mb-3 mt-0">
                     </div>
                     <div class="modal-footer border-0 px-4 pb-4 pt-0 gap-2 justify-content-end">
-                        <button onclick="triggerRejectModal('\${id}')" class="btn btn-outline-danger rounded-pill px-4 fw-medium d-flex align-items-center gap-2 transition-hover">
+                        <button onclick="triggerRejectModal('${id}')" class="btn btn-outline-danger rounded-pill px-4 fw-medium d-flex align-items-center gap-2 transition-hover">
                             <i class="bi bi-x-lg"></i> Reject
                         </button>
-                        <button onclick="triggerApproveModal('\${id}')" class="btn btn-success rounded-pill px-4 fw-medium d-flex align-items-center gap-2 transition-hover shadow-sm" style="background-color: #059669; border-color: #059669;">
+                        <button onclick="triggerApproveModal('${id}')" class="btn btn-success rounded-pill px-4 fw-medium d-flex align-items-center gap-2 transition-hover shadow-sm" style="background-color: #059669; border-color: #059669;">
                             <i class="bi bi-check-lg"></i> Approve Account
                         </button>
                     </div>
@@ -240,7 +250,7 @@
             } else if (rawStatus === 'Rejected') {
                 badgeHtml = `<span class="badge badge-soft-danger border border-danger border-opacity-25 px-3 py-1 ms-3" style="font-size: 0.8rem; border-radius: 2rem;">Rejected</span>`;
             } else {
-                badgeHtml = `<span class="badge badge-soft-success border border-success border-opacity-25 px-3 py-1 ms-3" style="font-size: 0.8rem; border-radius: 2rem;">\${rawStatus}</span>`;
+                badgeHtml = `<span class="badge badge-soft-success border border-success border-opacity-25 px-3 py-1 ms-3" style="font-size: 0.8rem; border-radius: 2rem;">${rawStatus}</span>`;
             }
 
             const modalContent = document.getElementById("modalContentShell");
@@ -249,10 +259,10 @@
                 <div class="modal-header border-0 px-4 pt-4 pb-2 align-items-start">
                     <div>
                         <div class="d-flex align-items-center mb-1">
-                            <h4 class="fw-bold mb-0 text-dark">\${company}</h4>
-                            \${badgeHtml}
+                            <h4 class="fw-bold mb-0 text-dark">${company}</h4>
+                            ${badgeHtml}
                         </div>
-                        <p class="text-muted small mb-0 mt-1">Registration Request • #B-\${id}</p>
+                        <p class="text-muted small mb-0 mt-1">Registration Request • #B-${id}</p>
                     </div>
                     <button type="button" class="btn-close shadow-none p-2 bg-light rounded-circle mt-1" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
@@ -263,16 +273,16 @@
                             <h6 class="text-muted small fw-bold text-uppercase mb-4" style="letter-spacing: 0.5px;">Contact Information</h6>
                             <div class="mb-4">
                                 <label class="text-muted small mb-1">Full Name</label>
-                                <div class="fw-medium text-dark fs-6">\${contact}</div>
+                                <div class="fw-medium text-dark fs-6">${contact}</div>
                             </div>
                             <div class="row">
                                 <div class="col-7">
                                     <label class="text-muted small mb-1">Email</label>
-                                    <div class="fw-medium text-dark text-break">\${email}</div>
+                                    <div class="fw-medium text-dark text-break">${email}</div>
                                 </div>
                                 <div class="col-5">
                                     <label class="text-muted small mb-1">Phone Number</label>
-                                    <div class="fw-medium text-dark">\${phone}</div>
+                                    <div class="fw-medium text-dark">${phone}</div>
                                 </div>
                             </div>
                         </div>
@@ -281,40 +291,36 @@
                             <h6 class="text-muted small fw-bold text-uppercase mb-4" style="letter-spacing: 0.5px;">Business Information</h6>
                             <div class="mb-4">
                                 <label class="text-muted small mb-1">Company Name</label>
-                                <div class="fw-medium text-dark fs-6">\${company}</div>
+                                <div class="fw-medium text-dark fs-6">${company}</div>
                             </div>
                             <div class="mb-4">
                                 <label class="text-muted small mb-1">Tax Code</label>
-                                <div class="fw-medium text-dark">\${taxCode}</div>
+                                <div class="fw-medium text-dark">${taxCode}</div>
                             </div>
                             <div class="mb-3">
                                 <label class="text-muted small mb-1">Company Address</label>
-                                <div class="fw-medium text-dark">\${address}</div>
+                                <div class="fw-medium text-dark">${address}</div>
                             </div>
                         </div>
                     </div>
                 </div>
-                \${footerHtml}
+                ${footerHtml}
             `;
             new bootstrap.Modal(document.getElementById('detailModal')).show();
         }
 
         function triggerApproveModal(id) {
-            currentActionId = id;
+            document.getElementById('approveIdInput').value = id;
             document.getElementById('approveIdText').innerText = '#B-' + id;
+            
             const detailModalInstance = bootstrap.Modal.getInstance(document.getElementById('detailModal'));
             if (detailModalInstance) detailModalInstance.hide();
+            
             new bootstrap.Modal(document.getElementById('approveModal')).show();
         }
 
-        function submitApprove() {
-            if (currentActionId) {
-                window.location.href = 'ApproveBusinessController?action=approve&id=' + currentActionId;
-            }
-        }
-
         function triggerRejectModal(id) {
-            currentActionId = id;
+            document.getElementById('rejectIdInput').value = id;
             document.getElementById('rejectIdText').innerText = '#B-' + id;
             
             document.getElementById('rejectReasonInput').value = '';
@@ -326,17 +332,13 @@
             new bootstrap.Modal(document.getElementById('rejectModal')).show();
         }
 
-        function submitReject() {
+        function validateRejectForm() {
             const reason = document.getElementById('rejectReasonInput').value;
-            
             if (!reason || reason.trim() === "") {
                 document.getElementById('rejectErrorMsg').classList.remove('d-none');
-                return;
+                return false; // Ngăn chặn form submit
             }
-            
-            if (currentActionId) {
-                window.location.href = 'RejectBusinessController?action=reject&id=' + currentActionId + '&reason=' + encodeURIComponent(reason.trim());
-            }
+            return true; // Cho phép submit form nếu hợp lệ
         }
     </script>
 </body>

@@ -5,7 +5,7 @@
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 
 <!DOCTYPE html>
-<c:if test="account == null">
+<c:if test="${empty sessionScope.ACCOUNT}">
     <jsp:forward page="index.jsp"/>
 </c:if>
 <html lang="en">
@@ -98,7 +98,7 @@
 
                 <!-- TOOLBAR TÌM KIẾM -->
                 <div class="p-4 border-bottom border-light">
-                    <form id="filterForm" action="ManageUserController" method="POST" class="m-0 p-0 d-flex flex-column flex-md-row justify-content-between align-items-center gap-3">
+                    <form id="filterForm" action="MainController?action=manage_user" method="POST" class="m-0 p-0 d-flex flex-column flex-md-row justify-content-between align-items-center gap-3">
                         
                         <input type="hidden" id="pageInput" name="page" value="${empty param.page ? 1 : param.page}">
                         
@@ -212,17 +212,18 @@
                                     </td>
 
                                     <td class="text-end pe-4 py-3 align-middle">
-                                        <form action="UserProcessController" method="POST" class="m-0 p-0">
+                                        <form action="MainController?action=process_user" method="POST" class="m-0 p-0"> 
                                             <input type="hidden" name="userId" value="${user.accountID}">
+                                            
                                             <c:choose>
                                                 <c:when test="${user.status == 'Active'}">
-                                                    <input type="hidden" name="action" value="freeze">
+                                                    <input type="hidden" name="userAction" value="freeze">
                                                     <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill px-4 fw-bold shadow-sm bg-white" onclick="return confirm('Freeze this account? User will be disconnected.');">
                                                         Freeze
                                                     </button>
                                                 </c:when>
                                                 <c:otherwise>
-                                                    <input type="hidden" name="action" value="activate">
+                                                    <input type="hidden" name="userAction" value="activate">
                                                     <button type="submit" class="btn btn-sm btn-dark-custom rounded-pill px-4 fw-bold shadow-sm" onclick="return confirm('Reactivate this account?');">
                                                         Activate
                                                     </button>

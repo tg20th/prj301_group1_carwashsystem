@@ -801,3 +801,97 @@ body.admin-body {
 .table-spaced td {
     vertical-align: middle;
 }
+
+/* =========================================
+   Tier Management
+   ========================================= */
+
+/* Typography */
+.tracking-tight {
+    letter-spacing: -0.025em;
+}
+
+/* Gradients & Shadows cho KPI */
+.gradient-primary {
+    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+    color: white;
+}
+.gradient-success {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: white;
+}
+.gradient-warning {
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    color: white;
+}
+.gradient-danger {
+    background: linear-gradient(135deg, #f43f5e 0%, #e11d48 100%);
+    color: white;
+}
+
+/* Nút Đen (Black) chuẩn SaaS */
+.btn-dark-custom {
+    background-color: #0f172a;
+    color: white;
+    border: none;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+.btn-dark-custom:hover {
+    background-color: #1e293b;
+    transform: translateY(-2px);
+    box-shadow: 0 10px 15px -3px rgba(15, 23, 42, 0.25);
+    color: white;
+}
+
+/* Hiệu ứng nổi Card & Table Hover */
+.glass-card {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.2);
+}
+.hover-scale {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.hover-scale:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 20px -8px rgba(0,0,0,0.1) !important;
+    z-index: 2;
+}
+
+.tier-row {
+    transition: all 0.3s ease;
+}
+.tier-row:hover {
+    background-color: #f8fafc;
+    transform: scale(1.002);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    z-index: 10;
+    position: relative;
+    border-radius: 8px;
+}
+
+/* Forms & Inputs (Viền focus sang màu Đen Xám) */
+.vibrant-input {
+    border: 2px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 0.6rem 1rem;
+    font-weight: 500;
+    color: #1e293b;
+    transition: all 0.3s;
+}
+.vibrant-input:focus {
+    border-color: #0f172a;
+    box-shadow: 0 0 0 4px rgba(15, 23, 42, 0.15);
+    outline: none;
+}
+
+/* Custom Modal */
+.modal-content-custom {
+    border-radius: 20px;
+    border: none;
+    overflow: hidden;
+}
+.modal-header-custom {
+    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+    border-bottom: 1px solid #e2e8f0;
+}

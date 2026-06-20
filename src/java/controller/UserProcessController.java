@@ -40,7 +40,7 @@ public class UserProcessController extends HttpServlet {
         }
         
         int id = Integer.parseInt(request.getParameter("userId"));
-        String action = request.getParameter("action");
+        String action = request.getParameter("userAction");
         AccountDAO ad = new AccountDAO();
         int result = 0;
         
