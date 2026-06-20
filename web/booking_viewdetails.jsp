@@ -69,7 +69,7 @@
                 <div class="mt-3 mt-md-0 d-flex gap-3 align-items-center overflow-x-auto" style="scrollbar-width: none;">
                     <ul class="nav nav-pills bg-white p-2 rounded-pill shadow-sm border mb-0 d-inline-flex flex-nowrap" id="statusFilters">
                         <li class="nav-item"><button class="nav-link filter-btn rounded-pill px-4 fw-bold text-muted text-nowrap" data-filter="ALL" onclick="filterTable('ALL', this)">All</button></li>
-                        <li class="nav-item"><button class="nav-link filter-btn rounded-pill px-4 fw-bold text-muted text-nowrap" data-filter="Pending" onclick="filterTable('Pending', this)">Upcoming</button></li>
+                        <li class="nav-item"><button class="nav-link filter-btn rounded-pill px-4 fw-bold text-muted text-nowrap" data-filter="Upcoming" onclick="filterTable('Upcoming', this)">Upcoming</button></li>
                         <li class="nav-item"><button class="nav-link filter-btn rounded-pill px-4 fw-bold text-muted text-nowrap" data-filter="InProgress" onclick="filterTable('InProgress', this)">Washing</button></li>
                         <li class="nav-item"><button class="nav-link filter-btn rounded-pill px-4 fw-bold text-muted text-nowrap" data-filter="Completed" onclick="filterTable('Completed', this)">Completed</button></li>
                         
@@ -133,6 +133,10 @@
                                                 <c:set var="badgeColor" value="bg-warning bg-opacity-10 text-warning border-warning" />
                                                 <c:set var="statusIcon" value="<i class='bi bi-clock me-1'></i>" />
                                             </c:when>
+                                            <c:when test="${statusLower == 'confirmed'}">
+                                                <c:set var="badgeColor" value="bg-primary bg-opacity-10 text-primary border-primary" />
+                                                <c:set var="statusIcon" value="<i class='bi bi-patch-check-fill me-1'></i>" />
+                                            </c:when>
                                             <c:when test="${statusLower == 'cancelled' || statusLower == 'noshow'}">
                                                 <c:set var="badgeColor" value="bg-danger bg-opacity-10 text-danger border-danger" />
                                                 <c:set var="statusIcon" value="<i class='bi bi-x-circle-fill me-1'></i>" />
@@ -178,6 +182,9 @@
                                                     <c:when test="${statusLower == 'pending'}">
                                                         <form action="MainController?action=process_booking" method="POST" class="m-0 p-0 d-inline-block">
                                                             <input type="hidden" name="actionAdmin" value="checkin">
+                                                    <c:when test="${statusLower == 'confirmed'}">
+                                                        <form action="BookingProcessController" method="POST" class="m-0 p-0 d-inline-block">
+                                                            <input type="hidden" name="action" value="checkin">
                                                             <input type="hidden" name="id" value="${b.bookingID}">
                                                             <button type="submit" class="btn btn-sm btn-dark-custom rounded-pill px-4 py-2 fw-bold shadow-sm">
                                                                 <i class="bi bi-box-arrow-in-right me-1"></i>Check In
@@ -190,6 +197,15 @@
                                                             <input type="hidden" name="id" value="${b.bookingID}">
                                                             <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill px-3 py-2 fw-bold shadow-sm">
                                                                 Complete Wash
+                                                    <c:when test="${statusLower == 'pending'}">
+                                                        <span class="text-muted small fw-bold"><i class="bi bi-credit-card me-1"></i>Awaiting Payment</span>
+                                                    </c:when>
+                                                    <c:when test="${statusLower == 'inprogress'}">
+                                                        <form action="BookingProcessController" method="POST" class="m-0 p-0 d-inline-block">
+                                                            <input type="hidden" name="action" value="checkout">
+                                                            <input type="hidden" name="id" value="${b.bookingID}">
+                                                            <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill px-3 py-2 fw-bold shadow-sm">
+                                                                <i class="bi bi-box-arrow-left me-1"></i>Check Out
                                                             </button>
                                                         </form>
                                                     </c:when>
@@ -264,6 +280,11 @@
 
                 rows.forEach(row => {
                     if (status === 'ALL' || row.getAttribute('data-status') === status) {
+                    let rowStatus = row.getAttribute('data-status');
+                    let isVisible = status === 'ALL'
+                        || rowStatus === status
+                        || (status === 'Upcoming' && (rowStatus === 'Pending' || rowStatus === 'Confirmed'));
+                    if (isVisible) {
                         row.style.display = "";
                         visibleCount++;
                     } else {

@@ -61,9 +61,14 @@ public class RejectBusinessController extends HttpServlet {
         if (result < 1) {
             request.setAttribute("error", "Cannot reject right now. Please try again!");
         } else {
-            request.setAttribute("success", "Reject successfully!");
             Business b = bd.getBussinessByCusID(findCus.getCusID());
-            EmailUtils.sendRevisionEmail(b.getEmail(), b.getBusinessName(), description);
+            boolean emailSent = EmailUtils.sendRevisionEmail(b.getEmail(), b.getBusinessName(), description);
+            if (emailSent) {
+                request.setAttribute("success", "Reject successfully!");
+            } else {
+                request.setAttribute("success",
+                        "Reject successfully! Notification email could not be sent (rate limit). Please inform the business manually.");
+            }
         }
         request.getRequestDispatcher("BusinessRequestsController").forward(request, response);
 
