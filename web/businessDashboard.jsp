@@ -39,7 +39,19 @@
 </head>
 <body class="bus-page">
 
+    <%@ include file="includes/business_nav.jsp" %>
+
     <div class="container py-5">
+
+        <%
+            String uploadMsg = (String) session.getAttribute("UPLOAD_MSG");
+            if (uploadMsg != null) {
+                session.removeAttribute("UPLOAD_MSG");
+        %>
+        <div class="alert alert-success rounded-3 border-0 shadow-sm mb-4">
+            <i class="bi bi-check-circle-fill me-2"></i><%= uploadMsg %>
+        </div>
+        <% } %>
 
         <div class="mb-4">
             <h2 class="fw-bold tracking-tight mb-1">Welcome back, <%= account.getFirstName() %>!</h2>
