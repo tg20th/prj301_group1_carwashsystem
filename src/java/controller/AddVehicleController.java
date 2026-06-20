@@ -6,6 +6,7 @@ package controller;
 
 import dao.CustomerDAO;
 import dao.VehicleDAO;
+import dbutils.LicensePlateUtils;
 import dto.Account;
 import dto.Customer;
 import dto.Vehicle;
@@ -104,13 +105,16 @@ public class AddVehicleController extends HttpServlet {
             int cusID = customer.getCusID();
 
             // Safe parameter extraction
-            String licensePlate = request.getParameter("licensePlate");
-            if (licensePlate != null) {
-                licensePlate = licensePlate.trim().toUpperCase();
-            }
+            String licensePlate = LicensePlateUtils.normalize(request.getParameter("licensePlate"));
 
             if (licensePlate == null || licensePlate.isEmpty()) {
                 request.setAttribute("ERROR", "License plate is required.");
+                request.getRequestDispatcher("addVehicle.jsp").forward(request, response);
+                return;
+            }
+
+            if (!LicensePlateUtils.isValid(licensePlate)) {
+                request.setAttribute("ERROR", LicensePlateUtils.FORMAT_MESSAGE);
                 request.getRequestDispatcher("addVehicle.jsp").forward(request, response);
                 return;
             }
@@ -169,7 +173,7 @@ public class AddVehicleController extends HttpServlet {
                 }
             } else if (found.getCustomerID() != cusID) {
                 request.setAttribute("ERROR", "Vehicle already belongs to another customer");
-            } else if (!found.isActive()) {
+            } else if (found.getStatus().equalsIgnoreCase("Frozen")) {
                 // Reuse the vehicle object for reactivation (it now has the new image if uploaded)
                 result = d.reactivateVehicle(v);
                 if (result > 0) {
