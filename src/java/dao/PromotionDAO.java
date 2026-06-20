@@ -66,10 +66,10 @@ public class PromotionDAO {
                 + "AND (p.TargetType = 'All' "
                 + "     OR (p.TargetType = 'Tier' AND pt.TierID = ?) "
                 + "     OR (p.TargetType = 'Customer' AND pc.CustomerID = ?))";
-        try ( Connection con = DBUtils.getConnection();  PreparedStatement st = con.prepareStatement(sql)) {
+        try (Connection con = DBUtils.getConnection(); PreparedStatement st = con.prepareStatement(sql)) {
             st.setInt(1, tierID);
             st.setInt(2, customerID);
-            try ( ResultSet rs = st.executeQuery()) {
+            try (ResultSet rs = st.executeQuery()) {
                 while (rs.next()) {
                     Promotion p = new Promotion();
                     p.setPromotionID(rs.getInt("PromotionID"));
@@ -309,5 +309,346 @@ public class PromotionDAO {
         }
 
         return result;
+    }
+
+    //tung lam 20/06/2026    
+    public boolean isPromoCodeExists(String promoCode) {
+        if (promoCode == null || promoCode.trim().isEmpty()) {
+            return false;
+        }
+
+        String code = promoCode.trim().toUpperCase();
+        Connection cn = null;
+
+        try {
+            cn = DBUtils.getConnection();
+            String sql = "SELECT COUNT(*) AS [Total] \n"
+                    + "FROM [dbo].[Promotions] \n"
+                    + "WHERE UPPER([PromoCode]) = ?";
+
+            PreparedStatement st = cn.prepareStatement(sql);
+            st.setString(1, code);
+
+            ResultSet rs = st.executeQuery();
+            if (rs.next()) {
+                int finded = rs.getInt("Total");
+                return finded > 0;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (cn != null) {
+                    cn.close();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return false;
+    }
+
+    // cai nay cho update
+    public boolean isExistPromoCode(String promoCode, int promoId) {
+        if (promoCode == null || promoCode.trim().isEmpty()) {
+            return false;
+        }
+
+        String code = promoCode.trim().toUpperCase();
+        Connection cn = null;
+
+        try {
+            cn = DBUtils.getConnection();
+            String sql = "SELECT COUNT(*) AS [Total] \n"
+                    + "FROM [dbo].[Promotions] \n"
+                    + "WHERE UPPER([PromoCode]) = ? \n"
+                    + "AND [PromotionID] <> ?";
+
+            PreparedStatement st = cn.prepareStatement(sql);
+            st.setString(1, code);
+            st.setInt(2, promoId);
+
+            ResultSet rs = st.executeQuery();
+            if (rs.next()) {
+                int finded = rs.getInt("Total");
+                return finded > 0;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (cn != null) {
+                    cn.close();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return false;
+    }
+
+    public int createPromotion(Promotion p, Integer tierId) {
+        int result = 0;
+        Connection cn = null;
+
+        try {
+            cn = DBUtils.getConnection();
+            cn.setAutoCommit(false);
+
+            String sql = "INSERT INTO [dbo].[Promotions] "
+                    + "([PromoCode], [PromotionName], [TargetType], [DiscountPercent], [StartDate], [EndDate], [Description], [IsActive]) "
+                    + "VALUES (?, ?, ?, ?, ?, ?, ?, 1)";
+
+            PreparedStatement st = cn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+
+            st.setString(1, p.getPromoCode());
+            st.setString(2, p.getPromotionName());
+            st.setString(3, p.getTargetType());
+            st.setInt(4, p.getDiscountPercent());
+            st.setDate(5, p.getStartDate());
+            st.setDate(6, p.getEndDate());
+
+            if (p.getDescription() != null && !p.getDescription().trim().isEmpty()) {
+                st.setString(7, p.getDescription().trim());
+            } else {
+                st.setString(7, " ");
+            }
+
+            result = st.executeUpdate();
+
+            if (result <= 0) {
+                cn.rollback();
+                return 0;
+            }
+
+            if ("Tier".equalsIgnoreCase(p.getTargetType())) {
+                ResultSet generatedKeys = st.getGeneratedKeys();
+                int newPromoId = 0;
+
+                if (generatedKeys.next()) {
+                    newPromoId = generatedKeys.getInt(1);
+                }
+
+                if (newPromoId <= 0 || tierId == null || tierId <= 0) {
+                    cn.rollback();
+                    return 0;
+                }
+
+                String sqlTier = "INSERT INTO [dbo].[PromotionTiers] "
+                        + "([PromotionID], [TierID]) "
+                        + "VALUES (?, ?)";
+
+                PreparedStatement stTier = cn.prepareStatement(sqlTier);
+                stTier.setInt(1, newPromoId);
+                stTier.setInt(2, tierId);
+
+                int tierResult = stTier.executeUpdate();
+                if (tierResult <= 0) {
+                    cn.rollback();
+                    return 0;
+                }
+            }
+
+            cn.commit();
+            return result;
+
+        } catch (Exception e) {
+            if (cn != null) {
+                try {
+                    cn.rollback();
+                } catch (Exception rollbackException) {
+                    rollbackException.printStackTrace();
+                }
+            }
+            e.printStackTrace();
+            return 0;
+        } finally {
+            if (cn != null) {
+                try {
+                    cn.setAutoCommit(true);
+                    cn.close();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+    public int updatePromo(Promotion p, Integer tierId) {
+        int result = 0;
+        Connection cn = null;
+
+        try {
+            cn = DBUtils.getConnection();
+            cn.setAutoCommit(false);
+
+            String sql = "UPDATE [dbo].[Promotions] "
+                    + "SET [PromoCode] = ?, [PromotionName] = ?, [TargetType] = ?, "
+                    + "[DiscountPercent] = ?, [StartDate] = ?, [EndDate] = ?, [Description] = ? "
+                    + "WHERE [PromotionID] = ?";
+
+            PreparedStatement st = cn.prepareStatement(sql);
+
+            st.setString(1, p.getPromoCode());
+            st.setString(2, p.getPromotionName());
+            st.setString(3, p.getTargetType());
+            st.setInt(4, p.getDiscountPercent());
+            st.setDate(5, p.getStartDate());
+            st.setDate(6, p.getEndDate());
+
+            if (p.getDescription() != null && !p.getDescription().trim().isEmpty()) {
+                st.setString(7, p.getDescription().trim());
+            } else {
+                st.setString(7, " ");
+            }
+
+            st.setInt(8, p.getPromotionID());
+
+            result = st.executeUpdate();
+
+            if (result <= 0) {
+                cn.rollback();
+                return 0;
+            }
+
+            String sqlDeleteTier = "DELETE FROM [dbo].[PromotionTiers] WHERE [PromotionID] = ?";
+            PreparedStatement stDeleteTier = cn.prepareStatement(sqlDeleteTier);
+            stDeleteTier.setInt(1, p.getPromotionID());
+            stDeleteTier.executeUpdate();
+
+            if ("Tier".equalsIgnoreCase(p.getTargetType())) {
+                if (tierId == null || tierId <= 0) {
+                    cn.rollback();
+                    return 0;
+                }
+
+                String sqlTier = "INSERT INTO [dbo].[PromotionTiers] "
+                        + "([PromotionID], [TierID]) "
+                        + "VALUES (?, ?)";
+
+                PreparedStatement stTier = cn.prepareStatement(sqlTier);
+                stTier.setInt(1, p.getPromotionID());
+                stTier.setInt(2, tierId);
+
+                int tierResult = stTier.executeUpdate();
+                if (tierResult <= 0) {
+                    cn.rollback();
+                    return 0;
+                }
+            }
+
+            cn.commit();
+            return result;
+
+        } catch (Exception e) {
+            if (cn != null) {
+                try {
+                    cn.rollback();
+                } catch (Exception rollbackException) {
+                    rollbackException.printStackTrace();
+                }
+            }
+            e.printStackTrace();
+            return 0;
+        } finally {
+            if (cn != null) {
+                try {
+                    cn.setAutoCommit(true);
+                    cn.close();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+    public int deactivatePromo(int promoId) {
+        int result = 0;
+        Connection cn = null;
+
+        try {
+
+            cn = DBUtils.getConnection();
+            String sql = "UPDATE [dbo].[Promotions] "
+                    + " SET [IsActive] = 0 "
+                    + " WHERE [PromotionID] = ?";
+
+            PreparedStatement st = cn.prepareStatement(sql);
+            st.setInt(1, promoId);
+
+            result = st.executeUpdate();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (cn != null) {
+                    cn.close();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return result;
+    }
+
+    public int activatePromo(int promoId) {
+        int result = 0;
+        Connection cn = null;
+
+        try {
+
+            cn = DBUtils.getConnection();
+            String sql = "UPDATE [dbo].[Promotions] "
+                    + " SET [IsActive] = 1 "
+                    + "WHERE [PromotionID] = ?";
+
+            PreparedStatement st = cn.prepareStatement(sql);
+            st.setInt(1, promoId);
+
+            result = st.executeUpdate();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (cn != null) {
+                    cn.close();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return result;
+    }
+
+    public boolean isPromotionExpired(int promoId) {
+        Connection cn = null;
+        
+        try {
+            cn = DBUtils.getConnection();
+            String sql = "SELECT COUNT(*) AS [Total] FROM [dbo].[Promotions] "
+                    + "WHERE [PromotionID] = ? AND [EndDate] < CAST(GETDATE() AS DATE)";
+            
+            PreparedStatement st = cn.prepareStatement(sql);
+            st.setInt(1, promoId);
+            
+            ResultSet rs = st.executeQuery();
+            
+            if (rs.next()) {
+                return rs.getInt("Total") > 0;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (cn != null) {
+                    cn.close();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return false;
     }
 }
