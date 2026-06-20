@@ -34,7 +34,7 @@ public class AdminDashboardController extends HttpServlet {
         Account account = (Account) request.getSession().getAttribute("ACCOUNT");
         
         if (account == null) {
-            request.getRequestDispatcher("MainController").forward(request, response);
+            request.getRequestDispatcher("index.jsp").forward(request, response);
             return;
         }
 

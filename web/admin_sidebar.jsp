@@ -1,6 +1,8 @@
 <%@ page pageEncoding="UTF-8" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+
 <aside class="sidebar p-4 shadow-sm">
-    <a href="AdminDashboardController" class="text-dark text-decoration-none fw-bold fs-4 mb-4 d-flex align-items-center">
+    <a class="text-dark text-decoration-none fw-bold fs-4 mb-4 d-flex align-items-center">
         <i class="bi bi-vinyl-fill me-2 fs-3 text-dark"></i>EliteAuto
     </a>
 
@@ -69,12 +71,12 @@
                 <span class="text-muted small fw-bold text-uppercase" style="font-size: 0.65rem; padding-left: 1rem;">Sales & Marketing</span>
             </li>
             <li class="nav-item">
-                <a class="nav-link px-3 py-2 d-flex align-items-center" href="RevenueController">
+                <a class="nav-link px-3 py-2 d-flex align-items-center" href="MainController?action=Revenue">
                     <i class="bi bi-graph-up-arrow me-3"></i> Revenue
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link px-3 py-2 d-flex align-items-center" href="MainController?action=manage_promotion">
+                <a class="nav-link px-3 py-2 d-flex align-items-center" href="ManagePromotionsController">
                     <i class="bi bi-ticket-perforated me-3"></i> Promotions
                 </a>
             </li>
@@ -82,13 +84,26 @@
         </ul>
     </div>
 
+    <c:choose>
+        <c:when test="${not empty sessionScope.ACCOUNT}">
+            <c:set var="adminName" value="${sessionScope.ACCOUNT.lastName} ${sessionScope.ACCOUNT.firstName}" />
+            <c:set var="adminEmail" value="${sessionScope.ACCOUNT.email}" />
+        </c:when>
+        <c:otherwise>
+            <c:set var="adminName" value="Administrator" />
+            <c:set var="adminEmail" value="admin@eliteauto.com" />
+        </c:otherwise>
+    </c:choose>
+
     <div class="sidebar-profile d-flex align-items-center gap-3 cursor-pointer mt-3 border-top pt-4 pb-2">
-        <img src="https://ui-avatars.com/api/?name=Admin&background=000&color=fff" alt="Admin" class="rounded-circle shadow-sm" width="40" height="40">
+        <img src="https://ui-avatars.com/api/?name=${adminName}&background=0f172a&color=fff&bold=true" alt="${adminName}" class="rounded-circle shadow-sm" width="40" height="40">
+        
         <div class="d-flex flex-column">
-            <span class="small fw-bold text-dark mb-0">Administrator</span>
-            <span class="text-muted text-truncate" style="font-size: 0.7rem; max-width: 120px;">admin@eliteauto.com</span>
+            <span class="small fw-bold text-dark mb-0 text-truncate" style="max-width: 120px;" title="${adminName}">${adminName}</span>
+            <span class="text-muted text-truncate" style="font-size: 0.7rem; max-width: 120px;" title="${adminEmail}">${adminEmail}</span>
         </div>
-        <a href="LogoutController" class="ms-auto text-danger transition-hover" title="Logout">
+        
+        <a href="MainController?action=logout" class="ms-auto text-danger transition-hover" title="Logout">
             <i class="bi bi-box-arrow-right fs-5"></i>
         </a>
     </div>
