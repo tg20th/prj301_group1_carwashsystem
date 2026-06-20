@@ -5,6 +5,9 @@
 <fmt:setLocale value="fr_FR" />
 
 <!DOCTYPE html>
+<c:if test="${empty sessionScope.ACCOUNT}">
+    <jsp:forward page="index.jsp"/>
+</c:if>
 <html lang="en">
     <head>
         <meta charset="UTF-8">

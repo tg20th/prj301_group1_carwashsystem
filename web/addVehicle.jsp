@@ -135,7 +135,10 @@
                                 <label class="small text-muted mb-2 fw-medium">License Plate <span class="text-danger">*</span></label>
                                 <input type="text" id="licensePlate" name="licensePlate"
                                        class="form-control form-control-lg border-0 bg-light shadow-sm rounded-3 transition-hover text-uppercase"
-                                       placeholder="e.g. 63A-12345" required>
+                                       placeholder="e.g. 63A-12345"
+                                       pattern="[0-9]{2}[A-Z]-[0-9]{5}"
+                                       title="Format: 63A-12345 (2 digits, 1 letter, hyphen, 5 digits)"
+                                       required>
                             </div>
 
                             <!-- Brand + Model -->

@@ -7,6 +7,7 @@ package controller;
 import dao.BusinessDAO;
 import dao.CustomerDAO;
 import dbutils.EmailUtils;
+import dto.Account;
 import dto.Business;
 import dto.Customer;
 import java.io.IOException;
@@ -35,6 +36,13 @@ public class RejectBusinessController extends HttpServlet {
      */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        Account account = (Account) request.getSession().getAttribute("ACCOUNT");
+        
+        if (account == null) {
+            request.getRequestDispatcher("index.jsp").forward(request, response);
+            return;
+        }
+        
         //lấy thông tin admin nhập
         int id = Integer.parseInt(request.getParameter("id"));
         String description = request.getParameter("reason");
@@ -53,9 +61,14 @@ public class RejectBusinessController extends HttpServlet {
         if (result < 1) {
             request.setAttribute("error", "Cannot reject right now. Please try again!");
         } else {
-            request.setAttribute("success", "Reject successfully!");
             Business b = bd.getBussinessByCusID(findCus.getCusID());
-            EmailUtils.sendRevisionEmail(b.getEmail(), b.getBusinessName(), description);
+            boolean emailSent = EmailUtils.sendRevisionEmail(b.getEmail(), b.getBusinessName(), description);
+            if (emailSent) {
+                request.setAttribute("success", "Reject successfully!");
+            } else {
+                request.setAttribute("success",
+                        "Reject successfully! Notification email could not be sent (rate limit). Please inform the business manually.");
+            }
         }
         request.getRequestDispatcher("BusinessRequestsController").forward(request, response);
 

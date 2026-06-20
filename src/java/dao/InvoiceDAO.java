@@ -9,6 +9,78 @@ import java.sql.Statement;
 
 public class InvoiceDAO {
 
+    public int createPendingInvoice(int customerId, long subTotal, String note, Connection cn)
+            throws SQLException {
+        String sql = "INSERT INTO Invoices "
+                + "(CustomerID, SubTotal, DiscountAmount, FinalAmount, PaymentStatus, PaymentMethod, Note) "
+                + "VALUES (?, ?, 0, ?, 'Unpaid', NULL, ?)";
+        PreparedStatement st = cn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+        st.setInt(1, customerId);
+        st.setLong(2, subTotal);
+        st.setLong(3, subTotal);
+        st.setString(4, note);
+        int result = st.executeUpdate();
+        if (result <= 0) {
+            return -1;
+        }
+        ResultSet keys = st.getGeneratedKeys();
+        if (keys.next()) {
+            return keys.getInt(1);
+        }
+        return -1;
+    }
+
+    public boolean isInvoiceOwnedByCustomer(int invoiceId, int customerId) {
+        Connection cn = null;
+        try {
+            cn = DBUtils.getConnection();
+            String sql = "SELECT 1 FROM Invoices WHERE InvoiceID = ? AND CustomerID = ?";
+            PreparedStatement st = cn.prepareStatement(sql);
+            st.setInt(1, invoiceId);
+            st.setInt(2, customerId);
+            ResultSet rs = st.executeQuery();
+            return rs.next();
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            closeQuietly(cn);
+        }
+        return false;
+    }
+
+    public long getInvoiceFinalAmount(int invoiceId, Connection cn) throws SQLException {
+        String sql = "SELECT FinalAmount FROM Invoices WHERE InvoiceID = ?";
+        PreparedStatement st = cn.prepareStatement(sql);
+        st.setInt(1, invoiceId);
+        ResultSet rs = st.executeQuery();
+        if (rs.next()) {
+            return rs.getLong("FinalAmount");
+        }
+        return -1;
+    }
+
+    public int markInvoicePaid(int invoiceId, String paymentMethod, Connection cn) throws SQLException {
+        String sql = "UPDATE Invoices SET PaymentStatus = 'Paid', PaymentMethod = ? WHERE InvoiceID = ?";
+        PreparedStatement st = cn.prepareStatement(sql);
+        st.setString(1, paymentMethod);
+        st.setInt(2, invoiceId);
+        return st.executeUpdate();
+    }
+
+    public int cancelInvoice(int invoiceId, Connection cn) throws SQLException {
+        return updatePaymentStatus(invoiceId, "Cancelled", cn);
+    }
+
+    private void closeQuietly(Connection cn) {
+        if (cn != null) {
+            try {
+                cn.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
     public int createPaidInvoice(int customerId, long finalAmount, String paymentMethod,
             int bookingId, Connection cn) throws SQLException {
         String sql = "INSERT INTO Invoices "

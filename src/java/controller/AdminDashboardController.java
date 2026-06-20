@@ -31,12 +31,12 @@ public class AdminDashboardController extends HttpServlet {
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
-//        Account account = (Account) request.getSession().getAttribute("ACCOUNT");
-//        
-//        if (account == null) {
-//            request.getRequestDispatcher("index.jsp");
-//            return;
-//        }
+        Account account = (Account) request.getSession().getAttribute("ACCOUNT");
+        
+        if (account == null) {
+            request.getRequestDispatcher("index.jsp").forward(request, response);
+            return;
+        }
 
         CustomerDAO c = new CustomerDAO();
 
@@ -53,8 +53,10 @@ public class AdminDashboardController extends HttpServlet {
         PromotionDAO p = new PromotionDAO();
         
         BookingDAO b = new BookingDAO();
-        int result = b.markNoShowBookings();
         
+        int result = b.markNoShowBookings();
+        result = p.autoUpdateStatus();
+
         request.setAttribute("TOTALCUSTOMER", c.getTotalCustomer());
         request.setAttribute("TOTALACCPENDING", ad.getTotalPendingAccount());
         request.setAttribute("TOTALVEHICLE", v.getTotalVehicle());
@@ -63,7 +65,7 @@ public class AdminDashboardController extends HttpServlet {
         request.setAttribute("REVENUEMONTH", i.getTotalRevenueMonth());
         request.setAttribute("LISTOFTIER", t.getAllTier());
         request.setAttribute("LISTSERVICES", s.getAllServices());
-        request.setAttribute("LISTOFPROMOTION", p.getAllPromotion());
+        request.setAttribute("LISTOFPROMOTION", p.getAllPromotionActive());
         request.setAttribute("LISTOFBOOKING", b.getAllBookToday());
 
         request.getRequestDispatcher("admin_dashboard.jsp").forward(request, response);

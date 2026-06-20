@@ -1,89 +1,41 @@
 ﻿-- =============================================================================
 -- AutoWashPro — Sample Data (BƯỚC 2/2)
 -- Chạy SAU AutoWashProDB.sql.
--- Script này TỰ XÓA dữ liệu cũ rồi nạp lại — chạy lại nhiều lần được.
--- DB mới: 1) AutoWashProDB.sql  2) Data.sql
--- DB cũ:  chỉ cần chạy lại Data.sql (tự migrate MaxBookingDaysAhead nếu thiếu).
 -- =============================================================================
 USE AutoWashProDB;
 GO
 
 -- =====================================================
--- 0A. SCHEMA PATCH (DB cũ chưa có cột tier booking)
+-- 0. XÓA DỮ LIỆU CŨ (An toàn & đúng thứ tự khóa ngoại)
 -- =====================================================
-IF NOT EXISTS (
-    SELECT 1 FROM sys.columns
-    WHERE object_id = OBJECT_ID('LoyaltyTiers') AND name = 'MaxBookingDaysAhead'
-)
-BEGIN
-    ALTER TABLE LoyaltyTiers ADD MaxBookingDaysAhead INT NOT NULL DEFAULT 3;
-END
+IF OBJECT_ID('BookingDetails', 'U') IS NOT NULL DELETE FROM BookingDetails;
+IF OBJECT_ID('Bookings', 'U') IS NOT NULL DELETE FROM Bookings;
+IF OBJECT_ID('PointTransactions', 'U') IS NOT NULL DELETE FROM PointTransactions;
+IF OBJECT_ID('Invoices', 'U') IS NOT NULL DELETE FROM Invoices;
+IF OBJECT_ID('CustomerRewards', 'U') IS NOT NULL DELETE FROM CustomerRewards;
+IF OBJECT_ID('Rewards', 'U') IS NOT NULL DELETE FROM Rewards;
+IF OBJECT_ID('PromotionTiers', 'U') IS NOT NULL DELETE FROM PromotionTiers;
+IF OBJECT_ID('Promotions', 'U') IS NOT NULL DELETE FROM Promotions;
+IF OBJECT_ID('TimeSlots', 'U') IS NOT NULL DELETE FROM TimeSlots;
+IF OBJECT_ID('WashBays', 'U') IS NOT NULL DELETE FROM WashBays;
+IF OBJECT_ID('ServicePrices', 'U') IS NOT NULL DELETE FROM ServicePrices;
+IF OBJECT_ID('Services', 'U') IS NOT NULL DELETE FROM Services;
+IF OBJECT_ID('Vehicles', 'U') IS NOT NULL DELETE FROM Vehicles;
+IF OBJECT_ID('VehicleModels', 'U') IS NOT NULL DELETE FROM VehicleModels;
+IF OBJECT_ID('VehicleTypes', 'U') IS NOT NULL DELETE FROM VehicleTypes;
+IF OBJECT_ID('VehicleBrands', 'U') IS NOT NULL DELETE FROM VehicleBrands;
+IF OBJECT_ID('BusinessCustomers', 'U') IS NOT NULL DELETE FROM BusinessCustomers;
+IF OBJECT_ID('Customers', 'U') IS NOT NULL DELETE FROM Customers;
+IF OBJECT_ID('LoyaltyTiers', 'U') IS NOT NULL DELETE FROM LoyaltyTiers;
+IF OBJECT_ID('Accounts', 'U') IS NOT NULL DELETE FROM Accounts;
+IF OBJECT_ID('Roles', 'U') IS NOT NULL DELETE FROM Roles;
 GO
 
-IF NOT EXISTS (
-    SELECT 1 FROM sys.check_constraints
-    WHERE name = 'CK_LoyaltyTiers_MaxBookingDays'
-)
-BEGIN
-    ALTER TABLE LoyaltyTiers ADD CONSTRAINT CK_LoyaltyTiers_MaxBookingDays
-        CHECK (MaxBookingDaysAhead BETWEEN 1 AND 90);
-END
-GO
-
-IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('Bookings') AND name = 'PaymentOrderCode')
-    ALTER TABLE Bookings ADD PaymentOrderCode BIGINT NULL;
-GO
-IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('Bookings') AND name = 'PaymentLinkId')
-    ALTER TABLE Bookings ADD PaymentLinkId NVARCHAR(64) NULL;
-GO
-IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('Bookings') AND name = 'PaymentStatus')
-BEGIN
-    SET QUOTED_IDENTIFIER ON;
-    ALTER TABLE Bookings ADD PaymentStatus NVARCHAR(20) NOT NULL DEFAULT 'Unpaid' WITH VALUES;
-END
-GO
-IF NOT EXISTS (SELECT 1 FROM sys.columns WHERE object_id = OBJECT_ID('Bookings') AND name = 'PaymentExpiredAt')
-    ALTER TABLE Bookings ADD PaymentExpiredAt DATETIME NULL;
-GO
-
-IF NOT EXISTS (SELECT 1 FROM sys.check_constraints WHERE name = 'CK_Bookings_PaymentStatus')
-BEGIN
-    ALTER TABLE Bookings ADD CONSTRAINT CK_Bookings_PaymentStatus
-        CHECK (PaymentStatus IN ('Unpaid', 'Paid', 'Expired', 'Cancelled'));
-END
-GO
-
--- =====================================================
--- 0B. XÓA DỮ LIỆU CŨ (đúng thứ tự khóa ngoại)
--- =====================================================
-IF EXISTS (SELECT 1 FROM sys.tables WHERE name = 'BookingDetails') DELETE FROM BookingDetails;
-DELETE FROM Bookings;
-DELETE FROM PointTransactions;
-DELETE FROM Invoices;
-DELETE FROM CustomerRewards;
-DELETE FROM Rewards;
-DELETE FROM PromotionCustomers;
-DELETE FROM PromotionTiers;
-DELETE FROM Promotions;
-DELETE FROM TimeSlots;
-DELETE FROM WashBays;
-DELETE FROM ServicePrices;
-DELETE FROM Services;
-DELETE FROM Vehicles;
-DELETE FROM VehicleModels;
-DELETE FROM VehicleTypes;
-DELETE FROM VehicleBrands;
-DELETE FROM BusinessCustomers;
-DELETE FROM Customers;
-DELETE FROM LoyaltyTiers;
-DELETE FROM Accounts;
-DELETE FROM Roles;
-GO
-
-DBCC CHECKIDENT ('VehicleModels', RESEED, 0);
-DBCC CHECKIDENT ('VehicleTypes', RESEED, 0);
-DBCC CHECKIDENT ('VehicleBrands', RESEED, 0);
-DBCC CHECKIDENT ('TimeSlots', RESEED, 0);
+-- Reset Identity cho các bảng tự tăng động
+IF OBJECT_ID('VehicleModels', 'U') IS NOT NULL DBCC CHECKIDENT ('VehicleModels', RESEED, 0);
+IF OBJECT_ID('VehicleTypes', 'U') IS NOT NULL DBCC CHECKIDENT ('VehicleTypes', RESEED, 0);
+IF OBJECT_ID('VehicleBrands', 'U') IS NOT NULL DBCC CHECKIDENT ('VehicleBrands', RESEED, 0);
+IF OBJECT_ID('TimeSlots', 'U') IS NOT NULL DBCC CHECKIDENT ('TimeSlots', RESEED, 0);
 GO
 
 -- =====================================================
@@ -106,9 +58,9 @@ INSERT INTO Accounts (AccountID, RoleID, Email, Phone, Password, FirstName, Last
 (3, 2, 'customer2@gmail.com', '0912234567', 'EmmaPass202#', 'Emma', 'Williams', 'Active', NULL),
 (4, 2, 'customer3@gmail.com', '0913345678', 'DavidPass303$', 'David', 'Jones', 'Active', NULL),
 (5, 2, 'customer4@gmail.com', '0914456789', 'SophiaPass404!', 'Sophia', 'Garcia', 'Active', NULL),
-(6, 2, 'business1@company.com', '0921123456', 'BizAdmin505#', 'James', 'Miller', 'Active', NULL),
-(7, 2, 'customer5@gmail.com', '0915567890', 'OliviaPass606@', 'Olivia', 'Davis', 'Pending', NULL),
-(8, 2, 'customer6@gmail.com', '0916678901', 'LiamPass808!', 'Liam', 'Moore', 'Active', NULL),
+(6, 2, 'business1@company.com', '0921123456', 'BizAdmin505#', 'James', 'Miller', 'Pending', NULL),
+(7, 2, 'customer5@gmail.com', '0915567890', 'OliviaPass606@', 'Olivia', 'Davis', 'Active', NULL),
+(8, 2, 'customer6@gmail.com', '0916678901', 'LiamPass808!', 'Liam', 'Moore', 'Pending', NULL),
 (9, 2, 'customer7@gmail.com', '0917789012', 'IsabellaPass909#', 'Isabella', 'Taylor', 'Rejected', N'Invalid Corporate Registration Certificate Number.'),
 (10, 2, 'customer8@gmail.com', '0918890123', 'NoahPass1111$', 'Noah', 'Thomas', 'Active', NULL),
 (11, 2, 'customer9@gmail.com', '0919901234', 'AvaPass1212!', 'Ava', 'Jackson', 'Active', NULL);
@@ -155,7 +107,7 @@ INSERT INTO BusinessCustomers (CustomerID, CompanyName, TaxCode, CompanyAddress)
 GO
 
 -- =====================================================
--- 6. VEHICLE TYPES (6 dòng xe — ID cố định 1-6 cho ServicePrices)
+-- 6. VEHICLE TYPES (6 dòng xe — ID cố định 1-6)
 -- =====================================================
 SET IDENTITY_INSERT VehicleTypes ON;
 INSERT INTO VehicleTypes (VehicleTypeID, TypeName, Description, IsActive) VALUES
@@ -166,7 +118,6 @@ INSERT INTO VehicleTypes (VehicleTypeID, TypeName, Description, IsActive) VALUES
 (5, 'MPV', N'Dòng xe MPV / Minivan – xe đa dụng', 1),
 (6, 'Coupe', N'Dòng xe Coupe – xe thể thao mui kín', 1);
 SET IDENTITY_INSERT VehicleTypes OFF;
-DBCC CHECKIDENT ('VehicleTypes', RESEED, 6);
 GO
 
 -- =====================================================
@@ -187,7 +138,7 @@ INSERT INTO VehicleBrands (BrandName, Country, IsActive) VALUES
 GO
 
 -- =====================================================
--- 8. VEHICLE MODELS (~200 mẫu)
+-- 8. VEHICLE MODELS (200 mẫu)
 -- =====================================================
 INSERT INTO VehicleModels (BrandID, VehicleTypeID, ModelName, IsActive)
 SELECT b.BrandID, t.VehicleTypeID, m.ModelName, 1
@@ -332,74 +283,41 @@ SET IDENTITY_INSERT Services OFF;
 GO
 
 -- =====================================================
--- 10. SERVICE PRICES (6 dòng xe x 10 dịch vụ, 17-23 phút)
+-- 10. SERVICE PRICES
 -- =====================================================
--- Giá 2.000đ mỗi combo (test payOS / giảm rủi ro chuyển khoản thật)
 INSERT INTO ServicePrices (ServiceID, VehicleTypeID, Price, DurationMinutes) VALUES
 (1, 1, 2000, 17), (1, 2, 2000, 17), (1, 3, 2000, 17), (1, 4, 2000, 17), (1, 5, 2000, 17), (1, 6, 2000, 17),
 (2, 1, 2000, 18), (2, 2, 2000, 18), (2, 3, 2000, 18), (2, 4, 2000, 18), (2, 5, 2000, 18), (2, 6, 2000, 18),
 (3, 1, 2000, 23), (3, 2, 2000, 23), (3, 3, 2000, 23), (3, 4, 2000, 23), (3, 5, 2000, 23), (3, 6, 2000, 23),
 (4, 1, 2000, 20), (4, 2, 2000, 20), (4, 3, 2000, 20), (4, 4, 2000, 20), (4, 5, 2000, 20), (4, 6, 2000, 20),
-(5, 1, 2000, 22), (5, 2, 2000, 22), (5, 3, 2000, 22), (5, 4, 2000, 22), (5, 5, 2000, 22), (5, 6, 2000, 22),
-(6, 1, 2000, 19), (6, 2, 2000, 19), (6, 3, 2000, 19), (6, 4, 2000, 19), (6, 5, 2000, 19), (6, 6, 2000, 19),
-(7, 1, 2000, 21), (7, 2, 2000, 21), (7, 3, 2000, 21), (7, 4, 2000, 21), (7, 5, 2000, 21), (7, 6, 2000, 21),
-(8, 1, 2000, 23), (8, 2, 2000, 23), (8, 3, 2000, 23), (8, 4, 2000, 23), (8, 5, 2000, 23), (8, 6, 2000, 23),
-(9, 1, 2000, 20), (9, 2, 2000, 20), (9, 3, 2000, 20), (9, 4, 2000, 20), (9, 5, 2000, 20), (9, 6, 2000, 20),
-(10, 1, 2000, 17), (10, 2, 2000, 17), (10, 3, 2000, 17), (10, 4, 2000, 17), (10, 5, 2000, 17), (10, 6, 2000, 17);
+(8, 1, 2000, 23), (8, 2, 2000, 23), (8, 3, 2000, 23), (8, 4, 2000, 23), (8, 5, 2000, 23), (8, 6, 2000, 23);
 GO
 
 -- =====================================================
--- 11. CUSTOMER VEHICLES (10 xe mẫu)
+-- 11. CUSTOMER VEHICLES
 -- =====================================================
-INSERT INTO Vehicles (CustomerID, ModelID, LicensePlate, Color, ManufactureYear, Status)
-SELECT 1, vm.ModelID, '51A-12345', 'White', 2022, 'Active'
-FROM VehicleModels vm INNER JOIN VehicleBrands vb ON vm.BrandID = vb.BrandID
-WHERE vb.BrandName = 'Toyota' AND vm.ModelName = 'Camry';
-
-INSERT INTO Vehicles (CustomerID, ModelID, LicensePlate, Color, ManufactureYear, Status)
-SELECT 2, vm.ModelID, '51B-23456', 'Black', 2021, 'Active'
-FROM VehicleModels vm INNER JOIN VehicleBrands vb ON vm.BrandID = vb.BrandID
-WHERE vb.BrandName = 'Honda' AND vm.ModelName = 'CR-V';
-
-INSERT INTO Vehicles (CustomerID, ModelID, LicensePlate, Color, ManufactureYear, Status)
-SELECT 3, vm.ModelID, '51C-34567', 'Silver', 2023, 'Active'
-FROM VehicleModels vm INNER JOIN VehicleBrands vb ON vm.BrandID = vb.BrandID
-WHERE vb.BrandName = 'Ford' AND vm.ModelName = 'Everest';
-
-INSERT INTO Vehicles (CustomerID, ModelID, LicensePlate, Color, ManufactureYear, Status)
-SELECT 4, vm.ModelID, '51D-45678', 'Blue', 2020, 'Active'
-FROM VehicleModels vm INNER JOIN VehicleBrands vb ON vm.BrandID = vb.BrandID
-WHERE vb.BrandName = 'Toyota' AND vm.ModelName = 'Camry';
-
-INSERT INTO Vehicles (CustomerID, ModelID, LicensePlate, Color, ManufactureYear, Status)
-SELECT 5, vm.ModelID, '51E-56789', 'Red', 2022, 'Active'
-FROM VehicleModels vm INNER JOIN VehicleBrands vb ON vm.BrandID = vb.BrandID
-WHERE vb.BrandName = 'Honda' AND vm.ModelName = 'CR-V';
-
-INSERT INTO Vehicles (CustomerID, ModelID, LicensePlate, Color, ManufactureYear, Status)
-SELECT 6, vm.ModelID, '51F-67890', 'Gray', 2019, 'Active'
-FROM VehicleModels vm INNER JOIN VehicleBrands vb ON vm.BrandID = vb.BrandID
-WHERE vb.BrandName = 'Ford' AND vm.ModelName = 'Everest';
-
-INSERT INTO Vehicles (CustomerID, ModelID, LicensePlate, Color, ManufactureYear, Status)
-SELECT 7, vm.ModelID, '51G-78901', 'White', 2023, 'Active'
-FROM VehicleModels vm INNER JOIN VehicleBrands vb ON vm.BrandID = vb.BrandID
-WHERE vb.BrandName = 'Toyota' AND vm.ModelName = 'Camry';
-
-INSERT INTO Vehicles (CustomerID, ModelID, LicensePlate, Color, ManufactureYear, Status)
-SELECT 8, vm.ModelID, '51H-89012', 'Black', 2021, 'Active'
-FROM VehicleModels vm INNER JOIN VehicleBrands vb ON vm.BrandID = vb.BrandID
-WHERE vb.BrandName = 'Honda' AND vm.ModelName = 'CR-V';
-
-INSERT INTO Vehicles (CustomerID, ModelID, LicensePlate, Color, ManufactureYear, Status)
-SELECT 9, vm.ModelID, '51K-90123', 'Blue', 2022, 'Active'
-FROM VehicleModels vm INNER JOIN VehicleBrands vb ON vm.BrandID = vb.BrandID
-WHERE vb.BrandName = 'Ford' AND vm.ModelName = 'Everest';
-
-INSERT INTO Vehicles (CustomerID, ModelID, LicensePlate, Color, ManufactureYear, Status)
-SELECT 10, vm.ModelID, '51L-01234', 'Silver', 2020, 'Active'
-FROM VehicleModels vm INNER JOIN VehicleBrands vb ON vm.BrandID = vb.BrandID
-WHERE vb.BrandName = 'Toyota' AND vm.ModelName = 'Camry';
+SET IDENTITY_INSERT Vehicles ON;
+INSERT INTO Vehicles (VehicleID, CustomerID, ModelID, LicensePlate, Color, ManufactureYear, Status)
+SELECT 1, 1, vm.ModelID, '51A-12345', 'White', 2022, 'Active' FROM VehicleModels vm INNER JOIN VehicleBrands vb ON vm.BrandID = vb.BrandID WHERE vb.BrandName = 'Toyota' AND vm.ModelName = 'Camry';
+INSERT INTO Vehicles (VehicleID, CustomerID, ModelID, LicensePlate, Color, ManufactureYear, Status)
+SELECT 2, 2, vm.ModelID, '51B-23456', 'Black', 2021, 'Active' FROM VehicleModels vm INNER JOIN VehicleBrands vb ON vm.BrandID = vb.BrandID WHERE vb.BrandName = 'Honda' AND vm.ModelName = 'CR-V';
+INSERT INTO Vehicles (VehicleID, CustomerID, ModelID, LicensePlate, Color, ManufactureYear, Status)
+SELECT 3, 3, vm.ModelID, '51C-34567', 'Silver', 2023, 'Active' FROM VehicleModels vm INNER JOIN VehicleBrands vb ON vm.BrandID = vb.BrandID WHERE vb.BrandName = 'Ford' AND vm.ModelName = 'Everest';
+INSERT INTO Vehicles (VehicleID, CustomerID, ModelID, LicensePlate, Color, ManufactureYear, Status)
+SELECT 4, 4, vm.ModelID, '51D-45678', 'Blue', 2020, 'Active' FROM VehicleModels vm INNER JOIN VehicleBrands vb ON vm.BrandID = vb.BrandID WHERE vb.BrandName = 'Toyota' AND vm.ModelName = 'Camry';
+INSERT INTO Vehicles (VehicleID, CustomerID, ModelID, LicensePlate, Color, ManufactureYear, Status)
+SELECT 5, 5, vm.ModelID, '51E-56789', 'Red', 2022, 'Active' FROM VehicleModels vm INNER JOIN VehicleBrands vb ON vm.BrandID = vb.BrandID WHERE vb.BrandName = 'Honda' AND vm.ModelName = 'CR-V';
+INSERT INTO Vehicles (VehicleID, CustomerID, ModelID, LicensePlate, Color, ManufactureYear, Status)
+SELECT 6, 6, vm.ModelID, '51F-67890', 'Gray', 2019, 'Active' FROM VehicleModels vm INNER JOIN VehicleBrands vb ON vm.BrandID = vb.BrandID WHERE vb.BrandName = 'Ford' AND vm.ModelName = 'Everest';
+INSERT INTO Vehicles (VehicleID, CustomerID, ModelID, LicensePlate, Color, ManufactureYear, Status)
+SELECT 7, 7, vm.ModelID, '51G-78901', 'White', 2023, 'Active' FROM VehicleModels vm INNER JOIN VehicleBrands vb ON vm.BrandID = vb.BrandID WHERE vb.BrandName = 'Toyota' AND vm.ModelName = 'Camry';
+INSERT INTO Vehicles (VehicleID, CustomerID, ModelID, LicensePlate, Color, ManufactureYear, Status)
+SELECT 8, 8, vm.ModelID, '51H-89012', 'Black', 2021, 'Active' FROM VehicleModels vm INNER JOIN VehicleBrands vb ON vm.BrandID = vb.BrandID WHERE vb.BrandName = 'Honda' AND vm.ModelName = 'CR-V';
+INSERT INTO Vehicles (VehicleID, CustomerID, ModelID, LicensePlate, Color, ManufactureYear, Status)
+SELECT 9, 9, vm.ModelID, '51K-90123', 'Blue', 2022, 'Active' FROM VehicleModels vm INNER JOIN VehicleBrands vb ON vm.BrandID = vb.BrandID WHERE vb.BrandName = 'Ford' AND vm.ModelName = 'Everest';
+INSERT INTO Vehicles (VehicleID, CustomerID, ModelID, LicensePlate, Color, ManufactureYear, Status)
+SELECT 10, 10, vm.ModelID, '51L-01234', 'Silver', 2020, 'Active' FROM VehicleModels vm INNER JOIN VehicleBrands vb ON vm.BrandID = vb.BrandID WHERE vb.BrandName = 'Toyota' AND vm.ModelName = 'Camry';
+SET IDENTITY_INSERT Vehicles OFF;
 GO
 
 -- =====================================================
@@ -421,7 +339,7 @@ SET IDENTITY_INSERT WashBays OFF;
 GO
 
 -- =====================================================
--- 13. TIME SLOTS — hôm nay + ngày mai (08:00-20:00, 30 phút/slot)
+-- 13. TIME SLOTS
 -- =====================================================
 ;WITH Dates AS (
     SELECT CAST(GETDATE() AS DATE) AS SlotDate
@@ -445,27 +363,26 @@ WHERE DATEADD(MINUTE, (n.n + 1) * 30, CAST(d.SlotDate AS DATETIME) + CAST('08:00
 GO
 
 -- =====================================================
--- 13. PROMOTIONS
+-- 14. PROMOTIONS
 -- =====================================================
 SET IDENTITY_INSERT Promotions ON;
 INSERT INTO Promotions (PromotionID, PromoCode, PromotionName, TargetType, DiscountPercent, StartDate, EndDate, Description, IsActive) VALUES 
 (1, 'SUMMER25', 'Summer Special', 'All', 25, '2026-06-01', '2026-08-31', '25% off all services', 1),
-(2, 'FIRST10', 'First Time Discount', 'Customer', 15, '2026-01-01', '2026-12-31', '15% for new customers', 1),
+(2, 'FIRST10', 'First Time Discount', 'All', 15, '2026-01-01', '2026-12-31', '15% for new customers', 1),
 (3, 'GOLDVIP', 'Gold Member Bonus', 'Tier', 20, '2026-01-01', '2026-12-31', 'Extra 20% for Gold tier', 1),
 (4, 'FLEET30', 'Business Fleet', 'All', 30, '2026-01-01', '2026-12-31', '30% for business customers', 1),
 (5, 'WEEKEND15', 'Weekend Special', 'All', 15, '2026-06-01', '2026-12-31', '15% off on weekends', 1),
-(6, 'REFER10', 'Referral Bonus', 'Customer', 10, '2026-01-01', '2026-12-31', '10% for referred customers', 1),
+(6, 'REFER10', 'Referral Bonus', 'All', 10, '2026-01-01', '2026-12-31', '10% for referred customers', 1),
 (7, 'PLATINUM50', 'Platinum Exclusive', 'Tier', 50, '2026-05-01', '2026-07-31', '50% off for Platinum', 1),
 (8, 'ECO10', 'Eco Friendly', 'All', 10, '2026-06-01', '2026-12-31', '10% for electric vehicles', 1);
 SET IDENTITY_INSERT Promotions OFF;
 GO
 
 INSERT INTO PromotionTiers (PromotionID, TierID) VALUES (3,3),(3,4),(7,4);
-INSERT INTO PromotionCustomers (PromotionID, CustomerID) VALUES (2,1),(2,2),(6,3),(6,4);
 GO
 
 -- =====================================================
--- 14. REWARDS
+-- 15. REWARDS
 -- =====================================================
 SET IDENTITY_INSERT Rewards ON;
 INSERT INTO Rewards (RewardID, RewardName, RewardType, PointsRequired, DiscountPercent, DiscountAmount, StockQuantity, ExpiryDays, IsActive) VALUES 
@@ -479,7 +396,7 @@ SET IDENTITY_INSERT Rewards OFF;
 GO
 
 -- =====================================================
--- 15. POINT TRANSACTIONS
+-- 16. POINT TRANSACTIONS
 -- =====================================================
 INSERT INTO PointTransactions (CustomerID, InvoiceID, PointChange, TransactionType, Note) VALUES 
 (1, NULL, 250, 'Earn', 'First service points'),
@@ -492,7 +409,7 @@ INSERT INTO PointTransactions (CustomerID, InvoiceID, PointChange, TransactionTy
 GO
 
 -- =====================================================
--- 16. CUSTOMER REWARDS
+-- 17. CUSTOMER REWARDS
 -- =====================================================
 INSERT INTO CustomerRewards (CustomerID, RewardID, Status) VALUES 
 (1,1,'Available'), (2,2,'Available'), (3,3,'Available'),
@@ -500,7 +417,7 @@ INSERT INTO CustomerRewards (CustomerID, RewardID, Status) VALUES
 GO
 
 -- =====================================================
--- 17. INVOICES
+-- 18. INVOICES
 -- =====================================================
 SET IDENTITY_INSERT Invoices ON;
 INSERT INTO Invoices (InvoiceID, CustomerID, PromotionID, SubTotal, DiscountAmount, FinalAmount, PaymentStatus, PaymentMethod) VALUES 
@@ -516,125 +433,34 @@ INSERT INTO Invoices (InvoiceID, CustomerID, PromotionID, SubTotal, DiscountAmou
 SET IDENTITY_INSERT Invoices OFF;
 GO
 
-
 -- =====================================================
--- 18. BOOKINGS (hôm nay — gắn slot theo giờ thực)
+-- 19. BOOKINGS 
 -- =====================================================
-DECLARE @Today DATE = CAST(GETDATE() AS DATE);
-
-INSERT INTO Bookings (CustomerID, VehicleID, ServiceID, WashBayID, TimeSlotID, InvoiceID, Quantity, PriceAtOrder, DurationAtOrder, BookingDate, Status, Notes)
-SELECT 1, v.VehicleID, 1, 1, t.TimeSlotID, 1, 1, 150000, 17, t.StartTime, 'Completed', 'Exterior wash today'
-FROM Vehicles v JOIN TimeSlots t ON t.SlotDate = @Today AND CAST(t.StartTime AS TIME) = '09:00:00'
-WHERE v.LicensePlate = '51A-12345';
-
-INSERT INTO Bookings (CustomerID, VehicleID, ServiceID, WashBayID, TimeSlotID, InvoiceID, Quantity, PriceAtOrder, DurationAtOrder, BookingDate, Status, Notes)
-SELECT 1, v.VehicleID, 2, 2, t.TimeSlotID, 1, 1, 250000, 18, t.StartTime, 'Completed', 'Interior wash today'
-FROM Vehicles v JOIN TimeSlots t ON t.SlotDate = @Today AND CAST(t.StartTime AS TIME) = '09:00:00'
-WHERE v.LicensePlate = '51A-12345';
-
-INSERT INTO Bookings (CustomerID, VehicleID, ServiceID, WashBayID, TimeSlotID, InvoiceID, Quantity, PriceAtOrder, DurationAtOrder, BookingDate, Status, Notes)
-SELECT 2, v.VehicleID, 3, 3, t.TimeSlotID, 2, 1, 950000, 23, t.StartTime, 'Completed', 'Full detailing service'
-FROM Vehicles v JOIN TimeSlots t ON t.SlotDate = @Today AND CAST(t.StartTime AS TIME) = '09:30:00'
-WHERE v.LicensePlate = '51B-23456';
-
-INSERT INTO Bookings (CustomerID, VehicleID, ServiceID, WashBayID, TimeSlotID, InvoiceID, Quantity, PriceAtOrder, DurationAtOrder, BookingDate, Status, Notes)
-SELECT 3, v.VehicleID, 1, 2, t.TimeSlotID, 3, 1, 200000, 17, t.StartTime, 'Completed', 'Standard appointment task'
-FROM Vehicles v JOIN TimeSlots t ON t.SlotDate = @Today AND CAST(t.StartTime AS TIME) = '10:00:00'
-WHERE v.LicensePlate = '51C-34567';
-
-INSERT INTO Bookings (CustomerID, VehicleID, ServiceID, WashBayID, TimeSlotID, InvoiceID, Quantity, PriceAtOrder, DurationAtOrder, BookingDate, Status, Notes)
-SELECT 4, v.VehicleID, 8, 4, t.TimeSlotID, 4, 1, 2500000, 23, t.StartTime, 'Completed', 'VIP ceramic service'
-FROM Vehicles v JOIN TimeSlots t ON t.SlotDate = @Today AND CAST(t.StartTime AS TIME) = '11:00:00'
-WHERE v.LicensePlate = '51D-45678';
-
-INSERT INTO Bookings (CustomerID, VehicleID, ServiceID, WashBayID, TimeSlotID, InvoiceID, Quantity, PriceAtOrder, DurationAtOrder, BookingDate, Status, Notes)
-SELECT 5, v.VehicleID, 1, 7, t.TimeSlotID, 5, 1, 170000, 17, t.StartTime, 'Pending', 'Corporate Fleet Order A'
-FROM Vehicles v JOIN TimeSlots t ON t.SlotDate = @Today AND CAST(t.StartTime AS TIME) = '14:00:00'
-WHERE v.LicensePlate = '51E-56789';
-
-INSERT INTO Bookings (CustomerID, VehicleID, ServiceID, WashBayID, TimeSlotID, InvoiceID, Quantity, PriceAtOrder, DurationAtOrder, BookingDate, Status, Notes)
-SELECT 5, v.VehicleID, 1, 7, t.TimeSlotID, 6, 1, 170000, 17, t.StartTime, 'Pending', 'Corporate Fleet Order B'
-FROM Vehicles v JOIN TimeSlots t ON t.SlotDate = @Today AND CAST(t.StartTime AS TIME) = '15:00:00'
-WHERE v.LicensePlate = '51E-56789';
-
-INSERT INTO Bookings (CustomerID, VehicleID, ServiceID, WashBayID, TimeSlotID, InvoiceID, Quantity, PriceAtOrder, DurationAtOrder, BookingDate, Status, Notes)
-SELECT 6, v.VehicleID, 1, 1, t.TimeSlotID, NULL, 1, 200000, 17, t.StartTime, 'Pending', 'Awaiting approval'
-FROM Vehicles v JOIN TimeSlots t ON t.SlotDate = @Today AND CAST(t.StartTime AS TIME) = '08:00:00'
-WHERE v.LicensePlate = '51F-67890';
+SET IDENTITY_INSERT Bookings ON;
+INSERT INTO Bookings (BookingID, CustomerID, VehicleID, ServiceID, WashBayID, TimeSlotID, InvoiceID, Quantity, PriceAtOrder, DurationAtOrder, BookingDate, Status, Notes, PaymentStatus) VALUES 
+(1, 1, 1, 1, 1, 1, 1, 1, 150000, 30, GETDATE(), 'Completed', 'Exterior wash today', 'Paid'),
+(2, 1, 1, 2, 1, 2, 1, 1, 250000, 45, GETDATE(), 'Completed', 'Interior wash today', 'Paid'),
+(3, 2, 2, 3, 3, 3, 2, 1, 1200000, 150, GETDATE(), 'Completed', 'Full detailing service', 'Paid'),
+(4, 3, 3, 1, 2, 4, 3, 1, 200000, 40, GETDATE(), 'Completed', 'Standard appointment task', 'Paid'),
+(5, 4, 4, 8, 4, 5, 4, 1, 2500000, 180, GETDATE(), 'Completed', 'VIP ceramic service', 'Paid'),
+(6, 5, 5, 1, 7, 6, 5, 1, 300000, 40, GETDATE(), 'Pending', 'Corporate Fleet Order A', 'Paid'),
+(7, 5, 5, 1, 7, 7, 6, 1, 300000, 40, GETDATE(), 'Pending', 'Corporate Fleet Order B', 'Paid'),
+(8, 6, 6, 1, 1, 8, NULL, 1, 180000, 35, GETDATE(), 'Pending', 'Awaiting approval', 'Unpaid');
+SET IDENTITY_INSERT Bookings OFF;
 GO
 
 -- =====================================================
--- 19. BOOKING DETAILS (hôm nay)
+-- 20. BOOKING DETAILS
 -- =====================================================
-INSERT INTO BookingDetails (BookingID, ServiceID, Quantity, PriceAtOrder, DurationAtOrder)
-SELECT b.BookingID, b.ServiceID, b.Quantity, b.PriceAtOrder, b.DurationAtOrder
-FROM Bookings b
-WHERE b.Notes IN (
-    'Exterior wash today', 'Interior wash today', 'Full detailing service',
-    'Standard appointment task', 'VIP ceramic service',
-    'Corporate Fleet Order A', 'Corporate Fleet Order B', 'Awaiting approval'
-);
-GO
-
--- =====================================================
--- 20. BOOKINGS (ngày mai — mẫu)
--- =====================================================
-DECLARE @Tomorrow DATE = DATEADD(DAY, 1, CAST(GETDATE() AS DATE));
-
-INSERT INTO Bookings (CustomerID, VehicleID, ServiceID, WashBayID, TimeSlotID, InvoiceID, Quantity, PriceAtOrder, DurationAtOrder, BookingDate, Status, Notes)
-SELECT 1, v.VehicleID, 1, 1, t.TimeSlotID, NULL, 1, 150000, 17, t.StartTime, 'Confirmed', 'Tomorrow booking - Exterior Wash 08:00'
-FROM Vehicles v
-JOIN TimeSlots t ON t.SlotDate = @Tomorrow AND CAST(t.StartTime AS TIME) = '08:00:00'
-WHERE v.LicensePlate = '51A-12345'
-  AND NOT EXISTS (
-      SELECT 1 FROM Bookings b
-      WHERE b.WashBayID = 1 AND b.TimeSlotID = t.TimeSlotID
-        AND b.Status NOT IN ('Cancelled', 'NoShow')
-  );
-
-INSERT INTO Bookings (CustomerID, VehicleID, ServiceID, WashBayID, TimeSlotID, InvoiceID, Quantity, PriceAtOrder, DurationAtOrder, BookingDate, Status, Notes)
-SELECT 2, v.VehicleID, 2, 2, t.TimeSlotID, NULL, 1, 270000, 18, t.StartTime, 'Pending', 'Tomorrow booking - Interior Cleaning 09:00'
-FROM Vehicles v
-JOIN TimeSlots t ON t.SlotDate = @Tomorrow AND CAST(t.StartTime AS TIME) = '09:00:00'
-WHERE v.LicensePlate = '51B-23456'
-  AND NOT EXISTS (
-      SELECT 1 FROM Bookings b
-      WHERE b.WashBayID = 2 AND b.TimeSlotID = t.TimeSlotID
-        AND b.Status NOT IN ('Cancelled', 'NoShow')
-  );
-
-INSERT INTO BookingDetails (BookingID, ServiceID, Quantity, PriceAtOrder, DurationAtOrder)
-SELECT b.BookingID, b.ServiceID, b.Quantity, b.PriceAtOrder, b.DurationAtOrder
-FROM Bookings b
-WHERE b.Notes LIKE 'Tomorrow booking%'
-  AND NOT EXISTS (SELECT 1 FROM BookingDetails d WHERE d.BookingID = b.BookingID);
-GO
-
--- =====================================================
--- 21. ĐỒNG BỘ IsFull CHO TẤT CẢ TIME SLOTS
--- =====================================================
-UPDATE ts
-SET ts.IsFull = CASE WHEN avail.Remaining = 0 THEN 1 ELSE 0 END
-FROM TimeSlots ts
-CROSS APPLY (
-    SELECT COUNT(*) AS Remaining
-    FROM WashBays wb
-    WHERE wb.Status = 'Available'
-      AND NOT EXISTS (
-          SELECT 1 FROM Bookings b
-          WHERE b.WashBayID = wb.WashBayID
-            AND b.TimeSlotID = ts.TimeSlotID
-            AND b.Status NOT IN ('Cancelled', 'NoShow')
-      )
-) avail;
-GO
-
-IF (SELECT COUNT(*) FROM ServicePrices) <> 60
-BEGIN
-    RAISERROR('Data load incomplete: ServicePrices expected 60 rows (6 vehicle types x 10 services). Re-run Data.sql after fixing errors above.', 16, 1);
-    RETURN;
-END
-GO
-
-PRINT 'AutoWashPro sample data loaded successfully.';
+SET IDENTITY_INSERT BookingDetails ON;
+INSERT INTO BookingDetails (BookingDetailID, BookingID, ServiceID, Quantity, PriceAtOrder, DurationAtOrder) VALUES 
+(1, 1, 1, 1, 150000, 30),
+(2, 2, 2, 1, 250000, 45),
+(3, 3, 3, 1, 1200000, 150),
+(4, 4, 1, 1, 200000, 40),
+(5, 5, 8, 1, 2500000, 180),
+(6, 6, 1, 1, 300000, 40),
+(7, 7, 1, 1, 300000, 40),
+(8, 8, 1, 1, 180000, 35);
+SET IDENTITY_INSERT BookingDetails OFF;
 GO

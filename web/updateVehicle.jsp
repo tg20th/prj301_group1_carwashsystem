@@ -107,7 +107,10 @@
                                     <input type="text"
                                            name="licensePlate"
                                            value="<%= vehicle.getLicensePlate()%>"
-                                           class="form-control form-control-lg rounded-3"
+                                           class="form-control form-control-lg rounded-3 text-uppercase"
+                                           pattern="[0-9]{2}[A-Z]-[0-9]{5}"
+                                           title="Format: 63A-12345 (2 digits, 1 letter, hyphen, 5 digits)"
+                                           placeholder="e.g. 63A-12345"
                                            required>
                                 </div>
                                 <!-- BRAND -->

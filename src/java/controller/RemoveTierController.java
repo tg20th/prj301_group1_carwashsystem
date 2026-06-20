@@ -5,6 +5,7 @@
 package controller;
 
 import dao.TierDAO;
+import dto.Account;
 import java.io.IOException;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -17,6 +18,12 @@ public class RemoveTierController extends HttpServlet {
 
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        
+        Account a = (Account) request.getSession().getAttribute("ACCOUNT");
+        if (a == null) {
+            request.getRequestDispatcher("MainController").forward(request, response);
+            return;
+        }
 
         try {
             String idParam = request.getParameter("tierID");

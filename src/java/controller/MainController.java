@@ -169,6 +169,54 @@ public class MainController extends HttpServlet {
                 case "resubmit_registration":
                     url = "UpdateRegistrationController";
                     break;
+                case "admin_dashboard":
+                    url = "AdminDashboardController";
+                    break;
+                case "booking_admin":
+                    url = "ManageBookingsController";
+                    break;
+                case "timeslot_schedule":
+                    url = "TimeSlotController";
+                    break;
+                case "vehicle_request":
+                    url = "VehicleRequestController";
+                    break;
+                case "business_request":
+                    url = "BusinessRequestsController";
+                    break;
+                case "manage_user":
+                    url = "ManageUserController";
+                    break;
+                case "manage_tier":
+                    url = "ManageTiersController";
+                    break;
+                case "manage_promotion":
+                    url = "ManagePromotionsController";
+                    break;
+                case "process_user":
+                    url = "UserProcessController";
+                    break;
+                case "process_booking":
+                    url = "BookingProcessController";
+                    break;
+                case "reject":
+                    url = "RejectBusinessController";
+                    break;
+                case "approve":
+                    url = "ApproveBusinessController";
+                    break;
+                case "add_tier":
+                    url = "AddTierController";
+                    break;
+                case "update_tier":
+                    url = "UpdateTierController";
+                    break;
+                case "update_status_tier":
+                    url = "RemoveTierController";
+                    break;
+                case "Revenue":
+                    url = "RevenueController";
+                    break;
                 default:
                     url = "index.jsp";
                     break;

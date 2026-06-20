@@ -7,6 +7,7 @@ package controller;
 import dao.BusinessDAO;
 import dao.CustomerDAO;
 import dbutils.EmailUtils;
+import dto.Account;
 import dto.Business;
 import dto.Customer;
 import java.io.IOException;
@@ -35,6 +36,13 @@ public class ApproveBusinessController extends HttpServlet {
      */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        Account account = (Account) request.getSession().getAttribute("ACCOUNT");
+        
+        if (account == null) {
+            request.getRequestDispatcher("MainController").forward(request, response);
+            return;
+        }
+        
         int id = Integer.parseInt(request.getParameter("id"));
         BusinessDAO bd = new BusinessDAO();
         
@@ -52,9 +60,14 @@ public class ApproveBusinessController extends HttpServlet {
         if(result < 1) {
             request.setAttribute("error", "Approve fail. Please try again!");
         } else {
-            request.setAttribute("success", "Approve successfully!");
             Business b = bd.getBussinessByCusID(findCus.getCusID());
-            EmailUtils.sendApproveEmail(b.getEmail(), b.getBusinessName());
+            boolean emailSent = EmailUtils.sendApproveEmail(b.getEmail(), b.getBusinessName());
+            if (emailSent) {
+                request.setAttribute("success", "Approve successfully!");
+            } else {
+                request.setAttribute("success",
+                        "Approve successfully! Notification email could not be sent (rate limit). Please inform the business manually.");
+            }
             
         }
         request.getRequestDispatcher("BusinessRequestsController").forward(request, response);
