@@ -33,13 +33,15 @@ public class BookingProcessController extends HttpServlet {
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         Account account = (Account) request.getSession().getAttribute("ACCOUNT");
-        
+
         if (account == null) {
             request.getRequestDispatcher("MainController").forward(request, response);
             return;
         }
-        
+
         String action = request.getParameter("action");
+        
+        String actionAdmin = request.getParameter("actionAdmin");
         String bookingID = request.getParameter("id");
 
         if (bookingID != null && !bookingID.isEmpty()) {
@@ -48,7 +50,7 @@ public class BookingProcessController extends HttpServlet {
             int result = 0;
 
             // 1. KHI NHẤN CHECK-IN
-            if ("checkin".equals(action)) {
+            if ("checkin".equals(actionAdmin)) {
 
                 result = bd.checkInBooking(bookingId);
                 if (result == -2) {
@@ -63,7 +65,7 @@ public class BookingProcessController extends HttpServlet {
                         public void run() {
                             try {
                                 Thread.sleep(60000);
-
+                                bd.updateStatusOfBooking(bookingId, "Completed");
                                 int points = bd.completeBookingWithPayment(bookingId, "Cash");
                                 System.out.println("Auto checkout booking " + bookingId
                                         + (points >= 0 ? ", points earned: " + points : ", checkout failed"));
@@ -77,7 +79,7 @@ public class BookingProcessController extends HttpServlet {
                     autoCheckoutThread.start();
                     request.setAttribute("success", "Check in successfully!");
                 }
-            } else if ("checkout".equals(action)) {
+            } else if ("checkout".equals(actionAdmin)) {
                 String paymentMethod = request.getParameter("paymentMethod");
                 int points = bd.completeBookingWithPayment(bookingId, paymentMethod);
                 if (points < 0) {

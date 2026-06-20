@@ -7,8 +7,8 @@
 
 
 <!DOCTYPE html>
-<c:if test="account == null">
-    <jsp:forward page="MainController?action=home"/>
+<c:if test="${empty sessionScope.ACCOUNT}">
+    <jsp:forward page="index.jsp"/>
 </c:if>
 <%
     List<TimeSlotDTO> slots = (List<TimeSlotDTO>) request.getAttribute("SLOTS");

@@ -10,6 +10,9 @@
     }
 %>
 <!DOCTYPE html>
+<c:if test="${empty sessionScope.ACCOUNT}">
+    <jsp:forward page="index.jsp"/>
+</c:if>
 <html>
 
     <head>

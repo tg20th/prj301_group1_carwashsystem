@@ -5,8 +5,8 @@
 
 
 <!DOCTYPE html>
-<c:if test="account == null">
-    <jsp:forward page="MainController?action=home"/>
+<c:if test="${empty sessionScope.ACCOUNT}">
+    <jsp:forward page="index.jsp"/>
 </c:if>
 <%
     List<Business> businessList = (List<Business>) request.getAttribute("BUSINESS_LIST");

@@ -4,8 +4,8 @@
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 
 <!DOCTYPE html>
-<c:if test="account == null">
-    <jsp:forward page="MainController?action=home"/>
+<c:if test="${empty sessionScope.ACCOUNT}">
+    <jsp:forward page="index.jsp"/>
 </c:if>
     
 <html lang="en">
@@ -157,7 +157,7 @@
                             </div>
                         </div>
 
-                        <a href="ManageTiersController" class="btn btn-dark-custom w-100 rounded-pill py-2 mt-auto small fw-bold text-decoration-none d-flex justify-content-center align-items-center shadow-sm">
+                        <a href="MainController?action=manage_tier" class="btn btn-dark-custom w-100 rounded-pill py-2 mt-auto small fw-bold text-decoration-none d-flex justify-content-center align-items-center shadow-sm">
                             <i class="bi bi-gear-fill me-2"></i> Manage Tiers
                         </a>
                     </div>
@@ -225,7 +225,7 @@
                     <div class="glass-card p-4 rounded-4 shadow-sm h-100 d-flex flex-column">
                         <div class="d-flex justify-content-between align-items-center mb-4">
                             <h5 class="fw-bolder m-0 text-dark tracking-tight"><i class="bi bi-journal-check text-success me-2"></i> Recent Bookings</h5>
-                            <a href="ManageBookingsController" class="small fw-bold text-primary text-decoration-none hover-scale px-3 py-1 bg-primary bg-opacity-10 rounded-pill">View All</a>
+                            <a href="MainController?action=booking_admin" class="small fw-bold text-primary text-decoration-none hover-scale px-3 py-1 bg-primary bg-opacity-10 rounded-pill">View All</a>
                         </div>
 
                         <c:choose>
@@ -334,7 +334,7 @@
                             </c:choose>
                         </div>
 
-                        <a href="ManagePromotionsController" class="btn btn-dark-custom w-100 rounded-pill py-2 mt-auto small fw-bold text-decoration-none d-flex justify-content-center align-items-center shadow-sm">
+                        <a href="MainController?action=manage_promotion" class="btn btn-dark-custom w-100 rounded-pill py-2 mt-auto small fw-bold text-decoration-none d-flex justify-content-center align-items-center shadow-sm">
                             <i class="bi bi-magic me-2"></i> Manage Campaigns
                         </a>
                     </div>

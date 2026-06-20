@@ -2,8 +2,8 @@
 <%@taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 
 
-<c:if test="account == null">
-    <jsp:forward page="MainController?action=home"/>
+<c:if test="${empty sessionScope.ACCOUNT}">
+    <jsp:forward page="index.jsp"/>
 </c:if>
 <%
     String bookingId = (String) request.getAttribute("BOOKING_ID");

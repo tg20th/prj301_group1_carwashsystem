@@ -4,7 +4,7 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 
 <!DOCTYPE html>
-<c:if test="account == null">
+<c:if test="${empty sessionScope.ACCOUNT}">
     <jsp:forward page="index.jsp"/>
 </c:if>
 <html lang="en">
