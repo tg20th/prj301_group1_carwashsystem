@@ -6,6 +6,8 @@ package controller;
 
 import dao.BookingDAO;
 import dao.CustomerDAO;
+import dao.PromotionDAO;
+import service.InvoiceAutoCancelService;
 import dao.RewardDAO;
 import dao.TierDAO;
 import dao.VehicleDAO;
@@ -50,6 +52,8 @@ public class CustomerDashBoardController extends HttpServlet {
                 return;
             }
 
+            new InvoiceAutoCancelService().cancelExpiredPendingInvoices();
+
             CustomerDAO cusDAO = new CustomerDAO();
             Customer customer = cusDAO.getCustomerByAccountID(account.getAccountID());
             int pointBalance = cusDAO.getPointBalance(account.getAccountID());
@@ -71,6 +75,9 @@ public class CustomerDashBoardController extends HttpServlet {
 
             BookingDAO bookingDAO = new BookingDAO();
             int activeBookingCount = bookingDAO.countActiveBookingsByCustomerId(customer.getCusID());
+
+            PromotionDAO promoDAO = new PromotionDAO();
+            request.setAttribute("PROMO_LIST", promoDAO.getApplicablePromotions(customer.getCusID(), customer.getTierID()));
 
             request.getSession().setAttribute("CUSTOMER", customer);
             request.setAttribute("ACCOUNT", account);

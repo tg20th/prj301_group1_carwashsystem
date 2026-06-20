@@ -1,4 +1,5 @@
 <%@page import="java.util.List"%>
+<%@page import="dto.Promotion"%>
 <%@page import="dto.Service"%>
 <%@page import="dto.Vehicle"%>
 <%@page import="dto.Account"%>
@@ -11,6 +12,7 @@
     }
     List<Vehicle> vehicles = (List<Vehicle>) request.getAttribute("VEHICLES");
     List<Service> services = (List<Service>) request.getAttribute("SERVICES");
+    List<Promotion> promoList = (List<Promotion>) request.getAttribute("PROMO_LIST");
     String errorMsg = (String) request.getAttribute("ERROR_MSG");
     String successMsg = (String) request.getAttribute("SUCCESS_MSG");
     Integer maxBookingDays = (Integer) request.getAttribute("MAX_BOOKING_DAYS");
@@ -465,7 +467,27 @@
                             <div class="summary-sub" id="sumPlate"></div>
                         </div>
 
+                        <div class="field-block">
+                            <div class="field-label"><i class="bi bi-tag"></i> Promotion</div>
+                            <select name="promotionId" id="promotionId" class="booking-select">
+                                <option value="auto">Best available deal</option>
+                                <% if (promoList != null) {
+                                    for (Promotion p : promoList) { %>
+                                <option value="<%= p.getPromotionID() %>"><%= p.getPromotionName() %> (<%= p.getDiscountPercent() %>% OFF · <%= p.getRemainingUses() >= 999 ? "Unlimited" : p.getRemainingUses() + " left" %>)</option>
+                                <% }} %>
+                            </select>
+                            <div class="summary-sub mt-1" id="sumPromo"></div>
+                        </div>
+
                         <div class="total-block">
+                            <div class="d-flex justify-content-between small text-muted mb-1">
+                                <span>Subtotal</span>
+                                <span id="sumSubTotal">—</span>
+                            </div>
+                            <div class="d-flex justify-content-between small text-success mb-2" id="sumDiscountRow" style="display:none;">
+                                <span>Discount</span>
+                                <span id="sumDiscount">—</span>
+                            </div>
                             <div class="total-label">Total Amount</div>
                             <div class="total-amount" id="sumTotal">—</div>
                         </div>
@@ -498,6 +520,7 @@
         const submitBtn = document.getElementById('submitBtn');
         const vehicleSelect = document.getElementById('vehicleId');
         const serviceSelect = document.getElementById('serviceId');
+        const promotionSelect = document.getElementById('promotionId');
 
         let selectedDate = new Date();
         let selectedSlotLabel = '';
@@ -584,9 +607,30 @@
                 document.getElementById('sumPlate').textContent = '';
             }
 
-            document.getElementById('sumTotal').textContent = priceData
-                ? Number(priceData.price).toLocaleString('vi-VN') + ' VND'
-                : '—';
+            if (priceData) {
+                document.getElementById('sumSubTotal').textContent = Number(priceData.subTotal).toLocaleString('vi-VN') + ' VND';
+                document.getElementById('sumTotal').textContent = Number(priceData.finalAmount).toLocaleString('vi-VN') + ' VND';
+                const discountRow = document.getElementById('sumDiscountRow');
+                if (priceData.discountAmount > 0) {
+                    discountRow.style.display = 'flex';
+                    document.getElementById('sumDiscount').textContent = '-' + Number(priceData.discountAmount).toLocaleString('vi-VN') + ' VND';
+                    const usesLabel = priceData.remainingUses >= 999
+                        ? 'Unlimited'
+                        : (priceData.remainingUses + ' uses left');
+                    document.getElementById('sumPromo').textContent = priceData.promotionName
+                        ? priceData.promotionName + ' (' + priceData.discountPercent + '% OFF · ' + usesLabel + ')'
+                        : '';
+                } else {
+                    discountRow.style.display = 'none';
+                    document.getElementById('sumDiscount').textContent = '—';
+                    document.getElementById('sumPromo').textContent = 'No promotion applied';
+                }
+            } else {
+                document.getElementById('sumSubTotal').textContent = '—';
+                document.getElementById('sumTotal').textContent = '—';
+                document.getElementById('sumDiscountRow').style.display = 'none';
+                document.getElementById('sumPromo').textContent = '';
+            }
 
             updateSubmitState();
         }
@@ -694,11 +738,20 @@
                 updateSummary();
                 return;
             }
-            fetch(ctx + '/CustomerBookingController?action=price&vehicleId=' + vehicleSelect.value + '&serviceId=' + serviceSelect.value)
+            const promoParam = promotionSelect ? '&promotionId=' + encodeURIComponent(promotionSelect.value) : '';
+            fetch(ctx + '/CustomerBookingController?action=previewDiscount&vehicleId=' + vehicleSelect.value + '&serviceId=' + serviceSelect.value + promoParam)
                 .then(r => r.json())
                 .then(data => {
                     if (data.success) {
-                        priceData = { price: data.price, duration: data.duration };
+                        priceData = {
+                            subTotal: data.subTotal,
+                            finalAmount: data.finalAmount,
+                            discountAmount: data.discountAmount,
+                            discountPercent: data.discountPercent,
+                            promotionName: data.promotionName,
+                            remainingUses: data.remainingUses || 0,
+                            duration: data.duration
+                        };
                     } else {
                         priceData = null;
                     }
@@ -715,6 +768,7 @@
             loadSlots();
             vehicleSelect.addEventListener('change', loadPrice);
             serviceSelect.addEventListener('change', loadPrice);
+            if (promotionSelect) promotionSelect.addEventListener('change', loadPrice);
         }
     </script>
 </body>

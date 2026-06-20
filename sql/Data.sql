@@ -14,6 +14,7 @@ IF OBJECT_ID('PointTransactions', 'U') IS NOT NULL DELETE FROM PointTransactions
 IF OBJECT_ID('Invoices', 'U') IS NOT NULL DELETE FROM Invoices;
 IF OBJECT_ID('CustomerRewards', 'U') IS NOT NULL DELETE FROM CustomerRewards;
 IF OBJECT_ID('Rewards', 'U') IS NOT NULL DELETE FROM Rewards;
+IF OBJECT_ID('PromotionCustomers', 'U') IS NOT NULL DELETE FROM PromotionCustomers;
 IF OBJECT_ID('PromotionTiers', 'U') IS NOT NULL DELETE FROM PromotionTiers;
 IF OBJECT_ID('Promotions', 'U') IS NOT NULL DELETE FROM Promotions;
 IF OBJECT_ID('TimeSlots', 'U') IS NOT NULL DELETE FROM TimeSlots;
@@ -370,15 +371,33 @@ INSERT INTO Promotions (PromotionID, PromoCode, PromotionName, TargetType, Disco
 (1, 'SUMMER25', 'Summer Special', 'All', 25, '2026-06-01', '2026-08-31', '25% off all services', 1),
 (2, 'FIRST10', 'First Time Discount', 'All', 15, '2026-01-01', '2026-12-31', '15% for new customers', 1),
 (3, 'GOLDVIP', 'Gold Member Bonus', 'Tier', 20, '2026-01-01', '2026-12-31', 'Extra 20% for Gold tier', 1),
-(4, 'FLEET30', 'Business Fleet', 'All', 30, '2026-01-01', '2026-12-31', '30% for business customers', 1),
-(5, 'WEEKEND15', 'Weekend Special', 'All', 15, '2026-06-01', '2026-12-31', '15% off on weekends', 1),
+(4, 'FLEET30', 'Volume Discount', 'All', 30, '2026-01-01', '2026-12-31', 'Save 30% on multi-vehicle bookings', 1),
+(5, 'WEEKEND15', 'Seasonal Offer', 'All', 15, '2026-06-01', '2026-12-31', '15% off selected services', 1),
 (6, 'REFER10', 'Referral Bonus', 'All', 10, '2026-01-01', '2026-12-31', '10% for referred customers', 1),
-(7, 'PLATINUM50', 'Platinum Exclusive', 'Tier', 50, '2026-05-01', '2026-07-31', '50% off for Platinum', 1),
+(7, 'PLATINUM50', 'Platinum Reward', 'Tier', 50, '2026-05-01', '2026-07-31', '50% off for Platinum members', 1),
 (8, 'ECO10', 'Eco Friendly', 'All', 10, '2026-06-01', '2026-12-31', '10% for electric vehicles', 1);
 SET IDENTITY_INSERT Promotions OFF;
 GO
 
 INSERT INTO PromotionTiers (PromotionID, TierID) VALUES (3,3),(3,4),(7,4);
+GO
+
+-- Promotion quota per customer account (MaxUses / UsedCount)
+INSERT INTO PromotionCustomers (PromotionID, CustomerID, MaxUses, UsedCount) VALUES
+-- All-type promotions: 3 uses per customer
+(1, 1, 3, 0),(1, 2, 3, 0),(1, 3, 3, 0),(1, 4, 3, 0),(1, 5, 3, 0),
+(1, 6, 3, 0),(1, 7, 3, 0),(1, 8, 3, 0),(1, 9, 3, 0),(1, 10, 3, 0),
+(2, 1, 1, 0),(2, 2, 1, 0),(2, 3, 1, 0),(2, 4, 1, 0),(2, 5, 1, 0),
+(2, 6, 1, 0),(2, 7, 1, 0),(2, 8, 1, 0),(2, 9, 1, 0),(2, 10, 1, 0),
+(5, 1, 5, 0),(5, 2, 5, 0),(5, 3, 5, 0),(5, 4, 5, 0),(5, 5, 5, 0),
+(5, 6, 5, 0),(5, 7, 5, 0),(5, 8, 5, 0),(5, 9, 5, 0),(5, 10, 5, 0),
+(8, 1, 2, 0),(8, 2, 2, 0),(8, 3, 2, 0),(8, 4, 2, 0),(8, 5, 2, 0),
+(8, 6, 2, 0),(8, 7, 2, 0),(8, 8, 2, 0),(8, 9, 2, 0),(8, 10, 2, 0),
+-- Tier promotions: Gold/Platinum customers only
+(3, 4, 2, 0),(3, 9, 2, 0),
+(7, 7, 1, 0),
+-- Volume discount promo for selected customers
+(4, 5, 10, 0);
 GO
 
 -- =====================================================

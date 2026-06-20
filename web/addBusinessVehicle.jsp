@@ -1,4 +1,5 @@
 
+<%@page import="dto.Business"%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 
@@ -7,6 +8,16 @@
     if (session.getAttribute("ACCOUNT") == null || session.getAttribute("BUS") == null) {
         response.sendRedirect("MainController?action=home");
         return;
+    }
+
+    Business bus = (Business) session.getAttribute("BUS");
+
+    String dashboardURL;
+
+    if (bus != null) {
+        dashboardURL = "BusinessDashboardController";
+    } else {
+        dashboardURL = "CustomerDashBoardController";
     }
 %>
 <!DOCTYPE html>
@@ -32,7 +43,7 @@
     <body style="background:#f4f6f9;">
         <div class="position-absolute top-0 start-0 p-4">
 
-            <a href="BusinessDashboardController"
+            <a href="<%=dashboardURL%>"
                class="btn btn-light shadow rounded-pill px-4">
 
                 <i class="bi bi-arrow-left"></i>

@@ -6,8 +6,6 @@ package controller;
 
 import dao.CustomerDAO;
 import dao.VehicleDAO;
-import dao.VehicleModelDAO;
-import dbutils.LicensePlateUtils;
 import dto.Account;
 import dto.Business;
 import dto.Customer;
@@ -19,6 +17,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.nio.file.Paths;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -40,10 +39,69 @@ import javax.servlet.http.Part;
         maxRequestSize = 1024 * 1024 * 200)
 public class AddBusinessVehiclesController extends HttpServlet {
 
+    /**
+     * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
+     * methods.
+     *
+     * @param request servlet request
+     * @param response servlet response
+     * @throws ServletException if a servlet-specific error occurs
+     * @throws IOException if an I/O error occurs
+     */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
         try {
+            Part csvPart = request.getPart("csvFile");
+            Part zipPart = request.getPart("zipFile");
+            // ========================= // SAVE CSV // ========================= 
+            String uploadPath = getServletContext().getRealPath("/") + "businessUploads";
+            File uploadDir = new File(uploadPath);
+            if (!uploadDir.exists()) {
+                uploadDir.mkdir();
+            }
+            String csvName = Paths.get(csvPart.getSubmittedFileName()).getFileName().toString();
+            String csvPath = uploadPath + File.separator + csvName;
+            csvPart.write(csvPath);
+// ========================= // SAVE ZIP // ========================= 
+            String zipName = Paths.get(zipPart.getSubmittedFileName()).getFileName().toString();
+            String zipPath = uploadPath + File.separator + zipName;
+            zipPart.write(zipPath);
+// ========================= // EXTRACT ZIP // ========================= 
+            String imageFolder = uploadPath + File.separator + "images";
+            File imgDir = new File(imageFolder);
+            if (!imgDir.exists()) {
+                imgDir.mkdir();
+            }
+            unzip(zipPath, imageFolder);
+// ========================= // READ CSV // ========================= 
+            BufferedReader br = new BufferedReader(new FileReader(csvPath));
+            String line;
+            boolean skipHeader = true;
+            VehicleDAO dao = new VehicleDAO();
+            /*
+            int successCount = 0;
+            while ((line = br.readLine()) != null) {
+                if (skipHeader) {
+                    skipHeader = false;
+                    continue;
+                }
+                String[] data = line.split(",");
+                String licensePlate = data[0].trim();
+                int modelID = Integer.parseInt(data[1].trim());
+                String color = data[2].trim();
+                Integer year = Integer.parseInt(data[3].trim());
+                String imageName = data[4].trim(); // CHECK DUPLICATE 
+                if (dao.isLicensePlateExists(licensePlate)) {
+                    continue;
+                }
+                String imageURL = "businessUploads/images/" + imageName;
+                Vehicle v = new Vehicle();
+                v.setCustomerID(1);
+                v.setModelID(modelID);
+                
+             */
+            int successCount = 0;
             Account account = (Account) request.getSession().getAttribute("ACCOUNT");
             if (account == null) {
                 response.sendRedirect("MainController?action=home");
@@ -54,7 +112,9 @@ public class AddBusinessVehiclesController extends HttpServlet {
                 response.sendRedirect("MainController?action=home");
                 return;
             }
-
+            
+            // --- THÊM MỚI: Lấy CustomerID từ Session ---
+            // Load fresh Customer to get reliable cusID (more robust)
             CustomerDAO cusDAO = new CustomerDAO();
             Customer customer = cusDAO.getCustomerByAccountID(account.getAccountID());
             if (customer == null) {
@@ -62,139 +122,53 @@ public class AddBusinessVehiclesController extends HttpServlet {
                 return;
             }
             int cusID = customer.getCusID();
+            // -------------------------------------------
 
-            Part csvPart = request.getPart("csvFile");
-            Part zipPart = request.getPart("zipFile");
-            if (csvPart == null || csvPart.getSize() == 0) {
-                request.setAttribute("ERROR", "Please upload a CSV file.");
-                request.getRequestDispatcher("addBusinessVehicle.jsp").forward(request, response);
-                return;
-            }
-            if (zipPart == null || zipPart.getSize() == 0) {
-                request.setAttribute("ERROR", "Please upload a ZIP file containing vehicle images.");
-                request.getRequestDispatcher("addBusinessVehicle.jsp").forward(request, response);
-                return;
-            }
+            while ((line = br.readLine()) != null) {
+                if (skipHeader) {
+                    skipHeader = false;
+                    continue;
+                }
+                String[] data = line.split(",");
+                String licensePlate = data[0].trim();
+                int modelID = Integer.parseInt(data[1].trim());
+                String color = data[2].trim();
+                Integer year = Integer.parseInt(data[3].trim());
+                String imageName = data[4].trim(); // CHECK DUPLICATE 
 
-            String uploadPath = getServletContext().getRealPath("/") + "businessUploads";
-            File uploadDir = new File(uploadPath);
-            if (!uploadDir.exists()) {
-                uploadDir.mkdir();
-            }
+                if (dao.isLicensePlateExists(licensePlate)) {
+                    continue;
+                }
+                String imageURL = "businessUploads/images/" + imageName;
+                Vehicle v = new Vehicle();
 
-            String csvName = Paths.get(csvPart.getSubmittedFileName()).getFileName().toString();
-            String csvPath = uploadPath + File.separator + csvName;
-            csvPart.write(csvPath);
-
-            String zipName = Paths.get(zipPart.getSubmittedFileName()).getFileName().toString();
-            String zipPath = uploadPath + File.separator + zipName;
-            zipPart.write(zipPath);
-
-            String imageFolder = uploadPath + File.separator + "images";
-            File imgDir = new File(imageFolder);
-            if (!imgDir.exists()) {
-                imgDir.mkdir();
-            }
-            unzip(zipPath, imageFolder);
-
-            VehicleDAO dao = new VehicleDAO();
-            VehicleModelDAO modelDAO = new VehicleModelDAO();
-            int successCount = 0;
-            int skippedCount = 0;
-            int duplicateCount = 0;
-
-            try (BufferedReader br = new BufferedReader(new FileReader(csvPath))) {
-                String line;
-                boolean skipHeader = true;
-                while ((line = br.readLine()) != null) {
-                    if (line.trim().isEmpty()) {
-                        continue;
-                    }
-                    if (skipHeader) {
-                        skipHeader = false;
-                        continue;
-                    }
-
-                    String[] data = line.split(",", -1);
-                    if (data.length < 6) {
-                        skippedCount++;
-                        continue;
-                    }
-
-                    String licensePlate = LicensePlateUtils.normalize(data[0]);
-                    String brandName = data[1].trim();
-                    String modelName = data[2].trim();
-                    String color = data[3].trim();
-                    String yearStr = data[4].trim();
-                    String imageName = data[5].trim();
-
-                    if (!LicensePlateUtils.isValid(licensePlate)) {
-                        skippedCount++;
-                        continue;
-                    }
-
-                    Integer modelID = modelDAO.getModelIDByBrandAndModel(brandName, modelName);
-                    if (modelID == null) {
-                        skippedCount++;
-                        continue;
-                    }
-
-                    Integer year;
-                    try {
-                        year = yearStr.isEmpty() ? null : Integer.parseInt(yearStr);
-                    } catch (NumberFormatException ex) {
-                        skippedCount++;
-                        continue;
-                    }
-
-                    if (dao.isLicensePlateExists(licensePlate)) {
-                        duplicateCount++;
-                        continue;
-                    }
-
-                    String imageURL = "businessUploads/images/" + imageName;
-                    Vehicle v = new Vehicle();
-                    v.setCustomerID(cusID);
-                    v.setModelID(modelID);
-                    v.setLicensePlate(licensePlate);
-                    v.setColor(color);
-                    v.setManufactureYear(year);
-                    v.setImageURL(imageURL);
-                    v.setStatus("Pending");
-
-                    if (dao.createVehicle(v) > 0) {
-                        successCount++;
-                    }
+                // --- SỬA Ở ĐÂY: Dùng biến currentCustomerID thay vì gán cứng 1 ---
+                v.setCustomerID(cusID);
+                v.setModelID(modelID);
+                v.setLicensePlate(licensePlate);
+                v.setColor(color);
+                v.setManufactureYear(year);
+                v.setImageURL(imageURL);
+                v.setStatus("Pending");
+                int result = dao.createVehicle(v);
+                if (result > 0) {
+                    successCount++;
                 }
             }
-
-            StringBuilder message = new StringBuilder();
-            if (successCount > 0) {
-                message.append("Uploaded ").append(successCount).append(" vehicle(s) successfully.");
-            } else {
-                message.append("No vehicles were added.");
-            }
-            if (skippedCount > 0) {
-                message.append(" Skipped ").append(skippedCount)
-                        .append(" row(s) with invalid data (check license plate format 63A-12345, brand/model names, or CSV columns).");
-            }
-            if (duplicateCount > 0) {
-                message.append(" Skipped ").append(duplicateCount).append(" duplicate license plate(s).");
-            }
-
-            if (successCount > 0) {
-                request.getSession().setAttribute("UPLOAD_MSG", message.toString());
-                response.sendRedirect("BusinessDashboardController");
-            } else {
-                request.setAttribute("ERROR", message.toString());
-                request.getRequestDispatcher("addBusinessVehicle.jsp").forward(request, response);
-            }
+            br.close();
+            request.setAttribute("SUCCESS", "Uploaded " + successCount + " vehicles successfully.");
         } catch (Exception e) {
             e.printStackTrace();
-            request.setAttribute("ERROR", "Upload failed: " + e.getMessage());
-            request.getRequestDispatcher("addBusinessVehicle.jsp").forward(request, response);
+            try {
+                request.setAttribute("ERROR", "Upload failed: " + e.getMessage());
+                request.getRequestDispatcher("error_page.jsp").forward(request, response);
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+            return; // prevent double forward
         }
-    }
+        response.sendRedirect("MainController?action=dashboard");
+    } // ========================= // UNZIP METHOD // =========================
 
     private void unzip(String zipFilePath, String destDirectory) throws IOException {
         File destDir = new File(destDirectory);
@@ -224,20 +198,43 @@ public class AddBusinessVehiclesController extends HttpServlet {
         bos.close();
     }
 
+// <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
+    /**
+     * Handles the HTTP <code>GET</code> method.
+     *
+     * @param request servlet request
+     * @param response servlet response
+     * @throws ServletException if a servlet-specific error occurs
+     * @throws IOException if an I/O error occurs
+     */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        response.sendRedirect("MainController?action=AddBusinessVehicle_page");
+        processRequest(request, response);
     }
 
+    /**
+     * Handles the HTTP <code>POST</code> method.
+     *
+     * @param request servlet request
+     * @param response servlet response
+     * @throws ServletException if a servlet-specific error occurs
+     * @throws IOException if an I/O error occurs
+     */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         processRequest(request, response);
     }
 
+    /**
+     * Returns a short description of the servlet.
+     *
+     * @return a String containing servlet description
+     */
     @Override
     public String getServletInfo() {
         return "Short description";
-    }
+    }// </editor-fold>
+
 }

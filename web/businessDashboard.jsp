@@ -268,6 +268,7 @@
                         <div class="fw-semibold"><%= p.getPromotionName() %></div>
                         <div class="text-muted small mt-1"><%= p.getDescription() %></div>
                         <span class="badge bg-dark mt-2"><%= p.getDiscountPercent() %>% OFF</span>
+                        <span class="badge bg-light text-dark border mt-2 ms-1"><%= p.getRemainingUses() >= 999 ? "Unlimited" : p.getRemainingUses() + " uses left" %></span>
                     </div>
                     <% } %>
                     <% } else { %>

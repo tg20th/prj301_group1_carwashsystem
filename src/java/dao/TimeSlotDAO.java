@@ -19,6 +19,7 @@ public class TimeSlotDAO {
     private static final LocalTime OPEN_TIME = LocalTime.of(8, 0);
     private static final LocalTime CLOSE_TIME = LocalTime.of(20, 0);
     private static final int SLOT_MINUTES = 30;
+    public static final int BOOKING_LEAD_MINUTES = 15;
     private static Boolean schemaReady = null;
     private String lastError = null;
 
@@ -59,6 +60,14 @@ public class TimeSlotDAO {
         return querySlotsByDate(date, true);
     }
 
+    public boolean isSlotBookable(TimeSlotDTO slot) {
+        if (slot == null || slot.getStartTime() == null) {
+            return false;
+        }
+        LocalDateTime earliestStart = LocalDateTime.now().plusMinutes(BOOKING_LEAD_MINUTES);
+        return !slot.getStartTime().isBefore(earliestStart);
+    }
+
     private List<TimeSlotDTO> querySlotsByDate(LocalDate date, boolean onlyAvailable) {
         List<TimeSlotDTO> list = new ArrayList<>();
         prepareSchema();
@@ -67,15 +76,20 @@ public class TimeSlotDAO {
             cn = DBUtils.getConnection();
             String sql = "SELECT TimeSlotID, SlotDate, StartTime, EndTime, IsFull "
                     + "FROM TimeSlots WHERE SlotDate = ? "
-                    + (onlyAvailable ? "AND IsFull = 0 " : "")
-                    + "ORDER BY StartTime";
+                    + (onlyAvailable ? "AND IsFull = 0 " : "");
+            if (onlyAvailable && LocalDate.now().equals(date)) {
+                sql += "AND StartTime >= DATEADD(MINUTE, " + BOOKING_LEAD_MINUTES + ", GETDATE()) ";
+            }
+            sql += "ORDER BY StartTime";
             PreparedStatement st = cn.prepareStatement(sql);
             st.setDate(1, Date.valueOf(date));
             ResultSet rs = st.executeQuery();
             while (rs.next()) {
                 TimeSlotDTO slot = mapRow(rs);
                 enrichSlotCounts(slot, cn);
-                list.add(slot);
+                if (!onlyAvailable || isSlotBookable(slot)) {
+                    list.add(slot);
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();

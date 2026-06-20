@@ -76,13 +76,7 @@ public class PaymentWebhookController extends HttpServlet {
 
         boolean ok;
         if (booking.getInvoiceID() > 0) {
-            BookingDAO.InvoicePaymentSummary summary =
-                    bookingDAO.getInvoicePaymentSummary(booking.getInvoiceID());
-            if (summary != null && summary.getBookingCount() > 1) {
-                ok = bookingDAO.confirmInvoiceAfterPayment(booking.getInvoiceID(), amount.intValue());
-            } else {
-                ok = bookingDAO.confirmAfterPayment(booking.getBookingID(), amount.intValue());
-            }
+            ok = bookingDAO.confirmInvoiceAfterPayment(booking.getInvoiceID(), amount.intValue());
         } else {
             ok = bookingDAO.confirmAfterPayment(booking.getBookingID(), amount.intValue());
         }

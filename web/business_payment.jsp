@@ -113,6 +113,10 @@
             try {
                 const res = await fetch('BusinessPaymentStatusController?invoiceId=' + invoiceId);
                 const data = await res.json();
+                if (data.success && data.expired) {
+                    window.location.replace('BusinessBookingHistoryController');
+                    return true;
+                }
                 if (data.success && data.paymentStatus === 'Paid') {
                     window.location.replace('BusinessPaymentSuccessController?invoiceId=' + invoiceId);
                     return true;

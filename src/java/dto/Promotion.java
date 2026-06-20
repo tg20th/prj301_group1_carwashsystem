@@ -14,6 +14,9 @@ public class Promotion {
     private Date endDate;
     private String description;
     private boolean isActive;
+    private int maxUses;
+    private int usedCount;
+    private int remainingUses;
 
     public Promotion() {
     }
@@ -116,5 +119,29 @@ public class Promotion {
 
     public void setActive(boolean active) {
         this.isActive = active;
+    }
+
+    public int getMaxUses() {
+        return maxUses;
+    }
+
+    public void setMaxUses(int maxUses) {
+        this.maxUses = maxUses;
+    }
+
+    public int getUsedCount() {
+        return usedCount;
+    }
+
+    public void setUsedCount(int usedCount) {
+        this.usedCount = usedCount;
+    }
+
+    public int getRemainingUses() {
+        return remainingUses;
+    }
+
+    public void setRemainingUses(int remainingUses) {
+        this.remainingUses = remainingUses;
     }
 }

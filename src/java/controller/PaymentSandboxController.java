@@ -3,6 +3,7 @@ package controller;
 import config.PayOSConfig;
 import dao.BookingDAO;
 import dao.CustomerDAO;
+import dao.InvoiceDAO;
 import dto.Account;
 import dto.Booking;
 import dto.Customer;
@@ -53,6 +54,36 @@ public class PaymentSandboxController extends HttpServlet {
         }
 
         try {
+            String invoiceParam = request.getParameter("invoiceId");
+            if (invoiceParam != null && !invoiceParam.trim().isEmpty()) {
+                int invoiceId = Integer.parseInt(invoiceParam);
+                InvoiceDAO invoiceDAO = new InvoiceDAO();
+                if (!invoiceDAO.isInvoiceOwnedByCustomer(invoiceId, customer.getCusID())) {
+                    response.sendError(HttpServletResponse.SC_FORBIDDEN, "Invalid invoice");
+                    return;
+                }
+
+                BookingDAO bookingDAO = new BookingDAO();
+                BookingDAO.InvoicePaymentSummary summary = bookingDAO.getInvoicePaymentSummary(invoiceId);
+                if (summary == null) {
+                    response.sendError(HttpServletResponse.SC_NOT_FOUND, "Invoice not found");
+                    return;
+                }
+
+                if ("Paid".equalsIgnoreCase(summary.getInvoicePaymentStatus())
+                        || "Confirmed".equalsIgnoreCase(summary.getLeaderBookingStatus())) {
+                    response.sendRedirect("PaymentSuccessController?invoiceId=" + invoiceId);
+                    return;
+                }
+
+                if (bookingDAO.confirmInvoiceAfterPayment(invoiceId, (int) summary.getTotalAmount())) {
+                    response.sendRedirect("PaymentSuccessController?invoiceId=" + invoiceId + "&sandbox=1");
+                } else {
+                    response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Sandbox confirm failed");
+                }
+                return;
+            }
+
             int bookingId = Integer.parseInt(request.getParameter("bookingId"));
             BookingDAO bookingDAO = new BookingDAO();
             if (!bookingDAO.isBookingOwnedByCustomer(bookingId, customer.getCusID())) {
@@ -63,6 +94,11 @@ public class PaymentSandboxController extends HttpServlet {
             Booking booking = bookingDAO.getBookingForPayment(bookingId);
             if (booking == null) {
                 response.sendError(HttpServletResponse.SC_NOT_FOUND, "Booking not found");
+                return;
+            }
+
+            if (booking.getInvoiceID() > 0) {
+                response.sendRedirect("PaymentSandboxController?invoiceId=" + booking.getInvoiceID());
                 return;
             }
 
@@ -79,7 +115,7 @@ public class PaymentSandboxController extends HttpServlet {
                 response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Sandbox confirm failed");
             }
         } catch (NumberFormatException e) {
-            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid booking ID");
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid payment reference");
         }
     }
 }

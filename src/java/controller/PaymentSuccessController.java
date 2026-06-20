@@ -15,8 +15,8 @@ public class PaymentSuccessController extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         PayOSConfig.load(getServletContext());
-        String bookingId = request.getParameter("bookingId");
-        request.setAttribute("BOOKING_ID", bookingId);
+        request.setAttribute("INVOICE_ID", request.getParameter("invoiceId"));
+        request.setAttribute("BOOKING_ID", request.getParameter("bookingId"));
         request.setAttribute("SANDBOX", "1".equals(request.getParameter("sandbox")));
         request.getRequestDispatcher("payment_success.jsp").forward(request, response);
     }

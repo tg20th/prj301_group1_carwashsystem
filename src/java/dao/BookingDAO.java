@@ -2,9 +2,12 @@ package dao;
 
 import dbutils.DBUtils;
 import dto.Booking;
+import dto.DiscountRequest;
+import dto.DiscountResult;
 import dto.ServicePrices;
 import dto.TimeSlot;
 import dto.TimeSlotDTO;
+import service.DiscountEngine;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -48,6 +51,30 @@ public class BookingDAO {
 
         public long getTotalAmount() {
             return totalAmount;
+        }
+    }
+
+    public static class CustomerBookingResult {
+        private final int invoiceId;
+        private final int bookingId;
+        private final long finalAmount;
+
+        public CustomerBookingResult(int invoiceId, int bookingId, long finalAmount) {
+            this.invoiceId = invoiceId;
+            this.bookingId = bookingId;
+            this.finalAmount = finalAmount;
+        }
+
+        public int getInvoiceId() {
+            return invoiceId;
+        }
+
+        public int getBookingId() {
+            return bookingId;
+        }
+
+        public long getFinalAmount() {
+            return finalAmount;
         }
     }
 
@@ -192,6 +219,140 @@ public class BookingDAO {
             }
             e.printStackTrace();
             return 0;
+        } finally {
+            if (cn != null) {
+                try {
+                    cn.setAutoCommit(true);
+                    cn.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+    public CustomerBookingResult createCustomerBookingWithInvoice(Booking b, int tierId, Integer promotionId) {
+        if (b.getTimeSlotID() == null || b.getWashBayId() <= 0) {
+            return null;
+        }
+
+        TimeSlotDAO slotDao = new TimeSlotDAO();
+        WashBayDAO bayDao = new WashBayDAO();
+        TimeSlotDTO slot = slotDao.getSlotById(b.getTimeSlotID());
+
+        if (slot == null) {
+            return null;
+        }
+        if (!slotDao.isSlotBookable(slot)) {
+            return null;
+        }
+        if (slot.isFull()) {
+            return null;
+        }
+        if (!bayDao.isWashBayBookableInSlot(b.getWashBayId(), b.getTimeSlotID())) {
+            return null;
+        }
+
+        long subTotal = Math.round(b.getPriceAtOrder() * b.getQuantity());
+        DiscountEngine discountEngine = new DiscountEngine();
+        DiscountResult pricing = discountEngine.calculate(
+                new DiscountRequest(b.getCustomerID(), tierId, subTotal, promotionId));
+
+        Connection cn = null;
+        try {
+            cn = DBUtils.getConnection();
+            cn.setAutoCommit(false);
+
+            InvoiceDAO invoiceDAO = new InvoiceDAO();
+            String invoiceNote = "Customer booking";
+            int invoiceId = invoiceDAO.createPendingInvoiceWithDiscount(
+                    b.getCustomerID(),
+                    pricing.getSubTotal(),
+                    pricing.getDiscountAmount(),
+                    pricing.getFinalAmount(),
+                    pricing.getAppliedPromotionId(),
+                    null,
+                    invoiceNote,
+                    cn);
+            if (invoiceId <= 0) {
+                cn.rollback();
+                return null;
+            }
+
+            if (pricing.getAppliedPromotionId() != null && pricing.getAppliedPromotionId() > 0) {
+                PromotionDAO promotionDAO = new PromotionDAO();
+                if (!promotionDAO.consumePromotionUsage(
+                        pricing.getAppliedPromotionId(), b.getCustomerID(), cn)) {
+                    cn.rollback();
+                    return null;
+                }
+            }
+
+            String sql = "INSERT INTO Bookings "
+                    + "(CustomerID, VehicleID, ServiceID, WashBayID, TimeSlotID, InvoiceID, "
+                    + "Quantity, PriceAtOrder, DurationAtOrder, BookingDate, Status, Notes) "
+                    + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
+            PreparedStatement st = cn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+            st.setInt(1, b.getCustomerID());
+            st.setInt(2, b.getVehicleID());
+            st.setInt(3, b.getServiceID());
+            st.setInt(4, b.getWashBayId());
+            st.setInt(5, b.getTimeSlotID());
+            st.setInt(6, invoiceId);
+            st.setInt(7, b.getQuantity());
+            st.setDouble(8, b.getPriceAtOrder());
+            st.setInt(9, b.getDurationAtOrder());
+            if (slot.getStartTime() != null) {
+                st.setTimestamp(10, Timestamp.valueOf(slot.getStartTime()));
+            } else {
+                st.setTimestamp(10, Timestamp.valueOf(LocalDateTime.now()));
+            }
+            st.setString(11, b.getStatus() != null ? b.getStatus() : "Pending");
+            st.setString(12, b.getNotes());
+
+            if (st.executeUpdate() <= 0) {
+                cn.rollback();
+                return null;
+            }
+
+            ResultSet keys = st.getGeneratedKeys();
+            int bookingId = 0;
+            if (keys.next()) {
+                bookingId = keys.getInt(1);
+                b.setBookingID(bookingId);
+                b.setInvoiceID(invoiceId);
+            } else {
+                cn.rollback();
+                return null;
+            }
+
+            slotDao.syncSlotFullness(b.getTimeSlotID(), cn);
+            cn.commit();
+            return new CustomerBookingResult(invoiceId, bookingId, pricing.getFinalAmount());
+        } catch (SQLException e) {
+            if (cn != null) {
+                try {
+                    cn.rollback();
+                } catch (SQLException ex) {
+                    ex.printStackTrace();
+                }
+            }
+            if (e.getMessage() != null && e.getMessage().contains("UQ_Bookings_Bay_Slot_Active")) {
+                return null;
+            }
+            e.printStackTrace();
+            return null;
+        } catch (Exception e) {
+            if (cn != null) {
+                try {
+                    cn.rollback();
+                } catch (SQLException ex) {
+                    ex.printStackTrace();
+                }
+            }
+            e.printStackTrace();
+            return null;
         } finally {
             if (cn != null) {
                 try {
@@ -717,6 +878,11 @@ public class BookingDAO {
             if (booking.getInvoiceID() > 0) {
                 InvoiceDAO invoiceDAO = new InvoiceDAO();
                 PointTransactionDAO pointDAO = new PointTransactionDAO();
+                Integer promoId = invoiceDAO.getPromotionId(booking.getInvoiceID(), cn);
+                if (promoId != null && promoId > 0) {
+                    new PromotionDAO().restorePromotionUsage(
+                            promoId, booking.getCustomerID(), cn);
+                }
                 String payStatus = invoiceDAO.getPaymentStatus(booking.getInvoiceID(), cn);
                 if ("Paid".equalsIgnoreCase(payStatus)) {
                     pointDAO.reversePointsForInvoice(
@@ -801,8 +967,8 @@ public class BookingDAO {
      *
      * @return result on success; null on failure (check logs)
      */
-    public BusinessBookingResult createBusinessBookings(int customerId, int slotId, int serviceId,
-            List<Integer> vehicleIds, String notes) {
+    public BusinessBookingResult createBusinessBookings(int customerId, int tierId, int slotId, int serviceId,
+            List<Integer> vehicleIds, String notes, Integer promotionId) {
         if (vehicleIds == null || vehicleIds.isEmpty()) {
             return null;
         }
@@ -819,6 +985,9 @@ public class BookingDAO {
         TimeSlotDTO slot = slotDao.getSlotById(slotId);
 
         if (slot == null) {
+            return null;
+        }
+        if (!slotDao.isSlotBookable(slot)) {
             return null;
         }
 
@@ -864,12 +1033,33 @@ public class BookingDAO {
                 totalAmount += Math.round(price.getPrice().doubleValue());
             }
 
+            DiscountEngine discountEngine = new DiscountEngine();
+            DiscountResult pricing = discountEngine.calculate(
+                    new DiscountRequest(customerId, tierId, totalAmount, promotionId));
+
             InvoiceDAO invoiceDAO = new InvoiceDAO();
             String invoiceNote = "Business batch booking: " + vehicleIds.size() + " vehicle(s)";
-            int invoiceId = invoiceDAO.createPendingInvoice(customerId, totalAmount, invoiceNote, cn);
+            int invoiceId = invoiceDAO.createPendingInvoiceWithDiscount(
+                    customerId,
+                    pricing.getSubTotal(),
+                    pricing.getDiscountAmount(),
+                    pricing.getFinalAmount(),
+                    pricing.getAppliedPromotionId(),
+                    null,
+                    invoiceNote,
+                    cn);
             if (invoiceId <= 0) {
                 cn.rollback();
                 return null;
+            }
+
+            if (pricing.getAppliedPromotionId() != null && pricing.getAppliedPromotionId() > 0) {
+                PromotionDAO promotionDAO = new PromotionDAO();
+                if (!promotionDAO.consumePromotionUsage(
+                        pricing.getAppliedPromotionId(), customerId, cn)) {
+                    cn.rollback();
+                    return null;
+                }
             }
 
             List<Integer> bookingIds = new ArrayList<>();
@@ -915,7 +1105,7 @@ public class BookingDAO {
             cn.commit();
 
             int leaderBookingId = bookingIds.get(0);
-            return new BusinessBookingResult(invoiceId, leaderBookingId, bookingIds, totalAmount);
+            return new BusinessBookingResult(invoiceId, leaderBookingId, bookingIds, pricing.getFinalAmount());
         } catch (SQLException e) {
             if (cn != null) {
                 try {
@@ -1099,6 +1289,11 @@ public class BookingDAO {
 
             InvoiceDAO invoiceDAO = new InvoiceDAO();
             String invoicePayStatus = invoiceDAO.getPaymentStatus(invoiceId, cn);
+            int customerId = getCustomerIdByInvoice(invoiceId, cn);
+            Integer promoId = invoiceDAO.getPromotionId(invoiceId, cn);
+            if (promoId != null && promoId > 0 && customerId > 0) {
+                new PromotionDAO().restorePromotionUsage(promoId, customerId, cn);
+            }
             if ("Paid".equalsIgnoreCase(invoicePayStatus) && leader != null) {
                 PointTransactionDAO pointDAO = new PointTransactionDAO();
                 pointDAO.reversePointsForInvoice(
@@ -1152,13 +1347,14 @@ public class BookingDAO {
         Connection cn = null;
         try {
             cn = DBUtils.getConnection();
-            String sql = "SELECT b.BookingID, b.Status, b.PriceAtOrder, b.DurationAtOrder, "
+            String sql = "SELECT b.BookingID, b.Status, b.PriceAtOrder, b.DurationAtOrder, b.Notes, "
                     + "v.LicensePlate, vb.BrandName + ' ' + vm.ModelName AS VehicleName, "
-                    + "s.ServiceName, wb.BayName "
+                    + "s.ServiceName, wb.BayName, t.TimeSlotID, t.StartTime, t.EndTime, t.IsFull "
                     + "FROM Bookings b "
                     + "JOIN Vehicles v ON v.VehicleID = b.VehicleID "
                     + "JOIN Services s ON s.ServiceID = b.ServiceID "
                     + "JOIN WashBays wb ON wb.WashBayID = b.WashBayID "
+                    + "JOIN TimeSlots t ON b.TimeSlotID = t.TimeSlotID "
                     + "JOIN VehicleModels vm ON v.ModelID = vm.ModelID "
                     + "JOIN VehicleBrands vb ON vb.BrandID = vm.BrandID "
                     + "WHERE b.InvoiceID = ? "
@@ -1172,10 +1368,17 @@ public class BookingDAO {
                 booking.setStatus(rs.getString("Status"));
                 booking.setPriceAtOrder(rs.getDouble("PriceAtOrder"));
                 booking.setDurationAtOrder(rs.getInt("DurationAtOrder"));
+                booking.setNotes(rs.getString("Notes"));
                 booking.setLicensePlate(rs.getString("LicensePlate"));
                 booking.setVehicleName(rs.getString("VehicleName"));
                 booking.setService(rs.getString("ServiceName"));
                 booking.setBayName(rs.getString("BayName"));
+                booking.setInvoiceID(invoiceId);
+                LocalDateTime startTime = rs.getTimestamp("StartTime").toLocalDateTime();
+                LocalDateTime endTime = rs.getTimestamp("EndTime").toLocalDateTime();
+                String timeSlotId = rs.getString("TimeSlotID");
+                boolean isFull = rs.getBoolean("IsFull");
+                booking.setTimeslot(new TimeSlot(timeSlotId, startTime, endTime, isFull));
                 list.add(booking);
             }
         } catch (Exception e) {

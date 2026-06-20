@@ -14,6 +14,7 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import service.InvoiceAutoCancelService;
 import service.PayOSService;
 
 @WebServlet(name = "BusinessPaymentStatusController", urlPatterns = {"/BusinessPaymentStatusController"})
@@ -35,6 +36,9 @@ public class BusinessPaymentStatusController extends HttpServlet {
         }
 
         try {
+            InvoiceAutoCancelService autoCancelService = new InvoiceAutoCancelService();
+            autoCancelService.cancelExpiredPendingInvoices();
+
             int invoiceId = Integer.parseInt(request.getParameter("invoiceId"));
             Customer customer = new CustomerDAO().getCustomerByAccountID(account.getAccountID());
             InvoiceDAO invoiceDAO = new InvoiceDAO();
@@ -46,9 +50,18 @@ public class BusinessPaymentStatusController extends HttpServlet {
                 return;
             }
 
+            if (autoCancelService.isInvoiceExpired(invoiceId)) {
+                bookingDAO.cancelInvoiceBookings(invoiceId);
+                out.print("{\"success\":true,\"paymentStatus\":\"Cancelled\",\"expired\":true}");
+                out.flush();
+                return;
+            }
+
             BookingDAO.InvoicePaymentSummary summary = bookingDAO.getInvoicePaymentSummary(invoiceId);
             if (summary == null) {
                 out.print("{\"success\":false,\"message\":\"Not found\"}");
+            } else if ("Cancelled".equalsIgnoreCase(summary.getInvoicePaymentStatus())) {
+                out.print("{\"success\":true,\"paymentStatus\":\"Cancelled\",\"expired\":true}");
             } else {
                 if (!"Paid".equalsIgnoreCase(summary.getInvoicePaymentStatus())
                         && summary.getPaymentOrderCode() > 0) {
