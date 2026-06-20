@@ -6,6 +6,7 @@ package controller;
 
 import dao.BusinessDAO;
 import dao.CustomerDAO;
+import dbutils.LicensePlateUtils;
 import dao.VehicleBrandDAO;
 import dao.VehicleDAO;
 import dao.VehicleModelDAO;
@@ -48,7 +49,19 @@ public class UpdateVehicleController extends HttpServlet {
         try {
             int vehicleID = Integer.parseInt(request.getParameter("vehicleID"));
             int modelID = Integer.parseInt(request.getParameter("modelID"));
-            String licensePlate = request.getParameter("licensePlate").trim().toUpperCase();
+            String licensePlate = LicensePlateUtils.normalize(request.getParameter("licensePlate"));
+            if (!LicensePlateUtils.isValid(licensePlate)) {
+                VehicleBrandDAO brandDAO = new VehicleBrandDAO();
+                VehicleModelDAO modelDAO = new VehicleModelDAO();
+                VehicleDAO dao = new VehicleDAO();
+                Vehicle oldVehicle = dao.getVehicleByID(vehicleID);
+                request.setAttribute("ERROR", LicensePlateUtils.FORMAT_MESSAGE);
+                request.setAttribute("VEHICLE", oldVehicle);
+                request.setAttribute("BRAND_LIST", brandDAO.getAllBrands());
+                request.setAttribute("MODEL_LIST", modelDAO.getAllModels());
+                request.getRequestDispatcher("updateVehicle.jsp").forward(request, response);
+                return;
+            }
             String color = request.getParameter("color");
             Integer manufactureYear = null;
             String yearStr = request.getParameter("manufactureYear");

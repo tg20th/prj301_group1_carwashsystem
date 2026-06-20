@@ -6,6 +6,7 @@ package controller;
 
 import dao.CustomerDAO;
 import dao.VehicleDAO;
+import dbutils.LicensePlateUtils;
 import dto.Account;
 import dto.Business;
 import dto.Customer;
@@ -102,6 +103,7 @@ public class AddBusinessVehiclesController extends HttpServlet {
                 
              */
             int successCount = 0;
+            int skippedCount = 0;
             Account account = (Account) request.getSession().getAttribute("ACCOUNT");
             if (account == null) {
                 response.sendRedirect("MainController?action=home");
@@ -130,11 +132,16 @@ public class AddBusinessVehiclesController extends HttpServlet {
                     continue;
                 }
                 String[] data = line.split(",");
-                String licensePlate = data[0].trim();
+                String licensePlate = LicensePlateUtils.normalize(data[0]);
                 int modelID = Integer.parseInt(data[1].trim());
                 String color = data[2].trim();
                 Integer year = Integer.parseInt(data[3].trim());
                 String imageName = data[4].trim(); // CHECK DUPLICATE 
+
+                if (!LicensePlateUtils.isValid(licensePlate)) {
+                    skippedCount++;
+                    continue;
+                }
 
                 if (dao.isLicensePlateExists(licensePlate)) {
                     continue;
@@ -156,7 +163,11 @@ public class AddBusinessVehiclesController extends HttpServlet {
                 }
             }
             br.close();
-            request.setAttribute("SUCCESS", "Uploaded " + successCount + " vehicles successfully.");
+            String message = "Uploaded " + successCount + " vehicles successfully.";
+            if (skippedCount > 0) {
+                message += " Skipped " + skippedCount + " row(s) with invalid license plate format (e.g. 63A-12345).";
+            }
+            request.setAttribute("SUCCESS", message);
         } catch (Exception e) {
             e.printStackTrace();
             try {
@@ -167,7 +178,7 @@ public class AddBusinessVehiclesController extends HttpServlet {
             }
             return; // prevent double forward
         }
-        response.sendRedirect("MainController?action=dashboard");
+        response.sendRedirect("BusinessDashboardController");
     } // ========================= // UNZIP METHOD // =========================
 
     private void unzip(String zipFilePath, String destDirectory) throws IOException {
