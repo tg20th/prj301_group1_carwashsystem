@@ -71,7 +71,7 @@
                 <span class="text-muted small fw-bold text-uppercase" style="font-size: 0.65rem; padding-left: 1rem;">Sales & Marketing</span>
             </li>
             <li class="nav-item">
-                <a class="nav-link px-3 py-2 d-flex align-items-center" href="RevenueController">
+                <a class="nav-link px-3 py-2 d-flex align-items-center" href="MainController?action=Revenue">
                     <i class="bi bi-graph-up-arrow me-3"></i> Revenue
                 </a>
             </li>
