@@ -48,7 +48,7 @@ public class CudPromotionController extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        response.sendRedirect("ManagePromotionsController");
+        response.sendRedirect("MainController?action=manage_promotion");
     }
 
     /**
@@ -67,7 +67,7 @@ public class CudPromotionController extends HttpServlet {
 
         String action = request.getParameter("action");
 
-        if ("add".equalsIgnoreCase(action)) {
+        if ("promotion_add".equalsIgnoreCase(action)) {
             try {
                 String promoCode = request.getParameter("promoCode");
                 String promoName = request.getParameter("promoName");
@@ -140,7 +140,7 @@ public class CudPromotionController extends HttpServlet {
             return;
         }
 
-        if ("edit".equalsIgnoreCase(action)) {
+        if ("promotion_edit".equalsIgnoreCase(action)) {
             try {
                 String promoIdRaw = request.getParameter("promoId");
                 String promoCode = request.getParameter("promoCode");
@@ -217,7 +217,7 @@ public class CudPromotionController extends HttpServlet {
             return;
         }
 
-            if ("toogleStatus".equalsIgnoreCase(action)) {
+        if ("promotion_toggleStatus".equalsIgnoreCase(action)) {
             try {
                 int promoId = Integer.parseInt(request.getParameter("id"));
                 String isActiveRaw = request.getParameter("isActive");
@@ -264,14 +264,13 @@ public class CudPromotionController extends HttpServlet {
             throws ServletException, IOException {
 
         if (success != null) {
-            request.setAttribute("success", success);
+            request.getSession().setAttribute("msg", success);
         }
         if (error != null) {
-            request.setAttribute("error", error);
+            request.getSession().setAttribute("msg", error);
         }
-
-        request.getRequestDispatcher("ManagePromotionsController").forward(request, response);
-
+        response.sendRedirect("MainController?action=manage_promotion");
+        return;
     }
 
     /**

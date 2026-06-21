@@ -91,7 +91,7 @@ public class MainController extends HttpServlet {
                     break;
                 case "getVehicleData":
                     response.setContentType("application/json;charset=UTF-8");
-                    try ( PrintWriter out = response.getWriter()) {
+                    try (PrintWriter out = response.getWriter()) {
                         VehicleBrandDAO brandDAO = new VehicleBrandDAO();
                         VehicleModelDAO modelDAO = new VehicleModelDAO();
 
@@ -217,6 +217,25 @@ public class MainController extends HttpServlet {
                 case "Revenue":
                     url = "RevenueController";
                     break;
+                // TUNG FIX LAI MVC2
+                case "washbay_list":
+                case "washbay_showEditDashboard":
+                case "washbay_update":
+                    url = "WashBayController";
+                    break;
+                case "service_list":
+                case "service_addNew":
+                case "service_create":
+                case "service_showEdit":
+                case "service_update":
+                case "service_deactive":
+                case "service_active":
+                    url = "ServiceController";
+                    break;
+                case "promotion_add":
+                case "promotion_edit":
+                case "promotion_toggleStatus":
+                    url = "CudPromotionController";
                 case "vehicle_bus_request":
                     url = "VehicleRequestBusController";
                     break;

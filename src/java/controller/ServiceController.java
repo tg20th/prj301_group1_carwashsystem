@@ -62,9 +62,9 @@ public class ServiceController extends HttpServlet {
         String action = request.getParameter("action");
 
         if (action == null) {
-            action = "list";
+            action = "service_list";
         }
-        if (action.equalsIgnoreCase("list")) {
+        if (action.equalsIgnoreCase("service_list")) {
             ServicesDAO sDAO = new ServicesDAO();
             ServicePricesDAO spDAO = new ServicePricesDAO();
             VehicleTypeDAO vTDAO = new VehicleTypeDAO();
@@ -87,7 +87,7 @@ public class ServiceController extends HttpServlet {
             return;
         }
 
-        if (action.equalsIgnoreCase("AddNewService")) {
+        if (action.equalsIgnoreCase("service_addNew")) {
             VehicleTypeDAO vehicleTypeDAO = new VehicleTypeDAO();
             List<VehicleType> vehicleTypeList = vehicleTypeDAO.getAllActiveVehicleType();
 
@@ -96,7 +96,7 @@ public class ServiceController extends HttpServlet {
             return;
         }
 
-        if (action.equalsIgnoreCase("createService")) {
+        if (action.equalsIgnoreCase("service_create")) {
             String serviceName = request.getParameter("serviceName");
             String description = request.getParameter("description");
             boolean status = Boolean.parseBoolean(request.getParameter("status"));
@@ -128,7 +128,7 @@ public class ServiceController extends HttpServlet {
                             int duration = Integer.parseInt(durationRaw);
 
                             if (price.compareTo(BigDecimal.ZERO) <= 0 || duration <= 0) {
-                                response.sendRedirect("ServiceController?action=showCreate&error=invalidPrice");
+                                response.sendRedirect("MainController?action=service_addNew&error=invalidPrice");
                                 return;
                             }
 
@@ -143,14 +143,15 @@ public class ServiceController extends HttpServlet {
                         }
                     }
                 }
-                response.sendRedirect("ServiceController?action=list&saved=true");
+                request.getSession().setAttribute("msg", "Changes saved successfully.");
+                response.sendRedirect("MainController?action=service_list");
                 return;
             }
-            request.getRequestDispatcher("ServiceController?action=list&error=true").forward(request, response);
+            response.sendRedirect("MainController?action=service_list");
 
         } // end create service
 
-        if (action.equalsIgnoreCase("showEdit")) {
+        if (action.equalsIgnoreCase("service_showEdit")) {
             int serviceID = Integer.parseInt(request.getParameter("id"));
 
             ServicesDAO serviceDAO = new ServicesDAO();
@@ -169,7 +170,7 @@ public class ServiceController extends HttpServlet {
             return;
         }
 
-        if (action.equalsIgnoreCase("update")) {
+        if (action.equalsIgnoreCase("service_update")) {
             int serviceID = Integer.parseInt(request.getParameter("serviceId"));
             String serviceName = request.getParameter("serviceName");
             String description = request.getParameter("description");
@@ -217,49 +218,52 @@ public class ServiceController extends HttpServlet {
                 }
             }
 
-            response.sendRedirect("ServiceController?action=list&saved=true");
+            request.getSession().setAttribute("msg", "Changes saved successfully.");
+            response.sendRedirect("MainController?action=service_list");
             return;
         }
 
-        if (action.equalsIgnoreCase("deactive")) {
+        if (action.equalsIgnoreCase("service_deactive")) {
             int serviceID = Integer.parseInt(request.getParameter("id"));
 
             ServicesDAO servicesDAO = new ServicesDAO();
             servicesDAO.deactiveService(serviceID);
 
-            response.sendRedirect("ServiceController?action=list&statusUpdated=true");
+            request.getSession().setAttribute("msg", "Service status has been updated.");
+            response.sendRedirect("MainController?action=service_list");
             return;
         }
 
-        if (action.equalsIgnoreCase("active")) {
+        if (action.equalsIgnoreCase("service_active")) {
             int serviceID = Integer.parseInt(request.getParameter("id"));
 
             ServicesDAO servicesDAO = new ServicesDAO();
             servicesDAO.activeService(serviceID);
 
-            response.sendRedirect("ServiceController?action=list&statusUpdated=true");
+            request.getSession().setAttribute("msg", "Service status has been updated.");
+            response.sendRedirect("MainController?action=service_list");
             return;
         }
 
         request.setAttribute("ERROR", "Invalid action!");
-                    ServicesDAO sDAO = new ServicesDAO();
-            ServicePricesDAO spDAO = new ServicePricesDAO();
-            VehicleTypeDAO vTDAO = new VehicleTypeDAO();
-            List<Service> serviceList = sDAO.getAllServices();
-            List<VehicleType> vehicleTypeList = vTDAO.getAllActiveVehicleType();
+        ServicesDAO sDAO = new ServicesDAO();
+        ServicePricesDAO spDAO = new ServicePricesDAO();
+        VehicleTypeDAO vTDAO = new VehicleTypeDAO();
+        List<Service> serviceList = sDAO.getAllServices();
+        List<VehicleType> vehicleTypeList = vTDAO.getAllActiveVehicleType();
 
-            Map<Integer, List<ServicePrices>> priceMap = new HashMap<>();
+        Map<Integer, List<ServicePrices>> priceMap = new HashMap<>();
 
-            for (Service s : serviceList) {
-                List<ServicePrices> prices = spDAO.getPricesByServiceID(s.getId());
-                priceMap.put(s.getId(), prices);
-            }
+        for (Service s : serviceList) {
+            List<ServicePrices> prices = spDAO.getPricesByServiceID(s.getId());
+            priceMap.put(s.getId(), prices);
+        }
 
-            request.setAttribute("SERVICES", serviceList);
-            request.setAttribute("PRICE_MAP", priceMap);
-            request.setAttribute("VEHICLE_TYPES", vehicleTypeList);
+        request.setAttribute("SERVICES", serviceList);
+        request.setAttribute("PRICE_MAP", priceMap);
+        request.setAttribute("VEHICLE_TYPES", vehicleTypeList);
 
-            request.getRequestDispatcher("service-dashboard.jsp").forward(request, response);
+        request.getRequestDispatcher("service-dashboard.jsp").forward(request, response);
     }
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">

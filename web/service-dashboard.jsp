@@ -75,32 +75,22 @@
                     </p>
                 </div>
 
-                <a href="ServiceController?action=AddNewService"
+                <a href="MainController?action=service_addNew"
                    class="btn btn-dark rounded-pill px-4 py-2 d-flex align-items-center gap-2 fw-medium transition-hover text-decoration-none">
                     <i class="bi bi-plus-lg"></i> Add New Service
                 </a>
             </div>
 
-            <c:if test="${param.saved == 'true'}">
+            <c:if test="${not empty sessionScope.msg}">
                 <div id="globalSuccessAlert"
                      class="alert alert-success border-0 bg-success bg-opacity-10 text-success rounded-4 p-3 small mb-4 d-flex align-items-center justify-content-between auto-dismiss-alert">
                     <div class="d-flex align-items-center">
-                        <i class="bi bi-check-circle-fill me-2"></i>Changes saved successfully.
+                        <i class="bi bi-check-circle-fill me-2"></i>${sessionScope.msg}
                     </div>
                     <button type="button" class="btn-close shadow-none small"
                             onclick="dismissAlertElement('globalSuccessAlert')"></button>
                 </div>
-            </c:if>
-
-            <c:if test="${param.statusUpdated == 'true'}">
-                <div id="globalDeleteAlert"
-                     class="alert alert-warning border-0 bg-warning bg-opacity-10 text-warning rounded-4 p-3 small mb-4 d-flex align-items-center justify-content-between auto-dismiss-alert">
-                    <div class="d-flex align-items-center">
-                        <i class="bi bi-exclamation-triangle-fill me-2"></i>Service status has been updated.
-                    </div>
-                    <button type="button" class="btn-close shadow-none small"
-                            onclick="dismissAlertElement('globalDeleteAlert')"></button>
-                </div>
+                <c:remove var="msg" scope="session"/>
             </c:if>
 
             <div class="bg-white p-4 rounded-4 shadow-sm border border-light">
@@ -213,31 +203,43 @@
                                             </td>
 
                                             <td class="text-end pe-3" onclick="event.stopPropagation();">
-                                                <a href="ServiceController?action=showEdit&id=${s.id}"
-                                                   class="btn btn-sm bg-warning bg-opacity-10 text-warning border-0 rounded-circle transition-hover me-1"
-                                                   style="width: 34px; height: 34px; display: inline-flex; align-items: center; justify-content: center;"
-                                                   title="Edit service & pricing">
-                                                    <i class="bi bi-pencil-fill" style="font-size: 0.85rem;"></i>
-                                                </a>
+                                                <form action="MainController" method="post" class="d-inline m-0 me-1">
+                                                    <input type="hidden" name="action" value="service_showEdit">
+                                                    <input type="hidden" name="id" value="${s.id}">
+                                                    <button type="submit"
+                                                            class="btn btn-sm bg-warning bg-opacity-10 text-warning border-0 rounded-circle transition-hover"
+                                                            style="width: 34px; height: 34px; display: inline-flex; align-items: center; justify-content: center;"
+                                                            title="Edit service & pricing">
+                                                        <i class="bi bi-pencil-fill" style="font-size: 0.85rem;"></i>
+                                                    </button>
+                                                </form>
 
                                                 <c:choose>
                                                     <c:when test="${s.status}">
-                                                        <a href="ServiceController?action=deactive&id=${s.id}"
-                                                           class="btn btn-sm bg-danger bg-opacity-10 text-danger border-0 rounded-circle transition-hover"
-                                                           style="width: 34px; height: 34px;"
-                                                           onclick="return confirm('Deactivate this service?');"
-                                                           title="Deactivate service">
-                                                            <i class="bi bi-eye-slash-fill" style="font-size: 0.85rem;"></i>
-                                                        </a>
+                                                        <form action="MainController" method="post" class="d-inline m-0"
+                                                              onsubmit="return confirm('Deactivate this service?');">
+                                                            <input type="hidden" name="action" value="service_deactive">
+                                                            <input type="hidden" name="id" value="${s.id}">
+                                                            <button type="submit"
+                                                                    class="btn btn-sm bg-danger bg-opacity-10 text-danger border-0 rounded-circle transition-hover"
+                                                                    style="width: 34px; height: 34px;"
+                                                                    title="Deactivate service">
+                                                                <i class="bi bi-eye-slash-fill" style="font-size: 0.85rem;"></i>
+                                                            </button>
+                                                        </form>
                                                     </c:when>
                                                     <c:otherwise>
-                                                        <a href="ServiceController?action=active&id=${s.id}"
-                                                           class="btn btn-sm bg-success bg-opacity-10 text-success border-0 rounded-circle transition-hover"
-                                                           style="width: 34px; height: 34px;"
-                                                           onclick="return confirm('Activate this service?');"
-                                                           title="Activate service">
-                                                            <i class="bi bi-eye-fill" style="font-size: 0.85rem;"></i>
-                                                        </a>
+                                                        <form action="MainController" method="post" class="d-inline m-0"
+                                                              onsubmit="return confirm('Activate this service?');">
+                                                            <input type="hidden" name="action" value="service_active">
+                                                            <input type="hidden" name="id" value="${s.id}">
+                                                            <button type="submit"
+                                                                    class="btn btn-sm bg-success bg-opacity-10 text-success border-0 rounded-circle transition-hover"
+                                                                    style="width: 34px; height: 34px;"
+                                                                    title="Activate service">
+                                                                <i class="bi bi-eye-fill" style="font-size: 0.85rem;"></i>
+                                                            </button>
+                                                        </form>
                                                     </c:otherwise>
                                                 </c:choose>
                                             </td>
@@ -369,6 +371,11 @@
             </div>
         </div>
 
+        <form id="modalEditForm" action="MainController" method="post" class="d-none">
+            <input type="hidden" name="action" value="service_showEdit">
+            <input type="hidden" name="id" id="modalEditServiceId">
+        </form>
+
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
         <script>
@@ -410,7 +417,8 @@
                                            }
 
                                            setTimeout(function () {
-                                               window.location.href = 'ServiceController?action=showEdit&id=' + currentModalServiceId;
+                                               document.getElementById('modalEditServiceId').value = currentModalServiceId;
+                                               document.getElementById('modalEditForm').submit();
                                            }, 180);
                                        }
 

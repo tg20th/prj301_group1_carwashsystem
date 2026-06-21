@@ -123,12 +123,16 @@
                                 </td>
 
                                 <td class="text-end pe-3">
-                                    <a href="WashBayController?action=showEditDashboard&washBayID=<%= wb.getWashBayID()%>"
-                                       class="btn btn-sm bg-warning bg-opacity-10 text-warning border-0 rounded-circle transition-hover"
-                                       style="width: 34px; height: 34px; display: inline-flex; align-items: center; justify-content: center;"
-                                       title="Edit wash bay">
-                                        <i class="bi bi-pencil-fill" style="font-size: 0.85rem;"></i>
-                                    </a>
+                                    <form action="MainController" method="post" class="d-inline m-0">
+                                        <input type="hidden" name="action" value="washbay_showEditDashboard">
+                                        <input type="hidden" name="washBayID" value="<%= wb.getWashBayID()%>">
+                                        <button type="submit"
+                                                class="btn btn-sm bg-warning bg-opacity-10 text-warning border-0 rounded-circle transition-hover"
+                                                style="width: 34px; height: 34px; display: inline-flex; align-items: center; justify-content: center;"
+                                                title="Edit wash bay">
+                                            <i class="bi bi-pencil-fill" style="font-size: 0.85rem;"></i>
+                                        </button>
+                                    </form>
                                 </td>
                             </tr>
                             <%
@@ -158,29 +162,29 @@
 
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
         <script>
-                        function dismissAlertElement(el) {
-                            if (!el)
-                                return;
-                            const alert = el.closest('.auto-dismiss-alert') || el.parentElement;
-                            if (!alert)
-                                return;
-                            alert.style.transition = "opacity 0.35s ease-out, transform 0.35s ease-out";
-                            alert.style.opacity = "0";
-                            alert.style.transform = "translateY(-6px)";
-                            setTimeout(function () {
-                                alert.style.display = "none";
-                            }, 350);
-                        }
+                    function dismissAlertElement(el) {
+                        if (!el)
+                            return;
+                        const alert = el.closest('.auto-dismiss-alert') || el.parentElement;
+                        if (!alert)
+                            return;
+                        alert.style.transition = "opacity 0.35s ease-out, transform 0.35s ease-out";
+                        alert.style.opacity = "0";
+                        alert.style.transform = "translateY(-6px)";
+                        setTimeout(function () {
+                            alert.style.display = "none";
+                        }, 350);
+                    }
 
-                        document.addEventListener("DOMContentLoaded", function () {
-                            setTimeout(function () {
-                                document.querySelectorAll('.auto-dismiss-alert').forEach(function (alert) {
-                                    const btn = alert.querySelector('.btn-close');
-                                    if (btn)
-                                        btn.click();
-                                });
-                            }, 4500);
-                        });
+                    document.addEventListener("DOMContentLoaded", function () {
+                        setTimeout(function () {
+                            document.querySelectorAll('.auto-dismiss-alert').forEach(function (alert) {
+                                const btn = alert.querySelector('.btn-close');
+                                if (btn)
+                                    btn.click();
+                            });
+                        }, 4500);
+                    });
         </script>
     </body>
 </html>

@@ -75,7 +75,7 @@
                     </li>
                     <li class="nav-item"><a class="nav-link d-flex align-items-center" href="CarRequestsController"><i class="bi bi-car-front me-3"></i> Car Requests</a></li>
                     <li class="nav-item"><a class="nav-link d-flex align-items-center" href="BusinessRequestsController"><i class="bi bi-building me-3"></i> Business Requests</a></li>
-                    <li class="nav-item"><a class="nav-link d-flex align-items-center" href="WashBayController?action=list"><i class="bi bi-droplet me-3"></i> Wash Bay Mgmt</a></li>
+                    <li class="nav-item"><a class="nav-link d-flex align-items-center" href="MainController?action=washbay_list"><i class="bi bi-droplet me-3"></i> Wash Bay Mgmt</a></li>
                     <li class="nav-item"><a class="nav-link d-flex align-items-center" href="SlotScheduleController"><i class="bi bi-calendar-range me-3"></i> Slot Schedule</a></li>
 
                     <li class="nav-item mt-3 mb-1">
@@ -83,9 +83,9 @@
                     </li>
                     <li class="nav-item"><a class="nav-link d-flex align-items-center" href="UsersMgmtController"><i class="bi bi-people me-3"></i> Users Mgmt</a></li>
                     <li class="nav-item"><a class="nav-link d-flex align-items-center" href="RevenueController"><i class="bi bi-graph-up me-3"></i> Revenue</a></li>
-                    <li class="nav-item"><a class="nav-link d-flex align-items-center" href="ManagePromotionsController"><i class="bi bi-ticket-perforated me-3"></i> Promos</a></li>
+                    <li class="nav-item"><a class="nav-link d-flex align-items-center" href="MainController?action=manage_promotion"><i class="bi bi-ticket-perforated me-3"></i> Promos</a></li>
                     <li class="nav-item">
-                        <a class="nav-link active d-flex align-items-center" href="ServiceController?action=list">
+                        <a class="nav-link active d-flex align-items-center" href="MainController?action=service_list">
                             <i class="bi bi-tools me-3"></i> Service Management
                         </a>
                     </li>
@@ -121,7 +121,7 @@
             <div class="d-flex justify-content-between align-items-end mb-4 pb-2">
                 <div>
                     <div class="d-flex align-items-center gap-2 mb-1">
-                        <a href="ServiceController?action=list" class="text-muted text-decoration-none small d-flex align-items-center">
+                        <a href="MainController?action=service_list" class="text-muted text-decoration-none small d-flex align-items-center">
                             <i class="bi bi-arrow-left me-1"></i> Back to Services
                         </a>
                     </div>
@@ -155,15 +155,15 @@
                 </c:if>
             </div>
 
-            <form action="ServiceController" method="post" id="serviceForm">
+            <form action="MainController" method="post" id="serviceForm">
 
                 <c:choose>
                     <c:when test="${isEdit}">
-                        <input type="hidden" name="action" value="update">
+                        <input type="hidden" name="action" value="service_update">
                         <input type="hidden" name="serviceId" value="${SERVICE.id}">
                     </c:when>
                     <c:otherwise>
-                        <input type="hidden" name="action" value="createService">
+                        <input type="hidden" name="action" value="service_create">
                     </c:otherwise>
                 </c:choose>
 
@@ -314,7 +314,7 @@
 
                 <!-- ACTIONS -->
                 <div class="d-flex gap-3">
-                    <a href="ServiceController?action=list" class="btn btn-light rounded-pill px-4 py-2 fw-medium text-muted transition-hover">
+                    <a href="MainController?action=service_list" class="btn btn-light rounded-pill px-4 py-2 fw-medium text-muted transition-hover">
                         Cancel
                     </a>
 
