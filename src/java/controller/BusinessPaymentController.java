@@ -80,7 +80,7 @@ public class BusinessPaymentController extends HttpServlet {
 
             if ("Paid".equalsIgnoreCase(summary.getInvoicePaymentStatus())
                     || "Confirmed".equalsIgnoreCase(summary.getLeaderBookingStatus())) {
-                response.sendRedirect("BusinessPaymentSuccessController?invoiceId=" + invoiceId);
+                response.sendRedirect("MainController?action=business_payment_success&invoiceId=" + invoiceId);
                 return;
             }
 

@@ -19,9 +19,9 @@
     String dashboardURL;
 
     if (bus != null) {
-        dashboardURL = "BusinessDashboardController";
+        dashboardURL = "MainController?action=business_dashboard";
     } else {
-        dashboardURL = "CustomerDashBoardController";
+        dashboardURL = "MainController?action=customer_dashboard";
     }
 %>
 <!DOCTYPE html>

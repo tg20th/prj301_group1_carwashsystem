@@ -94,7 +94,7 @@
                 </div>
             </div>
             <div class="col-md-6 col-lg-3">
-                <a href="BusinessBookingHistoryController" class="text-decoration-none d-block h-100">
+                <a href="MainController?action=viewbusinesshistory" class="text-decoration-none d-block h-100">
                     <div class="bus-card bus-stat-card p-4 h-100 border-top-dark">
                         <div class="d-flex justify-content-between align-items-center mb-3">
                             <h6 class="text-muted small text-uppercase fw-bold m-0">Fleet Bookings</h6>
@@ -117,7 +117,7 @@
                 <h5 class="fw-bold mb-1">Fleet Booking</h5>
                 <p class="text-muted small mb-0">Book multiple vehicles — one service, one invoice, one payment.</p>
             </div>
-            <a href="BusinessBookingController" class="btn btn-black rounded-pill px-4 py-2">
+            <a href="MainController?action=business_booking" class="btn btn-black rounded-pill px-4 py-2">
                 <i class="bi bi-calendar-plus me-2"></i>Book Fleet Wash
             </a>
         </div>
