@@ -50,7 +50,7 @@ public class RejectVehicleController extends HttpServlet {
             String customerID = request.getParameter("customerID");
             if (customerID != null) {
                 request.setAttribute("CUSID", customerID);
-                request.getRequestDispatcher("BusinessVehicleDetailController").forward(request, response);
+                request.getRequestDispatcher("MainController?action=vehicle_request").forward(request, response);
             } else {
                 response.sendRedirect("VehicleRequestController");
             }

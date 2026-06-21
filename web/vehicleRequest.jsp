@@ -125,14 +125,16 @@
                                         <div class="col-lg-3 col-md-3 mt-3 mt-md-0">
                                             <div class="d-flex flex-column justify-content-center gap-2 h-100">
                                                 
-                                                <form action="ApproveVehicleController" method="post" class="m-0 p-0">
+                                                <form action="MainController" method="post" class="m-0 p-0">
+                                                   <input type="hidden" name="action" value="approve_vehicle">
                                                     <input type="hidden" name="vehicleID" value="<%= v.getVehicleID() %>">
                                                     <button type="submit" class="btn btn-success-custom rounded-pill fw-bold w-100 shadow-sm" onclick="return confirm('Approve this vehicle?');">
                                                         <i class="bi bi-check-circle-fill me-1"></i> Approve
                                                     </button>
                                                 </form>
                                                 
-                                                <form action="RejectVehicleController" method="post" class="m-0 p-0">
+                                                <form action="MainController" method="post" class="m-0 p-0">
+                                                    <input type="hidden" name="action" value="reject_vehicle">
                                                     <input type="hidden" name="vehicleID" value="<%= v.getVehicleID() %>">
                                                     <button type="submit" class="btn btn-outline-danger rounded-pill fw-bold bg-white w-100 shadow-sm" onclick="return confirm('Reject this vehicle request?');">
                                                         <i class="bi bi-x-circle-fill me-1"></i> Reject
