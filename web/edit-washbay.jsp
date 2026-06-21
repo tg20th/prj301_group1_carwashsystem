@@ -36,7 +36,7 @@
             <div class="d-flex justify-content-between align-items-end mb-4 pb-2">
                 <div>
                     <div class="d-flex align-items-center gap-2 mb-1">
-                        <a href="WashBayController?action=list" class="text-muted text-decoration-none small d-flex align-items-center">
+                        <a href="MainController?action=washbay_list" class="text-muted text-decoration-none small d-flex align-items-center">
                             <i class="bi bi-arrow-left me-1"></i> Back to Wash Bays
                         </a>
                     </div>
@@ -77,8 +77,8 @@
                 if (hasWb) {
             %>
 
-            <form action="WashBayController" method="post">
-                <input type="hidden" name="action" value="update">
+            <form action="MainController" method="post">
+                <input type="hidden" name="action" value="washbay_update">
                 <input type="hidden" name="washBayID" value="<%= wb.getWashBayID() %>">
 
                 <div class="bg-white p-4 rounded-4 shadow-sm border border-light mb-4">
@@ -133,7 +133,7 @@
 
                 <!-- ACTIONS -->
                 <div class="d-flex gap-3">
-                    <a href="WashBayController?action=list" class="btn btn-light rounded-pill px-4 py-2 fw-medium text-muted transition-hover">
+                    <a href="MainController?action=washbay_list" class="btn btn-light rounded-pill px-4 py-2 fw-medium text-muted transition-hover">
                         Cancel
                     </a>
 
@@ -157,7 +157,7 @@
                 <div class="text-center text-muted py-5">
                     <i class="bi bi-inbox fs-1 d-block mb-3"></i>
                     <p class="mb-3">Wash bay not found or has been removed.</p>
-                    <a href="WashBayController?action=list" class="btn btn-dark rounded-pill px-4 py-2 fw-medium text-decoration-none">
+                    <a href="MainController?action=washbay_list" class="btn btn-dark rounded-pill px-4 py-2 fw-medium text-decoration-none">
                         Back to Wash Bay List
                     </a>
                 </div>

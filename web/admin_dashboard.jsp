@@ -212,7 +212,7 @@
                             </c:choose>
                         </div> 
 
-                        <a href="ServiceController?action=list" class="btn btn-dark-custom w-100 rounded-pill py-2 mt-auto small fw-bold text-decoration-none d-flex justify-content-center align-items-center shadow-sm">
+                        <a href="MainController?action=service_list" class="btn btn-dark-custom w-100 rounded-pill py-2 mt-auto small fw-bold text-decoration-none d-flex justify-content-center align-items-center shadow-sm">
                             <i class="bi bi-sliders me-2"></i> Manage Services
                         </a>
                     </div>
