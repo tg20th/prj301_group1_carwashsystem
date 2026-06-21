@@ -16,9 +16,15 @@ import dto.ServicePrices;
 import dto.Tier;
 import dto.TimeSlotDTO;
 import dto.Vehicle;
+import dto.DiscountRequest;
+import dto.DiscountResult;
+import dto.Promotion;
+import java.util.List;
 import dto.WashBaySlotDTO;
 import java.io.IOException;
 import java.io.PrintWriter;
+import service.DiscountEngine;
+import service.InvoiceAutoCancelService;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -49,9 +55,17 @@ public class CustomerBookingController extends HttpServlet {
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         request.setCharacterEncoding("UTF-8");
-        String action = request.getParameter("action");
-        if (action == null) {
-            action = "page";
+        String op = request.getParameter("op");
+        String action;
+        if (op != null && !op.isEmpty()) {
+            action = op;
+        } else {
+            String mainAction = request.getParameter("action");
+            if (mainAction == null || mainAction.isEmpty() || "customerbooking".equals(mainAction)) {
+                action = "page";
+            } else {
+                action = mainAction;
+            }
         }
 
         Account account = (Account) request.getSession().getAttribute("ACCOUNT");
@@ -77,6 +91,9 @@ public class CustomerBookingController extends HttpServlet {
             case "price":
                 handlePrice(request, response);
                 return;
+            case "previewDiscount":
+                handlePreviewDiscount(request, response, customer);
+                return;
             case "submit":
                 handleSubmit(request, response, customer);
                 return;
@@ -87,12 +104,16 @@ public class CustomerBookingController extends HttpServlet {
 
     private void handlePage(HttpServletRequest request, HttpServletResponse response, Customer customer)
             throws ServletException, IOException {
+        new InvoiceAutoCancelService().cancelExpiredPendingInvoices();
+
         VehicleDAO vehicleDAO = new VehicleDAO();
         ServicesDAO servicesDAO = new ServicesDAO();
         List<Vehicle> vehicles = vehicleDAO.getVehiclesByCustomerID(customer.getCusID());
         List<Service> services = servicesDAO.getAllServices();
 
         enrichTierBookingLimits(request, customer);
+        DiscountEngine discountEngine = new DiscountEngine();
+        request.setAttribute("PROMO_LIST", discountEngine.getEligiblePromotions(customer.getCusID(), customer.getTierID()));
         request.setAttribute("VEHICLES", vehicles);
         request.setAttribute("SERVICES", services);
         request.getRequestDispatcher("booking_customer.jsp").forward(request, response);
@@ -132,6 +153,19 @@ public class CustomerBookingController extends HttpServlet {
         }
         if (slot.getStartTime() != null) {
             return slot.getStartTime().toLocalDate();
+        }
+        return null;
+    }
+
+    private String validateSlotLeadTime(int slotId) {
+        TimeSlotDAO slotDAO = new TimeSlotDAO();
+        TimeSlotDTO slot = slotDAO.getSlotById(slotId);
+        if (slot == null) {
+            return "Selected time slot was not found.";
+        }
+        if (!slotDAO.isSlotBookable(slot)) {
+            return "Please choose a time slot at least "
+                    + TimeSlotDAO.BOOKING_LEAD_MINUTES + " minutes from now.";
         }
         return null;
     }
@@ -179,6 +213,12 @@ public class CustomerBookingController extends HttpServlet {
         PrintWriter out = response.getWriter();
         try {
             int slotId = Integer.parseInt(request.getParameter("slotId"));
+            String slotError = validateSlotLeadTime(slotId);
+            if (slotError != null) {
+                out.print("{\"success\":false,\"message\":\"" + escapeJson(slotError) + "\"}");
+                out.flush();
+                return;
+            }
             LocalDate slotDate = resolveSlotDate(slotId);
             if (slotDate == null) {
                 out.print("{\"success\":false,\"message\":\"Time slot not found.\"}");
@@ -242,6 +282,74 @@ public class CustomerBookingController extends HttpServlet {
         out.flush();
     }
 
+    private void handlePreviewDiscount(HttpServletRequest request, HttpServletResponse response, Customer customer)
+            throws IOException {
+        response.setContentType("application/json;charset=UTF-8");
+        PrintWriter out = response.getWriter();
+        try {
+            int serviceId = Integer.parseInt(request.getParameter("serviceId"));
+            int vehicleId = Integer.parseInt(request.getParameter("vehicleId"));
+            Integer promotionId = parseOptionalPromotionId(request.getParameter("promotionId"));
+
+            VehicleDAO vehicleDAO = new VehicleDAO();
+            Integer vehicleTypeId = vehicleDAO.getVehicleTypeIdByVehicleId(vehicleId);
+            if (vehicleTypeId == null) {
+                out.print("{\"success\":false,\"message\":\"Vehicle not found.\"}");
+                out.flush();
+                return;
+            }
+            ServicePricesDAO priceDAO = new ServicePricesDAO();
+            ServicePrices price = priceDAO.getPriceByServiceAndVehicleType(serviceId, vehicleTypeId);
+            if (price == null) {
+                out.print("{\"success\":false,\"message\":\"Price not configured for this vehicle type.\"}");
+                out.flush();
+                return;
+            }
+
+            long subTotal = price.getPrice().longValue();
+            DiscountEngine discountEngine = new DiscountEngine();
+            DiscountResult result = discountEngine.calculate(
+                    new DiscountRequest(customer.getCusID(), customer.getTierID(), subTotal, promotionId));
+
+            int remainingUses = 0;
+            if (result.getAppliedPromotionId() != null) {
+                List<Promotion> eligible = discountEngine.getEligiblePromotions(customer.getCusID(), customer.getTierID());
+                for (Promotion promo : eligible) {
+                    if (promo.getPromotionID() == result.getAppliedPromotionId()) {
+                        remainingUses = promo.getRemainingUses();
+                        break;
+                    }
+                }
+            }
+
+            out.print("{\"success\":true"
+                    + ",\"subTotal\":" + result.getSubTotal()
+                    + ",\"discountAmount\":" + result.getDiscountAmount()
+                    + ",\"finalAmount\":" + result.getFinalAmount()
+                    + ",\"discountPercent\":" + result.getDiscountPercent()
+                    + ",\"promotionId\":" + (result.getAppliedPromotionId() != null ? result.getAppliedPromotionId() : "null")
+                    + ",\"promotionName\":\"" + escapeJson(result.getPromotionName() != null ? result.getPromotionName() : "") + "\""
+                    + ",\"remainingUses\":" + remainingUses
+                    + ",\"duration\":" + price.getDurations()
+                    + "}");
+        } catch (NumberFormatException e) {
+            out.print("{\"success\":false,\"message\":\"Invalid service or vehicle.\"}");
+        }
+        out.flush();
+    }
+
+    private Integer parseOptionalPromotionId(String raw) {
+        if (raw == null || raw.trim().isEmpty() || "auto".equalsIgnoreCase(raw.trim())) {
+            return null;
+        }
+        try {
+            int id = Integer.parseInt(raw.trim());
+            return id > 0 ? id : null;
+        } catch (NumberFormatException e) {
+            return null;
+        }
+    }
+
     private void handleSubmit(HttpServletRequest request, HttpServletResponse response, Customer customer)
             throws IOException, ServletException {
         try {
@@ -250,7 +358,13 @@ public class CustomerBookingController extends HttpServlet {
             int slotId = Integer.parseInt(request.getParameter("slotId"));
             int washBayId = Integer.parseInt(request.getParameter("washBayId"));
             String notes = request.getParameter("notes");
+            Integer promotionId = parseOptionalPromotionId(request.getParameter("promotionId"));
 
+            String slotError = validateSlotLeadTime(slotId);
+            if (slotError != null) {
+                forwardError(request, response, slotError);
+                return;
+            }
             LocalDate slotDate = resolveSlotDate(slotId);
             if (slotDate == null) {
                 forwardError(request, response, "Selected time slot was not found.");
@@ -289,27 +403,14 @@ public class CustomerBookingController extends HttpServlet {
             booking.setNotes(notes);
 
             BookingDAO bookingDAO = new BookingDAO();
-            int result = bookingDAO.createCustomerBooking(booking);
-            if (result > 0) {
-                response.sendRedirect("PaymentController?bookingId=" + booking.getBookingID());
+            BookingDAO.CustomerBookingResult result = bookingDAO.createCustomerBookingWithInvoice(
+                    booking, customer.getTierID(), promotionId);
+            if (result != null) {
+                response.sendRedirect("PaymentController?invoiceId=" + result.getInvoiceId());
                 return;
             }
 
-            String error;
-            switch (result) {
-                case -1:
-                    error = "Selected time slot was not found.";
-                    break;
-                case -2:
-                    error = "Selected time slot is already full.";
-                    break;
-                case -4:
-                    error = "Selected wash bay is no longer available for this time slot.";
-                    break;
-                default:
-                    error = "Could not create booking. Please try again.";
-            }
-            forwardError(request, response, error);
+            forwardError(request, response, "Could not create booking. The slot or wash bay may no longer be available.");
         } catch (NumberFormatException e) {
             forwardError(request, response, "Please complete all booking fields.");
         }

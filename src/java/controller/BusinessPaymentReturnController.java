@@ -26,7 +26,7 @@ public class BusinessPaymentReturnController extends HttpServlet {
                 new BookingDAO().cancelInvoiceBookings(invoiceId);
             } catch (NumberFormatException ignored) {
             }
-            response.sendRedirect(PayOSConfig.appPath("/BusinessBookingController"));
+            response.sendRedirect(PayOSConfig.appPath("/MainController?action=business_booking"));
             return;
         }
 
@@ -37,11 +37,11 @@ public class BusinessPaymentReturnController extends HttpServlet {
             } catch (NumberFormatException ignored) {
             }
             response.sendRedirect(PayOSConfig.appPath(
-                    "/BusinessPaymentSuccessController?invoiceId=" + invoiceIdParam));
+                    "/MainController?action=business_payment_success&invoiceId=" + invoiceIdParam));
             return;
         }
 
-        response.sendRedirect(PayOSConfig.appPath("/BusinessDashboardController"));
+        response.sendRedirect(PayOSConfig.appPath("/MainController?action=business_dashboard"));
     }
 
     private void tryConfirmPayment(int invoiceId) {

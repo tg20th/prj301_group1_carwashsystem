@@ -6,6 +6,7 @@ package controller;
 
 import dao.BookingDAO;
 import dao.BusinessDAO;
+import service.InvoiceAutoCancelService;
 import dao.CustomerDAO;
 import dao.PromotionDAO;
 import dao.RewardDAO;
@@ -49,6 +50,8 @@ public class BusinessDashboardController extends HttpServlet {
                 response.sendRedirect("MainController?action=home");
                 return;
             }
+            new InvoiceAutoCancelService().cancelExpiredPendingInvoices();
+
             CustomerDAO cusDAO = new CustomerDAO();
             BusinessDAO bizDAO = new BusinessDAO();
             VehicleDAO vDao = new VehicleDAO();

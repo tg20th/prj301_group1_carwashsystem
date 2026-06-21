@@ -1,4 +1,5 @@
 <%@page import="java.util.List"%>
+<%@page import="dto.Promotion"%>
 <%@page import="dto.Service"%>
 <%@page import="dto.Vehicle"%>
 <%@page import="dto.Account"%>
@@ -11,6 +12,7 @@
     }
     List<Vehicle> vehicles = (List<Vehicle>) request.getAttribute("VEHICLES");
     List<Service> services = (List<Service>) request.getAttribute("SERVICES");
+    List<Promotion> promoList = (List<Promotion>) request.getAttribute("PROMO_LIST");
     String errorMsg = (String) request.getAttribute("ERROR_MSG");
     String businessName = (String) request.getAttribute("BUSINESS_NAME");
     Integer maxBookingDays = (Integer) request.getAttribute("MAX_BOOKING_DAYS");
@@ -100,8 +102,9 @@
         </div>
         <% } else { %>
 
-        <form id="bookingForm" action="BusinessBookingController" method="post">
-            <input type="hidden" name="action" value="submit">
+        <form id="bookingForm" action="MainController" method="post">
+            <input type="hidden" name="action" value="business_booking">
+            <input type="hidden" name="op" value="submit">
             <input type="hidden" name="slotId" id="slotId">
             <input type="hidden" id="bookingDate">
 
@@ -192,8 +195,30 @@
 
                         <div class="mb-3" id="priceBreakdown"></div>
 
+                        <div class="mb-3">
+                            <div class="small text-muted text-uppercase fw-bold mb-2">
+                                <i class="bi bi-tag"></i> Promotion
+                            </div>
+                            <select name="promotionId" id="promotionId" class="booking-select">
+                                <option value="auto">Best available deal</option>
+                                <% if (promoList != null) {
+                                    for (Promotion p : promoList) { %>
+                                <option value="<%= p.getPromotionID() %>"><%= p.getPromotionName() %> (<%= p.getDiscountPercent() %>% OFF · <%= p.getRemainingUses() >= 999 ? "Unlimited" : p.getRemainingUses() + " left" %>)</option>
+                                <% }} %>
+                            </select>
+                            <div class="small text-muted mt-1" id="sumPromo"></div>
+                        </div>
+
                         <div class="border-top pt-3">
-                            <div class="small text-muted">Total (1 invoice)</div>
+                            <div class="price-line text-muted">
+                                <span>Subtotal</span>
+                                <span id="sumSubTotal">—</span>
+                            </div>
+                            <div class="price-line text-success" id="sumDiscountRow" style="display:none;">
+                                <span>Discount</span>
+                                <span id="sumDiscount">—</span>
+                            </div>
+                            <div class="small text-muted mt-2">Total (1 invoice)</div>
                             <div class="total-amount" id="sumTotal">—</div>
                             <div class="small text-muted mt-1">
                                 <i class="bi bi-receipt me-1"></i>
@@ -218,6 +243,7 @@
         const slotIdInput = document.getElementById('slotId');
         const submitBtn = document.getElementById('submitBtn');
         const serviceSelect = document.getElementById('serviceId');
+        const promotionSelect = document.getElementById('promotionId');
         const bayHint = document.getElementById('bayHint');
 
         let selectedDate = new Date();
@@ -259,6 +285,10 @@
             loadPrices();
             updateSummary();
         });
+
+        if (promotionSelect) {
+            promotionSelect.addEventListener('change', loadPrices);
+        }
 
         function buildDatePills() {
             const today = new Date();
@@ -322,9 +352,30 @@
                 }
             }
 
-            document.getElementById('sumTotal').textContent = priceData
-                ? Number(priceData.total).toLocaleString('vi-VN') + ' VND'
-                : '—';
+            if (priceData) {
+                document.getElementById('sumSubTotal').textContent = Number(priceData.subTotal).toLocaleString('vi-VN') + ' VND';
+                document.getElementById('sumTotal').textContent = Number(priceData.finalAmount).toLocaleString('vi-VN') + ' VND';
+                const discountRow = document.getElementById('sumDiscountRow');
+                if (priceData.discountAmount > 0) {
+                    discountRow.style.display = 'flex';
+                    document.getElementById('sumDiscount').textContent = '-' + Number(priceData.discountAmount).toLocaleString('vi-VN') + ' VND';
+                    const usesLabel = priceData.remainingUses >= 999
+                        ? 'Unlimited'
+                        : (priceData.remainingUses + ' uses left');
+                    document.getElementById('sumPromo').textContent = priceData.promotionName
+                        ? priceData.promotionName + ' (' + priceData.discountPercent + '% OFF · ' + usesLabel + ')'
+                        : '';
+                } else {
+                    discountRow.style.display = 'none';
+                    document.getElementById('sumDiscount').textContent = '—';
+                    document.getElementById('sumPromo').textContent = 'No promotion applied';
+                }
+            } else {
+                document.getElementById('sumSubTotal').textContent = '—';
+                document.getElementById('sumTotal').textContent = '—';
+                document.getElementById('sumDiscountRow').style.display = 'none';
+                document.getElementById('sumPromo').textContent = '';
+            }
 
             updateSubmitState();
         }
@@ -342,7 +393,7 @@
             slotContainer.innerHTML = '<span class="text-muted small">Loading slots...</span>';
             updateSummary();
 
-            fetch(ctx + '/BusinessBookingController?action=slots&date=' + dateInput.value)
+            fetch(ctx + '/MainController?action=business_booking&op=slots&date=' + dateInput.value)
                 .then(r => r.json())
                 .then(data => {
                     if (!data.success) {
@@ -389,7 +440,7 @@
             }
             bayHint.textContent = 'Checking available bays...';
             bayHint.className = 'bay-hint mt-2';
-            fetch(ctx + '/BusinessBookingController?action=bays&slotId=' + slotIdInput.value + '&vehicleCount=' + count)
+            fetch(ctx + '/MainController?action=business_booking&op=bays&slotId=' + slotIdInput.value + '&vehicleCount=' + count)
                 .then(r => r.json())
                 .then(data => {
                     if (!data.success) {
@@ -423,11 +474,15 @@
                 return;
             }
             const params = new URLSearchParams();
-            params.append('action', 'prices');
+            params.append('action', 'business_booking');
+            params.append('op', 'previewDiscount');
             params.append('serviceId', serviceSelect.value);
             ids.forEach(id => params.append('vehicleIds', id));
+            if (promotionSelect) {
+                params.append('promotionId', promotionSelect.value);
+            }
 
-            fetch(ctx + '/BusinessBookingController?' + params.toString())
+            fetch(ctx + '/MainController?' + params.toString())
                 .then(r => r.json())
                 .then(data => {
                     priceData = data.success ? data : null;

@@ -220,7 +220,7 @@ CREATE TABLE Promotions (
     PromoCode NVARCHAR(50) UNIQUE NULL,
     PromotionName NVARCHAR(100) NOT NULL,
 
-    TargetType NVARCHAR(20) NOT NULL DEFAULT 'All', -- 'All', 'Tier'
+    TargetType NVARCHAR(20) NOT NULL DEFAULT 'All', -- 'All', 'Tier', 'Customer'
 
     DiscountPercent INT NOT NULL,
 
@@ -228,7 +228,7 @@ CREATE TABLE Promotions (
     EndDate DATE,
     Description NVARCHAR(255),
     IsActive BIT NOT NULL DEFAULT 1,
-    CONSTRAINT CK_Promotion_Target CHECK (TargetType IN ('All', 'Tier'))
+    CONSTRAINT CK_Promotion_Target CHECK (TargetType IN ('All', 'Tier', 'Customer'))
 );
 
 -- =====================================================
@@ -240,6 +240,20 @@ CREATE TABLE PromotionTiers (
     PRIMARY KEY(PromotionID, TierID),
     CONSTRAINT FK_PromoTiers_Promo FOREIGN KEY(PromotionID) REFERENCES Promotions(PromotionID) ON DELETE CASCADE,
     CONSTRAINT FK_PromoTiers_Tier FOREIGN KEY(TierID) REFERENCES LoyaltyTiers(TierID)
+);
+
+-- =====================================================
+-- 13.2. PROMOTION CUSTOMERS (quota per account)
+-- =====================================================
+CREATE TABLE PromotionCustomers (
+    PromotionID INT NOT NULL,
+    CustomerID INT NOT NULL,
+    MaxUses INT NOT NULL DEFAULT 1,
+    UsedCount INT NOT NULL DEFAULT 0,
+    PRIMARY KEY(PromotionID, CustomerID),
+    CONSTRAINT FK_PromoCustomers_Promo FOREIGN KEY(PromotionID) REFERENCES Promotions(PromotionID) ON DELETE CASCADE,
+    CONSTRAINT FK_PromoCustomers_Customer FOREIGN KEY(CustomerID) REFERENCES Customers(CustomerID),
+    CONSTRAINT CK_PromoCustomers_Uses CHECK (UsedCount >= 0 AND UsedCount <= MaxUses)
 );
 
 

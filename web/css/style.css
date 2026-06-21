@@ -206,3 +206,60 @@ select option {
     box-shadow: 0 0 0 0.25rem rgba(0, 0, 0, 0.125);
 }
 
+.vehicle-thumb-img {
+    width: 72px;
+    height: 48px;
+    object-fit: cover;
+    border-radius: 8px;
+    border: 1px solid #e5e7eb;
+}
+
+/* Invoice history — compact layout */
+.invoice-history-compact {
+    font-size: 0.8rem;
+}
+.invoice-history-compact h2 {
+    font-size: 1.35rem;
+}
+.invoice-history-compact h5 {
+    font-size: 0.95rem;
+}
+.invoice-history-compact .table {
+    font-size: 0.78rem;
+}
+.invoice-history-compact .table th,
+.invoice-history-compact .table td {
+    padding: 0.35rem 0.5rem !important;
+    vertical-align: middle;
+}
+.invoice-history-compact .badge {
+    font-size: 0.65rem;
+    padding: 0.2rem 0.5rem !important;
+}
+.invoice-history-compact .btn-sm {
+    font-size: 0.7rem;
+    padding: 0.2rem 0.55rem;
+}
+.invoice-history-compact .nav-pills .nav-link {
+    font-size: 0.72rem;
+    padding: 0.25rem 0.65rem;
+}
+.invoice-history-compact .filter-btn,
+.invoice-history-compact .bus-filter-btn {
+    font-size: 0.72rem !important;
+}
+#invoiceDetailModal .modal-title {
+    font-size: 1rem;
+}
+#invoiceDetailModal .table {
+    font-size: 0.75rem;
+}
+#invoiceDetailModal .table th,
+#invoiceDetailModal .table td {
+    padding: 0.3rem 0.45rem;
+}
+#invoiceDetailModal .badge {
+    font-size: 0.65rem;
+    padding: 0.2rem 0.45rem !important;
+}
+

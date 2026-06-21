@@ -182,31 +182,29 @@
                                                     <c:when test="${statusLower == 'pending'}">
                                                         <span class="text-muted small fw-bold"><i class="bi bi-credit-card me-1"></i>Awaiting Payment</span>
                                                     </c:when>
-                                                    
                                                     <c:when test="${statusLower == 'confirmed'}">
-                                                        <form action="BookingProcessController" method="POST" class="m-0 p-0 d-inline-block">
-                                                            <input type="hidden" name="action" value="checkin">
+                                                        <form action="MainController" method="POST" class="m-0 p-0 d-inline-block">
+                                                            <input type="hidden" name="action" value="process_booking">
+                                                            <input type="hidden" name="actionAdmin" value="checkin">
                                                             <input type="hidden" name="id" value="${b.bookingID}">
                                                             <button type="submit" class="btn btn-sm btn-dark-custom rounded-pill px-4 py-2 fw-bold shadow-sm">
                                                                 <i class="bi bi-box-arrow-in-right me-1"></i>Check In
                                                             </button>
                                                         </form>
                                                     </c:when>
-                                                    
                                                     <c:when test="${statusLower == 'inprogress'}">
-                                                        <form action="BookingProcessController" method="POST" class="m-0 p-0 d-inline-block">
-                                                            <input type="hidden" name="action" value="checkout">
+                                                        <form action="MainController" method="POST" class="m-0 p-0 d-inline-block">
+                                                            <input type="hidden" name="action" value="process_booking">
+                                                            <input type="hidden" name="actionAdmin" value="checkout">
                                                             <input type="hidden" name="id" value="${b.bookingID}">
                                                             <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill px-3 py-2 fw-bold shadow-sm">
                                                                 <i class="bi bi-box-arrow-left me-1"></i>Check Out
                                                             </button>
                                                         </form>
                                                     </c:when>
-                                                    
                                                     <c:when test="${statusLower == 'completed'}">
                                                         <span class="text-success small fw-bold"><i class="bi bi-check2-all me-1"></i>Done</span>
                                                     </c:when>
-                                                    
                                                     <c:when test="${statusLower == 'cancelled' || statusLower == 'noshow'}">
                                                         <span class="text-danger small fw-bold"><i class="bi bi-slash-circle me-1"></i>Closed</span>
                                                     </c:when>
@@ -259,7 +257,7 @@
                 }, 4000); 
             });
 
-            // ==================== LỌC DỮ LIỆU TABS (ĐÃ SỬA LỖI CÚ PHÁP) ====================
+            // ==================== LỌC DỮ LIỆU TABS ====================
             function filterTable(status, btnElement, saveToSession = true) {
                 if (saveToSession) {
                     sessionStorage.setItem('currentBookingFilter', status);
@@ -274,13 +272,10 @@
                 let visibleCount = 0;
 
                 rows.forEach(row => {
-                    let rowStatus = row.getAttribute('data-status');
-                    
-                    // Logic: ALL thì hiện hết, Upcoming thì hiện Pending/Confirmed
-                    let isVisible = (status === 'ALL') 
-                                    || (rowStatus === status)
-                                    || (status === 'Upcoming' && (rowStatus === 'Pending' || rowStatus === 'Confirmed'));
-
+                    const rowStatus = row.getAttribute('data-status');
+                    const isVisible = status === 'ALL'
+                        || rowStatus === status
+                        || (status === 'Upcoming' && (rowStatus === 'Pending' || rowStatus === 'Confirmed'));
                     if (isVisible) {
                         row.style.display = "";
                         visibleCount++;

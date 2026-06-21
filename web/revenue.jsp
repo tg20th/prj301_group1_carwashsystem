@@ -39,7 +39,8 @@
                     <p class="text-secondary fw-medium mb-0">Track your earnings, bookings, and growth trends.</p>
                 </div>
                 <div class="mt-3 mt-md-0">
-                    <form action="RevenueController" method="POST" class="d-flex gap-2">
+                    <form action="MainController" method="POST" class="d-flex gap-2">
+                        <input type="hidden" name="action" value="Revenue">
                         <select name="year" class="form-select vibrant-input rounded-pill cursor-pointer px-4 shadow-sm" style="min-width: 140px;">
                             <c:forEach var="y" items="${AVAILABLE_YEARS}">
                                 <option value="${y}" <c:if test="${y == SELECTED_YEAR}">selected</c:if>>Year ${y}</option>

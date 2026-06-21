@@ -26,10 +26,10 @@
 <body class="bus-page d-flex flex-column min-vh-100">
     <div class="bg-white border-bottom py-2 shadow-sm">
         <div class="container d-flex justify-content-between align-items-center">
-            <a href="BusinessDashboardController" class="text-decoration-none text-dark fw-semibold small">
+            <a href="MainController?action=business_dashboard" class="text-decoration-none text-dark fw-semibold small">
                 <i class="bi bi-building me-1"></i>EliteAuto Business
             </a>
-            <a href="BusinessBookingController" class="text-muted small text-decoration-none">
+            <a href="MainController?action=business_booking" class="text-muted small text-decoration-none">
                 <i class="bi bi-arrow-left me-1"></i>Quay lại đặt lịch
             </a>
         </div>
@@ -87,7 +87,8 @@
                 </div>
                 <% } %>
                 <% if (sandboxMode) { %>
-                <form action="BusinessPaymentSandboxController" method="post" class="mt-3">
+                <form action="MainController" method="post" class="mt-3">
+                    <input type="hidden" name="action" value="business_payment_sandbox">
                     <input type="hidden" name="invoiceId" value="<%= invoiceId %>">
                     <button type="submit" class="btn btn-success btn-sm rounded-pill w-100">
                         <i class="bi bi-check-circle me-1"></i>Giả lập thanh toán (sandbox)
@@ -111,10 +112,14 @@
 
         async function checkPaid() {
             try {
-                const res = await fetch('BusinessPaymentStatusController?invoiceId=' + invoiceId);
+                const res = await fetch('MainController?action=business_payment_status&invoiceId=' + invoiceId);
                 const data = await res.json();
+                if (data.success && data.expired) {
+                    window.location.replace('MainController?action=viewbusinesshistory');
+                    return true;
+                }
                 if (data.success && data.paymentStatus === 'Paid') {
-                    window.location.replace('BusinessPaymentSuccessController?invoiceId=' + invoiceId);
+                    window.location.replace('MainController?action=business_payment_success&invoiceId=' + invoiceId);
                     return true;
                 }
             } catch (e) { /* ignore */ }
