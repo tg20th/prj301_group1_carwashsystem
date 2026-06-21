@@ -214,7 +214,12 @@ public class MainController extends HttpServlet {
                 case "update_status_tier":
                     url = "RemoveTierController";
                     break;
-                
+                case "Revenue":
+                    url = "RevenueController";
+                    break;
+                case "invoice_print":
+                    url = "InvoicePrintController";
+                    break;
                 default:
                     url = "index.jsp";
                     break;
