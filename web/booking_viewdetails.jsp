@@ -72,7 +72,6 @@
                         <li class="nav-item"><button class="nav-link filter-btn rounded-pill px-4 fw-bold text-muted text-nowrap" data-filter="Upcoming" onclick="filterTable('Upcoming', this)">Upcoming</button></li>
                         <li class="nav-item"><button class="nav-link filter-btn rounded-pill px-4 fw-bold text-muted text-nowrap" data-filter="InProgress" onclick="filterTable('InProgress', this)">Washing</button></li>
                         <li class="nav-item"><button class="nav-link filter-btn rounded-pill px-4 fw-bold text-muted text-nowrap" data-filter="Completed" onclick="filterTable('Completed', this)">Completed</button></li>
-                        
                         <li class="nav-item"><button class="nav-link filter-btn rounded-pill px-4 fw-bold text-muted text-nowrap" data-filter="Cancelled" onclick="filterTable('Cancelled', this)">Cancelled</button></li>
                         <li class="nav-item"><button class="nav-link filter-btn rounded-pill px-4 fw-bold text-muted text-nowrap" data-filter="NoShow" onclick="filterTable('NoShow', this)">No Show</button></li>
                     </ul>
@@ -258,6 +257,7 @@
             });
 
             // ==================== LỌC DỮ LIỆU TABS ====================
+            // ĐÃ XÓA LỖI IF DƯ THỪA BỊ THIẾU NGOẶC ĐÓNG
             function filterTable(status, btnElement, saveToSession = true) {
                 if (saveToSession) {
                     sessionStorage.setItem('currentBookingFilter', status);
@@ -272,11 +272,13 @@
                 let visibleCount = 0;
 
                 rows.forEach(row => {
-                    if (status === 'ALL' || row.getAttribute('data-status') === status) {
                     let rowStatus = row.getAttribute('data-status');
-                    let isVisible = status === 'ALL'
-                        || rowStatus === status
-                        || (status === 'Upcoming' && (rowStatus === 'Pending' || rowStatus === 'Confirmed'));
+                    
+                    // Xử lý logic lọc tab
+                    let isVisible = status === 'ALL' 
+                                 || rowStatus === status
+                                 || (status === 'Upcoming' && (rowStatus === 'Pending' || rowStatus === 'Confirmed'));
+
                     if (isVisible) {
                         row.style.display = "";
                         visibleCount++;

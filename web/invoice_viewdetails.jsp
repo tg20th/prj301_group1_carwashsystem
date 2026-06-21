@@ -78,11 +78,11 @@
                     </p>
                     <ul class="nav nav-pills bg-white p-1 rounded-pill shadow-sm border mt-3 mb-0 d-inline-flex">
                         <li class="nav-item">
-                            <a href="ManageBookingsController?scope=all"
+                            <a href="MainController?action=invoice_admin&amp;scope=all"
                                class="nav-link scope-tab rounded-pill fw-bold text-nowrap <%= isTodayScope ? "text-muted" : "active" %>">All</a>
                         </li>
                         <li class="nav-item">
-                            <a href="ManageBookingsController?scope=today"
+                            <a href="MainController?action=invoice_admin&amp;scope=today"
                                class="nav-link scope-tab rounded-pill fw-bold text-nowrap <%= isTodayScope ? "active" : "text-muted" %>">Today</a>
                         </li>
                     </ul>
@@ -152,7 +152,7 @@
                                 }
                             %>
                             <tr class="border-bottom border-light invoice-row" data-status="<%= status %>"
-                                onclick="openInvoiceDetail('ManageBookingsController', <%= inv.getInvoiceId() %>)">
+                                onclick="openInvoiceDetail('ManageInvoiceController', <%= inv.getInvoiceId() %>)">
                                 <td class="ps-3">
                                     <div class="fw-semibold font-monospace">#<%= inv.getInvoiceId() %></div>
                                     <div class="text-muted small"><%= createdStr %></div>
@@ -191,7 +191,7 @@
                                 </td>
                                 <td class="text-end pe-3 text-nowrap" onclick="event.stopPropagation();">
                                     <button type="button" class="btn btn-sm btn-outline-dark rounded-pill"
-                                            onclick="openInvoiceDetail('ManageBookingsController', <%= inv.getInvoiceId() %>)">
+                                            onclick="openInvoiceDetail('ManageInvoiceController', <%= inv.getInvoiceId() %>)">
                                         <i class="bi bi-eye"></i>
                                     </button>
                                     <button type="button" class="btn btn-sm btn-dark-custom rounded-pill ms-1"

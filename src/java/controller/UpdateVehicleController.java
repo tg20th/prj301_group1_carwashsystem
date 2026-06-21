@@ -1,23 +1,14 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
- */
 package controller;
 
-import dao.BusinessDAO;
-import dao.CustomerDAO;
 import dbutils.LicensePlateUtils;
 import dao.VehicleBrandDAO;
 import dao.VehicleDAO;
 import dao.VehicleModelDAO;
 import dto.Account;
 import dto.Business;
-import dto.Customer;
 import dto.Vehicle;
 import java.io.File;
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.nio.file.Paths;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -25,22 +16,21 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.Part;
 
-/**
- *
- * @author Minh Khanh
- */
 @WebServlet(name = "UpdateVehicleController", urlPatterns = {"/UpdateVehicleController"})
 public class UpdateVehicleController extends HttpServlet {
 
-    /**
-     * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
-     * methods.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        processRequest(request, response);
+    }
+
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        processRequest(request, response);
+    }
+
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
@@ -49,42 +39,69 @@ public class UpdateVehicleController extends HttpServlet {
             request.getRequestDispatcher("MainController").forward(request, response);
             return;
         }
-        String url;
+
+        String action = request.getParameter("action");
+        if ("UpdateVehicle_page".equals(action)) {
+            showUpdatePage(request, response, acc);
+            return;
+        }
+
+        handleUpdate(request, response, acc);
+    }
+
+    private void showUpdatePage(HttpServletRequest request, HttpServletResponse response, Account acc)
+            throws ServletException, IOException {
+        String vehicleIdParam = request.getParameter("vehicleID");
+        if (vehicleIdParam == null || vehicleIdParam.trim().isEmpty()) {
+            forwardDashboard(request, response, acc);
+            return;
+        }
+
+        try {
+            int vehicleID = Integer.parseInt(vehicleIdParam);
+            VehicleDAO vehicleDAO = new VehicleDAO();
+            Vehicle vehicle = vehicleDAO.getVehicleByID(vehicleID);
+            if (vehicle == null) {
+                forwardDashboard(request, response, acc);
+                return;
+            }
+
+            VehicleBrandDAO brandDAO = new VehicleBrandDAO();
+            VehicleModelDAO modelDAO = new VehicleModelDAO();
+            request.setAttribute("VEHICLE", vehicle);
+            request.setAttribute("BRAND_LIST", brandDAO.getAllBrands());
+            request.setAttribute("MODEL_LIST", modelDAO.getAllModels());
+            request.getRequestDispatcher("updateVehicle.jsp").forward(request, response);
+        } catch (NumberFormatException e) {
+            forwardDashboard(request, response, acc);
+        }
+    }
+
+    private void handleUpdate(HttpServletRequest request, HttpServletResponse response, Account acc)
+            throws ServletException, IOException {
         try {
             int vehicleID = Integer.parseInt(request.getParameter("vehicleID"));
             int modelID = Integer.parseInt(request.getParameter("modelID"));
             String licensePlate = LicensePlateUtils.normalize(request.getParameter("licensePlate"));
             if (!LicensePlateUtils.isValid(licensePlate)) {
-                VehicleBrandDAO brandDAO = new VehicleBrandDAO();
-                VehicleModelDAO modelDAO = new VehicleModelDAO();
-                VehicleDAO dao = new VehicleDAO();
-                Vehicle oldVehicle = dao.getVehicleByID(vehicleID);
-                request.setAttribute("ERROR", LicensePlateUtils.FORMAT_MESSAGE);
-                request.setAttribute("VEHICLE", oldVehicle);
-                request.setAttribute("BRAND_LIST", brandDAO.getAllBrands());
-                request.setAttribute("MODEL_LIST", modelDAO.getAllModels());
-                request.getRequestDispatcher("updateVehicle.jsp").forward(request, response);
+                forwardUpdatePageWithError(request, response, vehicleID, LicensePlateUtils.FORMAT_MESSAGE);
                 return;
             }
+
             String color = request.getParameter("color");
             Integer manufactureYear = null;
             String yearStr = request.getParameter("manufactureYear");
             if (yearStr != null && !yearStr.trim().isEmpty()) {
                 manufactureYear = Integer.parseInt(yearStr);
             }
+
             VehicleDAO dao = new VehicleDAO();
             Vehicle oldVehicle = dao.getVehicleByID(vehicleID);
-            boolean exists = dao.isLicensePlateExistsForOther(licensePlate, vehicleID);
-            if (exists) {
-                VehicleBrandDAO brandDAO = new VehicleBrandDAO();
-                VehicleModelDAO modelDAO = new VehicleModelDAO();
-                request.setAttribute("ERROR", "License plate already exists.");
-                request.setAttribute("VEHICLE", oldVehicle);
-                request.setAttribute("BRAND_LIST", brandDAO.getAllBrands());
-                request.setAttribute("MODEL_LIST", modelDAO.getAllModels());
-                request.getRequestDispatcher("updateVehicle.jsp").forward(request, response);
+            if (dao.isLicensePlateExistsForOther(licensePlate, vehicleID)) {
+                forwardUpdatePageWithError(request, response, vehicleID, "License plate already exists.");
                 return;
             }
+
             String imageURL = oldVehicle.getImageURL();
             Part imagePart = request.getPart("vehicleImage");
             if (imagePart != null && imagePart.getSize() > 0) {
@@ -93,11 +110,12 @@ public class UpdateVehicleController extends HttpServlet {
                 if (!uploadDir.exists()) {
                     uploadDir.mkdir();
                 }
-                String fileName = Paths.get(imagePart.getSubmittedFileName()).getFileName().toString();
+                String fileName = new File(imagePart.getSubmittedFileName()).getName();
                 String uniqueFileName = System.currentTimeMillis() + "_" + fileName;
                 imagePart.write(uploadPath + File.separator + uniqueFileName);
                 imageURL = "vehicleImages/" + uniqueFileName;
             }
+
             Vehicle updatedVehicle = new Vehicle();
             updatedVehicle.setVehicleID(vehicleID);
             updatedVehicle.setCustomerID(oldVehicle.getCustomerID());
@@ -107,87 +125,45 @@ public class UpdateVehicleController extends HttpServlet {
             updatedVehicle.setManufactureYear(manufactureYear);
             updatedVehicle.setImageURL(imageURL);
             updatedVehicle.setStatus("Pending");
-            int result = dao.updateVehicle(updatedVehicle);
 
-            if (result <= 0) {
-                VehicleBrandDAO brandDAO = new VehicleBrandDAO();
-                VehicleModelDAO modelDAO = new VehicleModelDAO();
-                request.setAttribute("ERROR", "Cannot update vehicle.");
-                request.setAttribute("VEHICLE", oldVehicle);
-                request.setAttribute("BRAND_LIST", brandDAO.getAllBrands());
-                request.setAttribute("MODEL_LIST", modelDAO.getAllModels());
-
-                request.getRequestDispatcher("updateVehicle.jsp").forward(request, response);
+            if (dao.updateVehicle(updatedVehicle) <= 0) {
+                forwardUpdatePageWithError(request, response, vehicleID, "Cannot update vehicle.");
                 return;
             }
-            request.setAttribute("SUCCESS", "Vehicle updated successfully."); 
-            Business business = (Business)request.getSession().getAttribute("BUS");
-            if (business != null) {
-            
-                request.getRequestDispatcher("BusinessDashboardController").forward(request, response);
-                return;
-            }
-            request.getRequestDispatcher("CustomerDashBoardController").forward(request, response);
+
+            request.setAttribute("SUCCESS", "Vehicle updated successfully.");
+            forwardDashboard(request, response, acc);
         } catch (Exception e) {
             e.printStackTrace();
-            try {
-                request.setAttribute("ERROR", "System error: " + e.getMessage());
-                request.getRequestDispatcher("error_page.jsp").forward(request, response);
-            } catch (Exception ex) {
-                ex.printStackTrace();
-                // last resort recovery
-                try {
-                    CustomerDAO customerDAO = new CustomerDAO();
-                    Customer customer = customerDAO.getCustomerByAccountID(acc.getAccountID());
-                    BusinessDAO d = new BusinessDAO();
-                    Business business = d.getBussinessByCusID(customer.getCusID());
-                    if (business != null) {
-                        request.getRequestDispatcher("BusinessDashboardController").forward(request, response);
-                        return;
-                    }
-                    request.getRequestDispatcher("CustomerDashBoardController").forward(request, response);
-                } catch (Exception ignored) {}
-            }
+            request.setAttribute("ERROR", "System error: " + e.getMessage());
+            request.getRequestDispatcher("error_page.jsp").forward(request, response);
         }
     }
 
-    // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
-    /**
-     * Handles the HTTP <code>GET</code> method.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
-    @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        processRequest(request, response);
+    private void forwardUpdatePageWithError(HttpServletRequest request, HttpServletResponse response,
+            int vehicleID, String errorMessage) throws ServletException, IOException {
+        VehicleDAO dao = new VehicleDAO();
+        VehicleBrandDAO brandDAO = new VehicleBrandDAO();
+        VehicleModelDAO modelDAO = new VehicleModelDAO();
+        request.setAttribute("ERROR", errorMessage);
+        request.setAttribute("VEHICLE", dao.getVehicleByID(vehicleID));
+        request.setAttribute("BRAND_LIST", brandDAO.getAllBrands());
+        request.setAttribute("MODEL_LIST", modelDAO.getAllModels());
+        request.getRequestDispatcher("updateVehicle.jsp").forward(request, response);
     }
 
-    /**
-     * Handles the HTTP <code>POST</code> method.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
-    @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+    private void forwardDashboard(HttpServletRequest request, HttpServletResponse response, Account acc)
             throws ServletException, IOException {
-        processRequest(request, response);
+        Business business = (Business) request.getSession().getAttribute("BUS");
+        if (business != null) {
+            request.getRequestDispatcher("BusinessDashboardController").forward(request, response);
+            return;
+        }
+        request.getRequestDispatcher("CustomerDashBoardController").forward(request, response);
     }
 
-    /**
-     * Returns a short description of the servlet.
-     *
-     * @return a String containing servlet description
-     */
     @Override
     public String getServletInfo() {
-        return "Short description";
-    }// </editor-fold>
-
+        return "Update vehicle page and submit";
+    }
 }
