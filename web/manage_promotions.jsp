@@ -38,19 +38,13 @@
             <c:set var="activePromos" value="${empty ACTIVE_PROMO ? 0 : ACTIVE_PROMO}" />
             <c:set var="expiredPromos" value="${empty EXPIRED_PROMO ? 0 : EXPIRED_PROMO}" />
 
-            <c:if test="${not empty error}">
-                <div class="alert alert-danger border-0 bg-danger bg-opacity-10 text-danger rounded-4 p-3 mb-4 shadow-sm d-flex align-items-center">
-                    <i class="bi bi-exclamation-circle-fill me-2 fs-5"></i>
-                    <div class="fw-bold">${error}</div>
-                    <button type="button" class="btn-close ms-auto shadow-none" data-bs-dismiss="alert"></button>
-                </div>
-            </c:if>
-            <c:if test="${not empty success}">
+            <c:if test="${not empty sessionScope.msg}">
                 <div class="alert alert-success border-0 bg-success bg-opacity-10 text-success rounded-4 p-3 mb-4 shadow-sm d-flex align-items-center">
                     <i class="bi bi-check-circle-fill me-2 fs-5"></i>
-                    <div class="fw-bold">${success}</div>
+                    <div class="fw-bold">${sessionScope.msg}</div>
                     <button type="button" class="btn-close ms-auto shadow-none" data-bs-dismiss="alert"></button>
                 </div>
+                <c:remove var="msg" scope="session"/>
             </c:if>
 
             <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 pb-2">
@@ -104,8 +98,8 @@
             <div class="glass-card rounded-4 shadow-sm overflow-hidden d-flex flex-column">
 
                 <div class="p-4 border-bottom border-light">
-                    <form action="ManagePromotionsController" method="POST" id="filterForm" class="m-0 p-0 d-flex flex-column flex-md-row justify-content-between align-items-center gap-3">
-                        <input type="hidden" name="action" value="filter">
+                    <form action="MainController" method="POST" id="filterForm" class="m-0 p-0 d-flex flex-column flex-md-row justify-content-between align-items-center gap-3">
+                        <input type="hidden" name="action" value="manage_promotion">
                         <input type="hidden" id="pageInput" name="page" value="${empty param.page ? 1 : param.page}">
 
                         <div class="position-relative w-100" style="max-width: 400px;">
@@ -214,8 +208,8 @@
                                                 <i class="bi bi-pencil-square"></i>
                                             </button>
 
-                                            <form action="CudPromotionController" method="POST" class="m-0 p-0">
-                                                <input type="hidden" name="action" value="toogleStatus">
+                                            <form action="MainController" method="POST" class="m-0 p-0">
+                                                <input type="hidden" name="action" value="promotion_toggleStatus">
                                                 <input type="hidden" name="id" value="${promo.promotionID}">
                                                 <input type="hidden" name="isActive" value="${promo.active}">
                                                 <c:choose>
@@ -278,8 +272,8 @@
                         <h5 class="modal-title fw-bolder text-dark" id="modalTitle"><i class="bi bi-magic text-dark me-2"></i>Create New Campaign</h5>
                         <button type="button" class="btn-close shadow-none" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
-                    <form action="CudPromotionController" method="POST">
-                        <input type="hidden" name="action" id="formAction" value="add">
+                    <form action="MainController" method="POST">
+                        <input type="hidden" name="action" id="formAction" value="promotion_add">
                         <input type="hidden" name="promoId" id="modalPromoId">
 
                         <div class="modal-body px-4 py-4" style="background-color: #f8fafc;">
@@ -366,7 +360,7 @@
 
                                         function openAddModal() {
                                             document.getElementById('modalTitle').innerHTML = '<i class="bi bi-magic text-dark me-2"></i>Create New Campaign';
-                                            document.getElementById('formAction').value = 'add';
+                                            document.getElementById('formAction').value = 'promotion_add';
                                             document.getElementById('modalPromoId').value = '';
                                             document.getElementById('modalPromoCode').value = '';
                                             document.getElementById('modalPromoName').value = '';
@@ -382,7 +376,7 @@
 
                                         function openEditModal(id, code, name, target, percent, start, end, desc, tierId) {
                                             document.getElementById('modalTitle').innerHTML = '<i class="bi bi-pencil-square text-dark me-2"></i>Edit Campaign';
-                                            document.getElementById('formAction').value = 'edit';
+                                            document.getElementById('formAction').value = 'promotion_edit';
                                             document.getElementById('modalPromoId').value = id;
                                             document.getElementById('modalPromoCode').value = (code !== 'null') ? code : '';
                                             document.getElementById('modalPromoName').value = name;

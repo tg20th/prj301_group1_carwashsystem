@@ -29,7 +29,7 @@ public class LoginController extends HttpServlet {
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
-        try ( PrintWriter out = response.getWriter()) {
+        try (PrintWriter out = response.getWriter()) {
             /* TODO output your page here. You may use following sample code. */
             out.println("<!DOCTYPE html>");
             out.println("<html>");
@@ -79,7 +79,6 @@ public class LoginController extends HttpServlet {
             return;
         }
 
-
         // update thời gian đăng nhập
         accountDAO.updateLastLogin(account.getAccountID());
 
@@ -95,7 +94,7 @@ public class LoginController extends HttpServlet {
             request.getRequestDispatcher("AdminDashboardController").forward(request, response);
             return;
         }
-        
+
         //tung: 14/6 check status tài khoản 
         String status = account.getStatus();
         if ("Rejected".equalsIgnoreCase(status)) {
@@ -106,6 +105,11 @@ public class LoginController extends HttpServlet {
             // TODO: replace with direct forward to ResubmitRegistController once implemented
             request.setAttribute("error", "Your business registration is pending approval. Please wait for admin review.");
             request.getRequestDispatcher("pending_page.jsp").forward(request, response);
+            return;
+        } else if ("Frozen".equalsIgnoreCase(status)) {
+            // TODO: replace with direct forward to ResubmitRegistController once implemented
+            request.setAttribute("error", "Account has been frozen!");
+            request.getRequestDispatcher("index.jsp").forward(request, response);
             return;
         }
 

@@ -54,10 +54,10 @@ public class WashBayController extends HttpServlet {
         String action = request.getParameter("action");
         WashBayDAO wbDAO = new WashBayDAO();
         if (action == null) {
-            action = "list";
+            action = "washbay_list";
         }
 
-        if (action.equalsIgnoreCase("list")) {
+        if (action.equalsIgnoreCase("washbay_list")) {
 
             List<WashBay> wbList = wbDAO.getAllWashBays();
             request.setAttribute("WB_LIST", wbList);
@@ -65,7 +65,7 @@ public class WashBayController extends HttpServlet {
             return;
 
         }//end if
-        else if (action.equalsIgnoreCase("showEditDashboard")) {
+        else if (action.equalsIgnoreCase("washbay_showEditDashboard")) {
             int wbID = Integer.parseInt(request.getParameter("washBayID"));
 
             WashBay wb = wbDAO.getWashBayByID(wbID);
@@ -74,7 +74,7 @@ public class WashBayController extends HttpServlet {
             request.getRequestDispatcher("edit-washbay.jsp").forward(request, response);
             return;
         }//end if
-        else if (action.equalsIgnoreCase("update")) {
+        else if (action.equalsIgnoreCase("washbay_update")) {
             int id = Integer.parseInt(request.getParameter("washBayID"));
             String bayName = request.getParameter("bayName");
             String description = request.getParameter("description");
@@ -85,7 +85,7 @@ public class WashBayController extends HttpServlet {
                 request.setAttribute("ERROR", "Bay name or description is required!");
                 WashBay old = wbDAO.getWashBayByID(id);
                 request.setAttribute("WB", old);
-                request.getRequestDispatcher("edit-washbay.jsp").forward(request, response);
+                request.getRequestDispatcher("edit-washbay.jsp").forward(request, response); // 21/6
                 return;
             }
 
@@ -98,7 +98,7 @@ public class WashBayController extends HttpServlet {
             boolean result = wbDAO.updateWashBay(wb);
 
             if (result) {
-                response.sendRedirect("WashBayController?action=list");
+                response.sendRedirect("MainController?action=washbay_list");
                 return;
             } else {
                 request.setAttribute("ERROR", "Update failed!");
@@ -111,7 +111,7 @@ public class WashBayController extends HttpServlet {
         request.setAttribute("ERROR", "Invalid action!");
         List<WashBay> wbList = wbDAO.getAllWashBays();
         request.setAttribute("WB_LIST", wbList);
-        request.getRequestDispatcher("washbay-dashboard.jsp").forward(request, response);
+        request.getRequestDispatcher("washbay-dashboard.jsp").forward(request, response); //21/6
     }
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">

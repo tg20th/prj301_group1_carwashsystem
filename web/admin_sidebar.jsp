@@ -24,7 +24,7 @@
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link px-3 py-2 d-flex align-items-center" href="WashBayController?action=list">
+                <a class="nav-link px-3 py-2 d-flex align-items-center" href="MainController?action=washbay_list">
                     <i class="bi bi-droplet me-3"></i> Wash Bays
                 </a>
             </li>
@@ -34,7 +34,7 @@
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link px-3 py-2 d-flex align-items-center" href="ServiceController?action=list">
+                <a class="nav-link px-3 py-2 d-flex align-items-center" href="MainController?action=service_list">
                     <i class="bi bi-tools me-3"></i> Services
                 </a>
             </li>
@@ -76,7 +76,7 @@
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link px-3 py-2 d-flex align-items-center" href="ManagePromotionsController">
+                <a class="nav-link px-3 py-2 d-flex align-items-center" href="MainController?action=manage_promotion">
                     <i class="bi bi-ticket-perforated me-3"></i> Promotions
                 </a>
             </li>
