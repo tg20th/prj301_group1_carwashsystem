@@ -236,6 +236,7 @@ public class MainController extends HttpServlet {
                 case "promotion_edit":
                 case "promotion_toggleStatus":
                     url = "CudPromotionController";
+                            break;
                 case "vehicle_bus_request":
                     url = "VehicleRequestBusController";
                     break;
