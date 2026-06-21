@@ -67,12 +67,12 @@ public class BusinessPaymentSandboxController extends HttpServlet {
             }
 
             if ("Paid".equalsIgnoreCase(summary.getInvoicePaymentStatus())) {
-                response.sendRedirect("BusinessPaymentSuccessController?invoiceId=" + invoiceId);
+                response.sendRedirect("MainController?action=business_payment_success&invoiceId=" + invoiceId);
                 return;
             }
 
             if (bookingDAO.confirmInvoiceAfterPayment(invoiceId, (int) summary.getTotalAmount())) {
-                response.sendRedirect("BusinessPaymentSuccessController?invoiceId=" + invoiceId + "&sandbox=1");
+                response.sendRedirect("MainController?action=business_payment_success&invoiceId=" + invoiceId + "&sandbox=1");
             } else {
                 response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Sandbox confirm failed");
             }

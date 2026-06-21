@@ -16,6 +16,7 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import service.InvoiceAutoCancelService;
 import service.PayOSPaymentResult;
 import service.PayOSService;
 
@@ -46,10 +47,21 @@ public class BusinessPaymentController extends HttpServlet {
         }
 
         try {
+            InvoiceAutoCancelService autoCancelService = new InvoiceAutoCancelService();
+            autoCancelService.cancelExpiredPendingInvoices();
+
             int invoiceId = Integer.parseInt(request.getParameter("invoiceId"));
             InvoiceDAO invoiceDAO = new InvoiceDAO();
             if (!invoiceDAO.isInvoiceOwnedByCustomer(invoiceId, customer.getCusID())) {
                 response.sendError(HttpServletResponse.SC_FORBIDDEN, "Invalid invoice");
+                return;
+            }
+
+            if (autoCancelService.isInvoiceExpired(invoiceId)) {
+                new BookingDAO().cancelInvoiceBookings(invoiceId);
+                request.setAttribute("ERROR_MSG",
+                        "Payment window expired after 15 minutes. This invoice was cancelled.");
+                request.getRequestDispatcher("BusinessBookingHistoryController").forward(request, response);
                 return;
             }
 
@@ -60,9 +72,15 @@ public class BusinessPaymentController extends HttpServlet {
                 return;
             }
 
+            if ("Cancelled".equalsIgnoreCase(summary.getInvoicePaymentStatus())) {
+                request.setAttribute("ERROR_MSG", "This invoice has been cancelled.");
+                request.getRequestDispatcher("BusinessBookingHistoryController").forward(request, response);
+                return;
+            }
+
             if ("Paid".equalsIgnoreCase(summary.getInvoicePaymentStatus())
                     || "Confirmed".equalsIgnoreCase(summary.getLeaderBookingStatus())) {
-                response.sendRedirect("BusinessPaymentSuccessController?invoiceId=" + invoiceId);
+                response.sendRedirect("MainController?action=business_payment_success&invoiceId=" + invoiceId);
                 return;
             }
 

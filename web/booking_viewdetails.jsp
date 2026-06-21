@@ -180,11 +180,12 @@
                                             <td class="text-end pe-4 py-3">
                                                 <c:choose>
                                                     <c:when test="${statusLower == 'pending'}">
-                                                        <form action="MainController?action=process_booking" method="POST" class="m-0 p-0 d-inline-block">
-                                                            <input type="hidden" name="actionAdmin" value="checkin">
+                                                        <span class="text-muted small fw-bold"><i class="bi bi-credit-card me-1"></i>Awaiting Payment</span>
+                                                    </c:when>
                                                     <c:when test="${statusLower == 'confirmed'}">
-                                                        <form action="BookingProcessController" method="POST" class="m-0 p-0 d-inline-block">
-                                                            <input type="hidden" name="action" value="checkin">
+                                                        <form action="MainController" method="POST" class="m-0 p-0 d-inline-block">
+                                                            <input type="hidden" name="action" value="process_booking">
+                                                            <input type="hidden" name="actionAdmin" value="checkin">
                                                             <input type="hidden" name="id" value="${b.bookingID}">
                                                             <button type="submit" class="btn btn-sm btn-dark-custom rounded-pill px-4 py-2 fw-bold shadow-sm">
                                                                 <i class="bi bi-box-arrow-in-right me-1"></i>Check In
@@ -192,17 +193,9 @@
                                                         </form>
                                                     </c:when>
                                                     <c:when test="${statusLower == 'inprogress'}">
-                                                        <form action="MainController?action=process_booking" method="POST" class="m-0 p-0 d-inline-block">
+                                                        <form action="MainController" method="POST" class="m-0 p-0 d-inline-block">
+                                                            <input type="hidden" name="action" value="process_booking">
                                                             <input type="hidden" name="actionAdmin" value="checkout">
-                                                            <input type="hidden" name="id" value="${b.bookingID}">
-                                                            <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill px-3 py-2 fw-bold shadow-sm">
-                                                                Complete Wash
-                                                    <c:when test="${statusLower == 'pending'}">
-                                                        <span class="text-muted small fw-bold"><i class="bi bi-credit-card me-1"></i>Awaiting Payment</span>
-                                                    </c:when>
-                                                    <c:when test="${statusLower == 'inprogress'}">
-                                                        <form action="BookingProcessController" method="POST" class="m-0 p-0 d-inline-block">
-                                                            <input type="hidden" name="action" value="checkout">
                                                             <input type="hidden" name="id" value="${b.bookingID}">
                                                             <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill px-3 py-2 fw-bold shadow-sm">
                                                                 <i class="bi bi-box-arrow-left me-1"></i>Check Out

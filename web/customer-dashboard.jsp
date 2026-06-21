@@ -1,4 +1,5 @@
 <%@page import="dto.Reward"%>
+<%@page import="dto.Promotion"%>
 <%@page import="dto.Customer"%>
 <%@page import="dto.Vehicle"%>
 <%@page import="dto.Tier"%>
@@ -9,6 +10,7 @@
     Account account = (Account) request.getSession().getAttribute("ACCOUNT");
     Tier tier = (Tier) request.getAttribute("TIER");
     List<Vehicle> vehicleList = (List) request.getAttribute("VEHICLES");
+    List<Promotion> promoList = (List<Promotion>) request.getAttribute("PROMO_LIST");
     Customer customer = (Customer) request.getAttribute("CUSTOMER");
     Reward nextReward = (Reward) request.getAttribute("NEXTREWARD");
 
@@ -112,7 +114,7 @@
                     </div>
                 </div>
                 <div class="col-md-6 col-lg-3 delay-4">
-                    <a href="CustomerBookingHistoryController" class="text-decoration-none d-block h-100">
+                    <a href="MainController?action=viewcustomerhistory" class="text-decoration-none d-block h-100">
                         <div class="bg-white p-4 rounded-4 shadow-sm border border-light h-100 transition-hover" style="border-top: 4px solid #0d6efd !important;">
                             <div class="d-flex justify-content-between align-items-center mb-3">
                                 <h6 class="text-muted small text-uppercase fw-bold m-0 tracking-tight">My Bookings</h6>
@@ -158,13 +160,13 @@
                     </div>
                 </div>
 
-                <div class="col-lg-9">
+                <div class="col-lg-6">
                     <div class="bg-white p-4 p-md-5 rounded-4 shadow-sm border border-light h-100 transition-hover">
 
                         <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 pb-3 border-bottom">
                             <h4 class="mb-3 mb-md-0 fw-bold tracking-tight"><i class="bi bi-car-front-fill me-2 text-muted"></i>My Vehicles</h4>
                             <div class="d-flex gap-2">
-                                <a href="CustomerBookingController" class="btn btn-dark rounded-pill py-2 px-4 fw-medium">
+                                <a href="MainController?action=customerbooking" class="btn btn-dark rounded-pill py-2 px-4 fw-medium">
                                     <i class="bi bi-calendar-check me-1"></i> Book Service
                                 </a>
                                 <a href="MainController?action=AddVehicle_page" class="btn btn-black rounded-pill py-2 px-4 fw-medium">
@@ -179,22 +181,53 @@
                                 <table class="table align-middle table-hover mb-0">
                                     <thead class="table-light text-muted small text-uppercase tracking-tight">
                                         <tr>
-                                            <th class="py-3 px-3 rounded-start">Vehicle Info</th>
-                                            <th class="text-center py-3">License Plate</th>
+                                            <th class="py-3 px-3 rounded-start">Vehicle</th>
+                                            <th class="py-3">Plate</th>
+                                            <th class="py-3">Status</th>
+                                            <th class="py-3">Image</th>
                                             <th class="text-end py-3 px-3 rounded-end">Actions</th>
                                         </tr>
                                     </thead>
                                     <tbody class="border-top-0">
-                                        <% for (Vehicle v : vehicleList) {%>
+                                        <% for (Vehicle v : vehicleList) {
+                                            String vStatus = v.getStatus() != null ? v.getStatus() : "Unknown";
+                                            String statusBadge = "bg-light text-dark border";
+                                            String statusIcon = "bi-circle";
+                                            if ("Active".equalsIgnoreCase(vStatus)) {
+                                                statusBadge = "bg-success-subtle text-success border border-success-subtle";
+                                                statusIcon = "bi-check-circle";
+                                            } else if ("Pending".equalsIgnoreCase(vStatus)) {
+                                                statusBadge = "bg-warning-subtle text-warning border border-warning-subtle";
+                                                statusIcon = "bi-clock";
+                                            } else if ("Frozen".equalsIgnoreCase(vStatus)) {
+                                                statusBadge = "bg-secondary-subtle text-secondary border border-secondary-subtle";
+                                                statusIcon = "bi-pause-circle";
+                                            }
+                                        %>
                                         <tr>
                                             <td class="py-3 px-3">
                                                 <div class="fw-bold text-dark fs-6"><%= v.getBrand()%> <%= v.getModel()%></div>
-                                                <div class="text-muted small mt-1"><i class="bi bi-palette-fill me-1"></i><%= v.getColor()%></div>
+                                                <div class="text-muted small mt-1">
+                                                    <i class="bi bi-palette-fill me-1"></i><%= v.getColor() %>
+                                                    <% if (v.getManufactureYear() != null) { %> · <%= v.getManufactureYear() %><% } %>
+                                                </div>
                                             </td>
-                                            <td class="text-center py-3">
+                                            <td class="py-3">
                                                 <span class="badge bg-dark rounded-pill px-3 py-2 border font-monospace text-uppercase shadow-sm" style="letter-spacing: 1px;"><%= v.getLicensePlate()%></span>
                                             </td>
-                                            <td class="text-end py-3 px-3">
+                                            <td class="py-3">
+                                                <span class="badge <%= statusBadge %> rounded-pill px-3 py-2">
+                                                    <i class="bi <%= statusIcon %> me-1"></i><%= vStatus %>
+                                                </span>
+                                            </td>
+                                            <td class="py-3">
+                                                <% if (v.getImageURL() != null && !v.getImageURL().isEmpty()) { %>
+                                                <img src="<%= v.getImageURL() %>" alt="Vehicle" class="vehicle-thumb-img">
+                                                <% } else { %>
+                                                <span class="text-muted small">No image</span>
+                                                <% } %>
+                                            </td>
+                                            <td class="text-end py-3 px-3 text-nowrap">
                                                 <div class="d-flex justify-content-end gap-2">
                                                     <form action="MainController" method="post">
                                                         <input type="hidden" name="action" value="UpdateVehicle_page">
@@ -227,6 +260,24 @@
                             </div>
                             <% }%>
                         </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-3">
+                    <div class="bg-white p-4 rounded-4 shadow-sm border border-light h-100 transition-hover">
+                        <h5 class="fw-bold mb-3"><i class="bi bi-tag me-2 text-muted"></i>Promotions</h5>
+                        <% if (promoList != null && !promoList.isEmpty()) { %>
+                        <% for (Promotion p : promoList) { %>
+                        <div class="border rounded-3 p-3 mb-2">
+                            <div class="fw-semibold"><%= p.getPromotionName() %></div>
+                            <div class="text-muted small mt-1"><%= p.getDescription() != null ? p.getDescription() : "" %></div>
+                            <span class="badge bg-dark mt-2"><%= p.getDiscountPercent() %>% OFF</span>
+                            <span class="badge bg-light text-dark border mt-2 ms-1"><%= p.getRemainingUses() >= 999 ? "Unlimited" : p.getRemainingUses() + " uses left" %></span>
+                        </div>
+                        <% } %>
+                        <% } else { %>
+                        <p class="text-muted small mb-0">No promotions available.</p>
+                        <% } %>
                     </div>
                 </div>
             </div>

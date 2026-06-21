@@ -14,6 +14,7 @@ IF OBJECT_ID('PointTransactions', 'U') IS NOT NULL DELETE FROM PointTransactions
 IF OBJECT_ID('Invoices', 'U') IS NOT NULL DELETE FROM Invoices;
 IF OBJECT_ID('CustomerRewards', 'U') IS NOT NULL DELETE FROM CustomerRewards;
 IF OBJECT_ID('Rewards', 'U') IS NOT NULL DELETE FROM Rewards;
+IF OBJECT_ID('PromotionCustomers', 'U') IS NOT NULL DELETE FROM PromotionCustomers;
 IF OBJECT_ID('PromotionTiers', 'U') IS NOT NULL DELETE FROM PromotionTiers;
 IF OBJECT_ID('Promotions', 'U') IS NOT NULL DELETE FROM Promotions;
 IF OBJECT_ID('TimeSlots', 'U') IS NOT NULL DELETE FROM TimeSlots;
@@ -58,9 +59,9 @@ INSERT INTO Accounts (AccountID, RoleID, Email, Phone, Password, FirstName, Last
 (3, 2, 'customer2@gmail.com', '0912234567', 'EmmaPass202#', 'Emma', 'Williams', 'Active', NULL),
 (4, 2, 'customer3@gmail.com', '0913345678', 'DavidPass303$', 'David', 'Jones', 'Active', NULL),
 (5, 2, 'customer4@gmail.com', '0914456789', 'SophiaPass404!', 'Sophia', 'Garcia', 'Active', NULL),
-(6, 2, 'business1@company.com', '0921123456', 'BizAdmin505#', 'James', 'Miller', 'Active', NULL),
-(7, 2, 'customer5@gmail.com', '0915567890', 'OliviaPass606@', 'Olivia', 'Davis', 'Pending', NULL),
-(8, 2, 'customer6@gmail.com', '0916678901', 'LiamPass808!', 'Liam', 'Moore', 'Active', NULL),
+(6, 2, 'business1@company.com', '0921123456', 'BizAdmin505#', 'James', 'Miller', 'Pending', NULL),
+(7, 2, 'customer5@gmail.com', '0915567890', 'OliviaPass606@', 'Olivia', 'Davis', 'Active', NULL),
+(8, 2, 'customer6@gmail.com', '0916678901', 'LiamPass808!', 'Liam', 'Moore', 'Pending', NULL),
 (9, 2, 'customer7@gmail.com', '0917789012', 'IsabellaPass909#', 'Isabella', 'Taylor', 'Rejected', N'Invalid Corporate Registration Certificate Number.'),
 (10, 2, 'customer8@gmail.com', '0918890123', 'NoahPass1111$', 'Noah', 'Thomas', 'Active', NULL),
 (11, 2, 'customer9@gmail.com', '0919901234', 'AvaPass1212!', 'Ava', 'Jackson', 'Active', NULL);
@@ -138,21 +139,127 @@ INSERT INTO VehicleBrands (BrandName, Country, IsActive) VALUES
 GO
 
 -- =====================================================
--- 8. VEHICLE MODELS
+-- 8. VEHICLE MODELS (200 mẫu)
 -- =====================================================
 INSERT INTO VehicleModels (BrandID, VehicleTypeID, ModelName, IsActive)
 SELECT b.BrandID, t.VehicleTypeID, m.ModelName, 1
 FROM (
     VALUES
-    -- SEDAN
-    ('Toyota', 'Sedan', 'Camry'), ('Toyota', 'Sedan', 'Vios'), 
-    ('Honda', 'Sedan', 'Civic'), ('Honda', 'Sedan', 'City'),
-    -- CUV
-    ('Honda', 'Crossover', 'CR-V'), ('Mazda', 'Crossover', 'CX-5'),
-    -- SUV
-    ('Ford', 'SUV', 'Everest'), ('Toyota', 'SUV', 'Fortuner'),
-    -- MPV
-    ('Mitsubishi', 'MPV', 'Xpander'), ('Kia', 'MPV', 'Carnival')
+    -- ==================== SEDAN ====================
+    ('Toyota', 'Sedan', 'Vios'), ('Toyota', 'Sedan', 'Camry'), ('Toyota', 'Sedan', 'Corolla Altis'),
+    ('Honda', 'Sedan', 'City'), ('Honda', 'Sedan', 'Civic'), ('Honda', 'Sedan', 'Accord'),
+    ('Mazda', 'Sedan', 'Mazda2'), ('Mazda', 'Sedan', 'Mazda3'), ('Mazda', 'Sedan', 'Mazda6'),
+    ('Hyundai', 'Sedan', 'Accent'), ('Hyundai', 'Sedan', 'Elantra'), ('Hyundai', 'Sedan', 'Sonata'),
+    ('Kia', 'Sedan', 'Soluto'), ('Kia', 'Sedan', 'K3'), ('Kia', 'Sedan', 'K5'),
+    ('Nissan', 'Sedan', 'Almera'), ('Nissan', 'Sedan', 'Teana'),
+    ('Subaru', 'Sedan', 'WRX'), ('Subaru', 'Sedan', 'Legacy'),
+    ('Mercedes-Benz', 'Sedan', 'C-Class'), ('Mercedes-Benz', 'Sedan', 'E-Class'), ('Mercedes-Benz', 'Sedan', 'S-Class'), ('Mercedes-Benz', 'Sedan', 'Maybach S-Class'),
+    ('BMW', 'Sedan', '3 Series'), ('BMW', 'Sedan', '5 Series'), ('BMW', 'Sedan', '7 Series'),
+    ('Audi', 'Sedan', 'A4'), ('Audi', 'Sedan', 'A6'), ('Audi', 'Sedan', 'A8'),
+    ('Lexus', 'Sedan', 'IS 300'), ('Lexus', 'Sedan', 'ES 250'), ('Lexus', 'Sedan', 'LS 500'),
+    ('Porsche', 'Sedan', 'Panamera'), ('Porsche', 'Sedan', 'Taycan'),
+    ('Volvo', 'Sedan', 'S60'), ('Volvo', 'Sedan', 'S90'),
+    ('VinFast', 'Sedan', 'Lux A2.0'),
+    ('MG', 'Sedan', 'MG5'), ('MG', 'Sedan', 'MG7'),
+    ('BYD', 'Sedan', 'Seal'), ('BYD', 'Sedan', 'Han'),
+    ('Maserati', 'Sedan', 'Ghibli'), ('Maserati', 'Sedan', 'Quattroporte'),
+    ('Bentley', 'Sedan', 'Flying Spur'),
+    ('Rolls-Royce', 'Sedan', 'Ghost'), ('Rolls-Royce', 'Sedan', 'Phantom'),
+    ('Jaguar', 'Sedan', 'XE'), ('Jaguar', 'Sedan', 'XF'),
+    ('Alfa Romeo', 'Sedan', 'Giulia'), ('Volkswagen', 'Sedan', 'Passat'),
+
+    -- ==================== HATCHBACK ====================
+    ('Toyota', 'Hatchback', 'Yaris'), ('Toyota', 'Hatchback', 'Wigo'),
+    ('Honda', 'Hatchback', 'Brio'), ('Honda', 'Hatchback', 'Civic Type R'),
+    ('Hyundai', 'Hatchback', 'Grand i10'),
+    ('Kia', 'Hatchback', 'Morning'),
+    ('Mazda', 'Hatchback', 'Mazda2 Sport'), ('Mazda', 'Hatchback', 'Mazda3 Sport'),
+    ('Suzuki', 'Hatchback', 'Swift'), ('Suzuki', 'Hatchback', 'Celerio'),
+    ('VinFast', 'Hatchback', 'Fadil'),
+    ('Mercedes-Benz', 'Hatchback', 'A-Class'),
+    ('BMW', 'Hatchback', '1 Series'),
+    ('Audi', 'Hatchback', 'A1'), ('Audi', 'Hatchback', 'A3 Sportback'),
+    ('MINI', 'Hatchback', 'Cooper 3-Door'), ('MINI', 'Hatchback', 'Cooper 5-Door'),
+    ('Volkswagen', 'Hatchback', 'Golf'), ('Volkswagen', 'Hatchback', 'Polo'),
+    ('Peugeot', 'Hatchback', '208'), ('Peugeot', 'Hatchback', '308'),
+    ('BYD', 'Hatchback', 'Dolphin'),
+    ('Fiat', 'Hatchback', '500'),
+
+    -- ==================== CUV (CROSSOVER) ====================
+    ('Toyota', 'Crossover', 'Corolla Cross'), ('Toyota', 'Crossover', 'Yaris Cross'), ('Toyota', 'Crossover', 'Raize'),
+    ('Honda', 'Crossover', 'CR-V'), ('Honda', 'Crossover', 'HR-V'),
+    ('Mazda', 'Crossover', 'CX-3'), ('Mazda', 'Crossover', 'CX-30'), ('Mazda', 'Crossover', 'CX-5'),
+    ('Hyundai', 'Crossover', 'Tucson'), ('Hyundai', 'Crossover', 'Creta'), ('Hyundai', 'Crossover', 'Venue'),
+    ('Kia', 'Crossover', 'Sportage'), ('Kia', 'Crossover', 'Seltos'), ('Kia', 'Crossover', 'Sonet'),
+    ('Ford', 'Crossover', 'Territory'),
+    ('Mitsubishi', 'Crossover', 'Xforce'), ('Mitsubishi', 'Crossover', 'Outlander'),
+    ('Nissan', 'Crossover', 'Kicks'), ('Nissan', 'Crossover', 'X-Trail'),
+    ('Subaru', 'Crossover', 'Forester'), ('Subaru', 'Crossover', 'Outback'), ('Subaru', 'Crossover', 'Crosstrek'),
+    ('Peugeot', 'Crossover', '2008'), ('Peugeot', 'Crossover', '3008'), ('Peugeot', 'Crossover', '408'),
+    ('Volvo', 'Crossover', 'XC40'), ('Volvo', 'Crossover', 'XC60'),
+    ('Mercedes-Benz', 'Crossover', 'GLA'), ('Mercedes-Benz', 'Crossover', 'GLB'), ('Mercedes-Benz', 'Crossover', 'GLC'),
+    ('BMW', 'Crossover', 'X1'), ('BMW', 'Crossover', 'X2'), ('BMW', 'Crossover', 'X3'), ('BMW', 'Crossover', 'X4'),
+    ('Audi', 'Crossover', 'Q2'), ('Audi', 'Crossover', 'Q3'), ('Audi', 'Crossover', 'Q5'),
+    ('Lexus', 'Crossover', 'UX 250h'), ('Lexus', 'Crossover', 'NX 300'), ('Lexus', 'Crossover', 'RX 350'),
+    ('Porsche', 'Crossover', 'Macan'),
+    ('VinFast', 'Crossover', 'VF e34'), ('VinFast', 'Crossover', 'VF 5'), ('VinFast', 'Crossover', 'VF 6'), ('VinFast', 'Crossover', 'VF 7'),
+    ('MG', 'Crossover', 'MG ZS'), ('MG', 'Crossover', 'MG HS'), ('MG', 'Crossover', 'MG RX5'),
+    ('BYD', 'Crossover', 'Atto 3'),
+    ('Jaguar', 'Crossover', 'E-Pace'), ('Jaguar', 'Crossover', 'F-Pace'),
+    ('Alfa Romeo', 'Crossover', 'Stelvio'), ('Volkswagen', 'Crossover', 'Tiguan'), ('Volkswagen', 'Crossover', 'T-Cross'),
+
+    -- ==================== SUV ====================
+    ('Toyota', 'SUV', 'Fortuner'), ('Toyota', 'SUV', 'Land Cruiser'), ('Toyota', 'SUV', 'Land Cruiser Prado'),
+    ('Hyundai', 'SUV', 'Santa Fe'), ('Hyundai', 'SUV', 'Palisade'),
+    ('Kia', 'SUV', 'Sorento'), ('Kia', 'SUV', 'Telluride'),
+    ('Ford', 'SUV', 'Everest'), ('Ford', 'SUV', 'Explorer'),
+    ('Mazda', 'SUV', 'CX-8'), ('Mazda', 'SUV', 'CX-9'),
+    ('Mitsubishi', 'SUV', 'Pajero Sport'),
+    ('Chevrolet', 'SUV', 'Trailblazer'), ('Chevrolet', 'SUV', 'Tahoe'),
+    ('Jeep', 'SUV', 'Wrangler'), ('Jeep', 'SUV', 'Grand Cherokee'),
+    ('Mercedes-Benz', 'SUV', 'GLE'), ('Mercedes-Benz', 'SUV', 'GLS'), ('Mercedes-Benz', 'SUV', 'G-Class'),
+    ('BMW', 'SUV', 'X5'), ('BMW', 'SUV', 'X6'), ('BMW', 'SUV', 'X7'),
+    ('Audi', 'SUV', 'Q7'), ('Audi', 'SUV', 'Q8'),
+    ('Lexus', 'SUV', 'GX 460'), ('Lexus', 'SUV', 'LX 600'),
+    ('Porsche', 'SUV', 'Cayenne'),
+    ('Volvo', 'SUV', 'XC90'),
+    ('Land Rover', 'SUV', 'Range Rover'), ('Land Rover', 'SUV', 'Range Rover Sport'), ('Land Rover', 'SUV', 'Defender'), ('Land Rover', 'SUV', 'Discovery'),
+    ('VinFast', 'SUV', 'Lux SA2.0'), ('VinFast', 'SUV', 'VF 8'), ('VinFast', 'SUV', 'VF 9'), ('VinFast', 'SUV', 'VF 3'),
+    ('Maserati', 'SUV', 'Levante'), ('Maserati', 'SUV', 'Grecale'),
+    ('Bentley', 'SUV', 'Bentayga'),
+    ('Rolls-Royce', 'SUV', 'Cullinan'),
+    ('Lamborghini', 'SUV', 'Urus'),
+    ('Aston Martin', 'SUV', 'DBX'),
+    ('Volkswagen', 'SUV', 'Teramont'), ('Peugeot', 'SUV', '5008'),
+
+    -- ==================== MPV / MINIVAN ====================
+    ('Toyota', 'MPV', 'Innova Cross'), ('Toyota', 'MPV', 'Veloz Cross'), ('Toyota', 'MPV', 'Avanza Premio'), ('Toyota', 'MPV', 'Alphard'), ('Toyota', 'MPV', 'Sienna'),
+    ('Mitsubishi', 'MPV', 'Xpander'), ('Mitsubishi', 'MPV', 'Xpander Cross'),
+    ('Kia', 'MPV', 'Carnival'), ('Kia', 'MPV', 'Carens'),
+    ('Hyundai', 'MPV', 'Stargazer'), ('Hyundai', 'MPV', 'Custin'), ('Hyundai', 'MPV', 'Staria'),
+    ('Suzuki', 'MPV', 'XL7'), ('Suzuki', 'MPV', 'Ertiga'),
+    ('Honda', 'MPV', 'BR-V'), ('Honda', 'MPV', 'Odyssey'),
+    ('Mercedes-Benz', 'MPV', 'V-Class'),
+    ('Volkswagen', 'MPV', 'Viloran'), ('Volkswagen', 'MPV', 'Touran'),
+
+    -- ==================== COUPE (THỂ THAO MUI KÍN) ====================
+    ('Toyota', 'Coupe', 'GR86'), ('Toyota', 'Coupe', 'Supra'),
+    ('Ford', 'Coupe', 'Mustang'),
+    ('Chevrolet', 'Coupe', 'Camaro'), ('Chevrolet', 'Coupe', 'Corvette'),
+    ('Porsche', 'Coupe', '911 Carrera'), ('Porsche', 'Coupe', '718 Cayman'),
+    ('Mercedes-Benz', 'Coupe', 'CLE Coupe'), ('Mercedes-Benz', 'Coupe', 'AMG GT'),
+    ('BMW', 'Coupe', '2 Series Coupe'), ('BMW', 'Coupe', '4 Series Coupe'), ('BMW', 'Coupe', '8 Series Coupe'),
+    ('Audi', 'Coupe', 'TT'), ('Audi', 'Coupe', 'R8'),
+    ('Lexus', 'Coupe', 'RC 300'), ('Lexus', 'Coupe', 'LC 500'),
+    ('Subaru', 'Coupe', 'BRZ'),
+    ('Ferrari', 'Coupe', 'F8 Tributo'), ('Ferrari', 'Coupe', 'Roma'), ('Ferrari', 'Coupe', '296 GTB'),
+    ('Lamborghini', 'Coupe', 'Huracan'), ('Lamborghini', 'Coupe', 'Aventador'), ('Lamborghini', 'Coupe', 'Revuelto'),
+    ('McLaren', 'Coupe', '720S'), ('McLaren', 'Coupe', 'Artura'),
+    ('Aston Martin', 'Coupe', 'Vantage'), ('Aston Martin', 'Coupe', 'DB11'), ('Aston Martin', 'Coupe', 'DBS'),
+    ('Bentley', 'Coupe', 'Continental GT'),
+    ('Maserati', 'Coupe', 'MC20'), ('Maserati', 'Coupe', 'GranTurismo'),
+    ('Jaguar', 'Coupe', 'F-Type')
+
 ) AS m(BrandName, TypeName, ModelName)
 INNER JOIN VehicleBrands b ON b.BrandName = m.BrandName
 INNER JOIN VehicleTypes t ON t.TypeName = m.TypeName;
@@ -264,15 +371,33 @@ INSERT INTO Promotions (PromotionID, PromoCode, PromotionName, TargetType, Disco
 (1, 'SUMMER25', 'Summer Special', 'All', 25, '2026-06-01', '2026-08-31', '25% off all services', 1),
 (2, 'FIRST10', 'First Time Discount', 'All', 15, '2026-01-01', '2026-12-31', '15% for new customers', 1),
 (3, 'GOLDVIP', 'Gold Member Bonus', 'Tier', 20, '2026-01-01', '2026-12-31', 'Extra 20% for Gold tier', 1),
-(4, 'FLEET30', 'Business Fleet', 'All', 30, '2026-01-01', '2026-12-31', '30% for business customers', 1),
-(5, 'WEEKEND15', 'Weekend Special', 'All', 15, '2026-06-01', '2026-12-31', '15% off on weekends', 1),
+(4, 'FLEET30', 'Volume Discount', 'All', 30, '2026-01-01', '2026-12-31', 'Save 30% on multi-vehicle bookings', 1),
+(5, 'WEEKEND15', 'Seasonal Offer', 'All', 15, '2026-06-01', '2026-12-31', '15% off selected services', 1),
 (6, 'REFER10', 'Referral Bonus', 'All', 10, '2026-01-01', '2026-12-31', '10% for referred customers', 1),
-(7, 'PLATINUM50', 'Platinum Exclusive', 'Tier', 50, '2026-05-01', '2026-07-31', '50% off for Platinum', 1),
+(7, 'PLATINUM50', 'Platinum Reward', 'Tier', 50, '2026-05-01', '2026-07-31', '50% off for Platinum members', 1),
 (8, 'ECO10', 'Eco Friendly', 'All', 10, '2026-06-01', '2026-12-31', '10% for electric vehicles', 1);
 SET IDENTITY_INSERT Promotions OFF;
 GO
 
 INSERT INTO PromotionTiers (PromotionID, TierID) VALUES (3,3),(3,4),(7,4);
+GO
+
+-- Promotion quota per customer account (MaxUses / UsedCount)
+INSERT INTO PromotionCustomers (PromotionID, CustomerID, MaxUses, UsedCount) VALUES
+-- All-type promotions: 3 uses per customer
+(1, 1, 3, 0),(1, 2, 3, 0),(1, 3, 3, 0),(1, 4, 3, 0),(1, 5, 3, 0),
+(1, 6, 3, 0),(1, 7, 3, 0),(1, 8, 3, 0),(1, 9, 3, 0),(1, 10, 3, 0),
+(2, 1, 1, 0),(2, 2, 1, 0),(2, 3, 1, 0),(2, 4, 1, 0),(2, 5, 1, 0),
+(2, 6, 1, 0),(2, 7, 1, 0),(2, 8, 1, 0),(2, 9, 1, 0),(2, 10, 1, 0),
+(5, 1, 5, 0),(5, 2, 5, 0),(5, 3, 5, 0),(5, 4, 5, 0),(5, 5, 5, 0),
+(5, 6, 5, 0),(5, 7, 5, 0),(5, 8, 5, 0),(5, 9, 5, 0),(5, 10, 5, 0),
+(8, 1, 2, 0),(8, 2, 2, 0),(8, 3, 2, 0),(8, 4, 2, 0),(8, 5, 2, 0),
+(8, 6, 2, 0),(8, 7, 2, 0),(8, 8, 2, 0),(8, 9, 2, 0),(8, 10, 2, 0),
+-- Tier promotions: Gold/Platinum customers only
+(3, 4, 2, 0),(3, 9, 2, 0),
+(7, 7, 1, 0),
+-- Volume discount promo for selected customers
+(4, 5, 10, 0);
 GO
 
 -- =====================================================
