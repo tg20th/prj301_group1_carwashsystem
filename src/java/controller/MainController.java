@@ -217,6 +217,14 @@ public class MainController extends HttpServlet {
                 case "Revenue":
                     url = "RevenueController";
                     break;
+                case "vehicle_bus_request":
+                    url = "VehicleRequestBusController";
+                    break;
+                case "approve_vehicle":
+                    url = "ApproveVehicleController";
+                    break;
+                case "reject_vehicle":
+                    url = "RejectVehicleController";
                 case "viewcustomerhistory":
                     url = "CustomerBookingHistoryController";
                     break;
