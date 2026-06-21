@@ -48,7 +48,8 @@ public class CustomerBookingHistoryController extends HttpServlet {
             return;
         }
 
-        String action = request.getParameter("action");
+        String op = request.getParameter("op");
+        String action = (op != null && !op.isEmpty()) ? op : request.getParameter("action");
         if ("detail".equals(action)) {
             handleDetail(request, response, customer);
             return;

@@ -35,11 +35,11 @@
 <div class="d-flex justify-content-md-end">
     <div class="request-tabs shadow-sm">
         
-        <a href="VehicleRequestController" id="vehicleRequestBtn" class="btn request-tab-btn">
+        <a href="MainController?action=vehicle_request" id="vehicleRequestBtn" class="btn request-tab-btn">
             <i class="bi bi-car-front-fill me-2"></i>Customer Vehicle Requests
         </a>
         
-        <a href="VehicleRequestBusController" id="businessVehicleBtn" class="btn request-tab-btn">
+        <a href="MainController?action=vehicle_bus_request" id="businessVehicleBtn" class="btn request-tab-btn">
             <i class="bi bi-building-fill me-2"></i>Business Vehicle Requests
         </a>
         

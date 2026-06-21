@@ -81,7 +81,9 @@
     }
 
     function printInvoice(invoiceId) {
-        window.open('InvoicePrintController?invoiceId=' + invoiceId, '_blank', 'width=900,height=700');
+        var printBase = window.invoicePrintBase || 'InvoicePrint';
+        var sep = printBase.indexOf('?') >= 0 ? '&' : '?';
+        window.open(printBase + sep + 'invoiceId=' + invoiceId, '_blank', 'width=900,height=700');
     }
 
     function printCurrentInvoice() {
@@ -147,7 +149,9 @@
         }
         modal.show();
 
-        fetch(detailUrl + '?action=detail&invoiceId=' + invoiceId)
+        var detailSep = detailUrl.indexOf('?') >= 0 ? '&' : '?';
+        var detailAction = detailUrl.indexOf('MainController') >= 0 ? 'op=detail' : 'action=detail';
+        fetch(detailUrl + detailSep + detailAction + '&invoiceId=' + invoiceId)
             .then(function (res) { return res.json(); })
             .then(function (data) {
                 loading.style.display = 'none';

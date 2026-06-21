@@ -351,8 +351,9 @@
         </div>
         <% } else { %>
 
-        <form id="bookingForm" action="CustomerBookingController" method="post">
-            <input type="hidden" name="action" value="submit">
+        <form id="bookingForm" action="MainController" method="post">
+            <input type="hidden" name="action" value="customerbooking">
+            <input type="hidden" name="op" value="submit">
             <input type="hidden" name="slotId" id="slotId">
             <input type="hidden" name="washBayId" id="washBayId">
             <input type="hidden" id="bookingDate" name="bookingDateHidden">
@@ -361,7 +362,7 @@
                 <!-- LEFT: Select a Slot -->
                 <div class="col-lg-7">
                     <div class="booking-card">
-                        <a href="CustomerDashBoardController" class="booking-back">
+                        <a href="MainController?action=customer_dashboard" class="booking-back">
                             <i class="bi bi-arrow-left"></i> Back
                         </a>
                         <h1 class="panel-title">Select a Slot</h1>
@@ -497,7 +498,7 @@
                         <div class="help-box">
                             <div class="field-label mb-1" style="font-size:0.82rem;"><i class="bi bi-headset"></i> We can help you</div>
                             <p>Call us <strong>0901 234 567</strong> or chat with our customer support team.</p>
-                            <a href="CustomerDashBoardController" class="btn-chat">Back to Dashboard</a>
+                            <a href="MainController?action=customer_dashboard" class="btn-chat">Back to Dashboard</a>
                         </div>
                     </div>
                 </div>
@@ -658,7 +659,7 @@
 
         function loadSlots() {
             resetSlots();
-            fetch(ctx + '/CustomerBookingController?action=slots&date=' + dateInput.value)
+            fetch(ctx + '/MainController?action=customerbooking&op=slots&date=' + dateInput.value)
                 .then(r => r.json())
                 .then(data => {
                     if (!data.success) {
@@ -700,7 +701,7 @@
             bayContainer.innerHTML = '<span class="text-muted small">Loading bays...</span>';
             washBayIdInput.value = '';
             selectedBayName = '';
-            fetch(ctx + '/CustomerBookingController?action=bays&slotId=' + slotId)
+            fetch(ctx + '/MainController?action=customerbooking&op=bays&slotId=' + slotId)
                 .then(r => r.json())
                 .then(data => {
                     if (!data.success || !data.bays || data.bays.length === 0) {
@@ -739,7 +740,7 @@
                 return;
             }
             const promoParam = promotionSelect ? '&promotionId=' + encodeURIComponent(promotionSelect.value) : '';
-            fetch(ctx + '/CustomerBookingController?action=previewDiscount&vehicleId=' + vehicleSelect.value + '&serviceId=' + serviceSelect.value + promoParam)
+            fetch(ctx + '/MainController?action=customerbooking&op=previewDiscount&vehicleId=' + vehicleSelect.value + '&serviceId=' + serviceSelect.value + promoParam)
                 .then(r => r.json())
                 .then(data => {
                     if (data.success) {

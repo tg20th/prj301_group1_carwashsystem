@@ -96,7 +96,8 @@
                 <i class="bi bi-shield-check me-1"></i>
                 <strong>Chế độ sandbox:</strong> không cần chuyển tiền thật. Bấm nút bên dưới để giả lập thanh toán thành công.
             </div>
-            <form action="PaymentSandboxController" method="post" class="mt-2">
+            <form action="MainController" method="post" class="mt-2">
+                <input type="hidden" name="action" value="customer_payment_sandbox">
                 <% if (invoiceId != null) { %>
                 <input type="hidden" name="invoiceId" value="<%= invoiceId %>">
                 <% } else if (bookingId != null) { %>
@@ -110,7 +111,7 @@
             <% } %>
 
             <div class="mt-3">
-                <a href="CustomerBookingController" class="btn btn-link btn-sm text-muted">Quay lại đặt lịch</a>
+                <a href="MainController?action=customerbooking" class="btn btn-link btn-sm text-muted">Quay lại đặt lịch</a>
             </div>
         </div>
     </div>
@@ -130,7 +131,7 @@
         const countdownEl = document.getElementById('countdown');
         setInterval(() => {
             if (secondsLeft <= 0) {
-                window.location.replace('CustomerBookingHistoryController');
+                window.location.replace('MainController?action=viewcustomerhistory');
                 return;
             }
             secondsLeft--;
@@ -142,18 +143,18 @@
         async function checkPaid() {
             try {
                 const statusUrl = invoiceId
-                    ? 'PaymentStatusController?invoiceId=' + invoiceId
-                    : 'PaymentStatusController?bookingId=' + bookingId;
+                    ? 'MainController?action=customer_payment_status&invoiceId=' + invoiceId
+                    : 'MainController?action=customer_payment_status&bookingId=' + bookingId;
                 const res = await fetch(statusUrl);
                 const data = await res.json();
                 if (data.success && data.expired) {
-                    window.location.replace('CustomerBookingHistoryController');
+                    window.location.replace('MainController?action=viewcustomerhistory');
                     return true;
                 }
                 if (data.success && (data.status === 'Confirmed' || data.paymentStatus === 'Paid')) {
                     const successUrl = invoiceId
-                        ? 'PaymentSuccessController?invoiceId=' + invoiceId
-                        : 'PaymentSuccessController?bookingId=' + bookingId;
+                        ? 'MainController?action=customer_payment_success&invoiceId=' + invoiceId
+                        : 'MainController?action=customer_payment_success&bookingId=' + bookingId;
                     window.location.replace(successUrl);
                     return true;
                 }

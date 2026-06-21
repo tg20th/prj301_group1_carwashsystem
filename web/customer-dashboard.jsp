@@ -114,7 +114,7 @@
                     </div>
                 </div>
                 <div class="col-md-6 col-lg-3 delay-4">
-                    <a href="CustomerBookingHistoryController" class="text-decoration-none d-block h-100">
+                    <a href="MainController?action=viewcustomerhistory" class="text-decoration-none d-block h-100">
                         <div class="bg-white p-4 rounded-4 shadow-sm border border-light h-100 transition-hover" style="border-top: 4px solid #0d6efd !important;">
                             <div class="d-flex justify-content-between align-items-center mb-3">
                                 <h6 class="text-muted small text-uppercase fw-bold m-0 tracking-tight">My Bookings</h6>
@@ -166,7 +166,7 @@
                         <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 pb-3 border-bottom">
                             <h4 class="mb-3 mb-md-0 fw-bold tracking-tight"><i class="bi bi-car-front-fill me-2 text-muted"></i>My Vehicles</h4>
                             <div class="d-flex gap-2">
-                                <a href="CustomerBookingController" class="btn btn-dark rounded-pill py-2 px-4 fw-medium">
+                                <a href="MainController?action=customerbooking" class="btn btn-dark rounded-pill py-2 px-4 fw-medium">
                                     <i class="bi bi-calendar-check me-1"></i> Book Service
                                 </a>
                                 <a href="MainController?action=AddVehicle_page" class="btn btn-black rounded-pill py-2 px-4 fw-medium">

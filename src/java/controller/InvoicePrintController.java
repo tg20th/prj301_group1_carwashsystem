@@ -12,7 +12,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-@WebServlet(name = "InvoicePrintController", urlPatterns = {"/InvoicePrintController"})
+@WebServlet(name = "InvoicePrintController", urlPatterns = {"/InvoicePrint"})
 public class InvoicePrintController extends HttpServlet {
 
     @Override

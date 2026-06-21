@@ -15,7 +15,7 @@
     String dashboardURL;
 
     if (bus != null) {
-        dashboardURL = "BusinessDashboardController";
+        dashboardURL = "MainController?action=business_dashboard";
     } else {
         dashboardURL = "CustomerDashBoardController";
     }
@@ -123,9 +123,10 @@
                             <% }%>
 
                             <!-- FORM -->
-                            <form action="AddBusinessVehiclesController"
+                            <form action="MainController"
                                   method="post"
                                   enctype="multipart/form-data">
+                                <input type="hidden" name="action" value="AddBusinessVehicles">
 
                                 <!-- CSV -->
                                 <div class="mb-4">

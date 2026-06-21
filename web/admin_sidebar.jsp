@@ -19,10 +19,17 @@
                 <span class="text-muted small fw-bold text-uppercase" style="font-size: 0.65rem; padding-left: 1rem;">Operations</span>
             </li>
             <li class="nav-item">
-                <a class="nav-link px-3 py-2 d-flex align-items-center" href="MainController?action=booking_admin">
-                    <i class="bi bi-calendar-check me-3"></i> Bookings
+                <a class="nav-link px-3 py-2 d-flex align-items-center" href="MainController?action=invoice_admin">
+                    <i class="bi bi-receipt me-3"></i> Invoice
                 </a>
             </li>
+            
+            <li class="nav-item">
+                <a class="nav-link px-3 py-2 d-flex align-items-center" href="MainController?action=booking_admin">
+                    <i class="bi bi-calendar-check me-3"></i> Booking
+                </a>
+            </li>
+            
             <li class="nav-item">
                 <a class="nav-link px-3 py-2 d-flex align-items-center" href="MainController?action=washbay_list">
                     <i class="bi bi-droplet me-3"></i> Wash Bays
