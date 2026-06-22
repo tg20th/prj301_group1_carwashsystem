@@ -272,9 +272,8 @@
                 let visibleCount = 0;
 
                 rows.forEach(row => {
-                    if (status === 'ALL' || row.getAttribute('data-status') === status) {
-                    let rowStatus = row.getAttribute('data-status');
-                    let isVisible = status === 'ALL'
+                    const rowStatus = row.getAttribute('data-status');
+                    const isVisible = status === 'ALL'
                         || rowStatus === status
                         || (status === 'Upcoming' && (rowStatus === 'Pending' || rowStatus === 'Confirmed'));
                     if (isVisible) {
