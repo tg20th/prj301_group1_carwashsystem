@@ -36,15 +36,15 @@
         <p class="text-muted small mb-1">Booking #<%= bookingId != null ? bookingId : "—" %> đã được xác nhận.</p>
         <p class="text-muted small">Điểm thưởng đã được cộng (1.000 VND = 1 điểm).</p>
         <div class="d-grid gap-2 mt-4">
-            <a href="<%= ctx %>/CustomerBookingHistoryController" class="btn btn-dark rounded-pill">Xem My Bookings</a>
-            <a href="<%= ctx %>/CustomerDashBoardController" class="btn btn-outline-secondary rounded-pill">Về Dashboard</a>
+            <a href="<%= ctx %>/MainController?action=viewcustomerhistory" class="btn btn-dark rounded-pill">Xem My Bookings</a>
+            <a href="<%= ctx %>/MainController?action=customer_dashboard" class="btn btn-outline-secondary rounded-pill">Về Dashboard</a>
         </div>
     </div>
     <% if (bookingId != null) { %>
     <script>
         setInterval(async () => {
             try {
-                const res = await fetch('<%= ctx %>/PaymentStatusController?bookingId=<%= bookingId %>');
+                const res = await fetch('<%= ctx %>/MainController?action=customer_payment_status&bookingId=<%= bookingId %>');
                 const data = await res.json();
                 if (data.success && data.status !== 'Confirmed' && data.paymentStatus !== 'Paid') {
                     document.querySelector('h4').textContent = 'Đang xác nhận thanh toán...';

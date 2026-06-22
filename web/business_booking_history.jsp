@@ -79,7 +79,7 @@
                 </div>
                 <h5 class="fw-bold">No invoices yet</h5>
                 <p class="text-muted small mb-4">Book your fleet to see invoices here.</p>
-                <a href="BusinessBookingController" class="btn btn-black rounded-pill px-4">Book Fleet Wash</a>
+                <a href="MainController?action=business_booking" class="btn btn-black rounded-pill px-4">Book Fleet Wash</a>
             </div>
             <% } else { %>
             <div class="table-responsive">
@@ -121,7 +121,7 @@
                                     && !"Cancelled".equalsIgnoreCase(status);
                         %>
                         <tr class="invoice-row" data-status="<%= status %>"
-                            onclick="openInvoiceDetail('BusinessBookingHistoryController', <%= inv.getInvoiceId() %>)">
+                            onclick="openInvoiceDetail('MainController?action=viewbusinesshistory', <%= inv.getInvoiceId() %>)">
                             <td>
                                 <div class="fw-semibold font-monospace">#<%= inv.getInvoiceId() %></div>
                                 <div class="text-muted small"><%= createdStr %></div>
@@ -172,7 +172,7 @@
                             </td>
                             <td class="text-end text-nowrap" onclick="event.stopPropagation();">
                                 <button type="button" class="btn btn-sm btn-outline-dark rounded-pill"
-                                        onclick="openInvoiceDetail('BusinessBookingHistoryController', <%= inv.getInvoiceId() %>)"
+                                        onclick="openInvoiceDetail('MainController?action=viewbusinesshistory', <%= inv.getInvoiceId() %>)"
                                         title="Details">
                                     <i class="bi bi-eye"></i>
                                 </button>
@@ -182,13 +182,14 @@
                                     <i class="bi bi-printer"></i>
                                 </button>
                                 <% if (canPay) { %>
-                                <a href="BusinessPaymentController?invoiceId=<%= inv.getInvoiceId() %>"
+                                <a href="MainController?action=business_payment&invoiceId=<%= inv.getInvoiceId() %>"
                                    class="btn btn-sm btn-black rounded-pill ms-1">Pay</a>
                                 <% } %>
                                 <% if (canCancel) { %>
-                                <form action="BusinessBookingHistoryController" method="post" class="d-inline ms-1"
+                                <form action="MainController" method="post" class="d-inline ms-1"
                                       onsubmit="return confirm('Cancel invoice #<%= inv.getInvoiceId() %> and all related bookings?');">
-                                    <input type="hidden" name="action" value="cancelInvoice">
+                                    <input type="hidden" name="action" value="viewbusinesshistory">
+                                    <input type="hidden" name="op" value="cancelInvoice">
                                     <input type="hidden" name="invoiceId" value="<%= inv.getInvoiceId() %>">
                                     <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill">Cancel</button>
                                 </form>
@@ -208,6 +209,9 @@
 
     <%@ include file="includes/invoice_history_modal.jsp" %>
 
+    <script>
+        window.invoicePrintBase = 'MainController?action=business_invoice_print';
+    </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         function filterTable(status, btn) {

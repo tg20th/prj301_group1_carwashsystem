@@ -102,8 +102,9 @@
         </div>
         <% } else { %>
 
-        <form id="bookingForm" action="BusinessBookingController" method="post">
-            <input type="hidden" name="action" value="submit">
+        <form id="bookingForm" action="MainController" method="post">
+            <input type="hidden" name="action" value="business_booking">
+            <input type="hidden" name="op" value="submit">
             <input type="hidden" name="slotId" id="slotId">
             <input type="hidden" id="bookingDate">
 
@@ -392,7 +393,7 @@
             slotContainer.innerHTML = '<span class="text-muted small">Loading slots...</span>';
             updateSummary();
 
-            fetch(ctx + '/BusinessBookingController?action=slots&date=' + dateInput.value)
+            fetch(ctx + '/MainController?action=business_booking&op=slots&date=' + dateInput.value)
                 .then(r => r.json())
                 .then(data => {
                     if (!data.success) {
@@ -439,7 +440,7 @@
             }
             bayHint.textContent = 'Checking available bays...';
             bayHint.className = 'bay-hint mt-2';
-            fetch(ctx + '/BusinessBookingController?action=bays&slotId=' + slotIdInput.value + '&vehicleCount=' + count)
+            fetch(ctx + '/MainController?action=business_booking&op=bays&slotId=' + slotIdInput.value + '&vehicleCount=' + count)
                 .then(r => r.json())
                 .then(data => {
                     if (!data.success) {
@@ -473,14 +474,15 @@
                 return;
             }
             const params = new URLSearchParams();
-            params.append('action', 'previewDiscount');
+            params.append('action', 'business_booking');
+            params.append('op', 'previewDiscount');
             params.append('serviceId', serviceSelect.value);
             ids.forEach(id => params.append('vehicleIds', id));
             if (promotionSelect) {
                 params.append('promotionId', promotionSelect.value);
             }
 
-            fetch(ctx + '/BusinessBookingController?' + params.toString())
+            fetch(ctx + '/MainController?' + params.toString())
                 .then(r => r.json())
                 .then(data => {
                     priceData = data.success ? data : null;

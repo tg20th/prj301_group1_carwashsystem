@@ -55,9 +55,17 @@ public class CustomerBookingController extends HttpServlet {
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         request.setCharacterEncoding("UTF-8");
-        String action = request.getParameter("action");
-        if (action == null) {
-            action = "page";
+        String op = request.getParameter("op");
+        String action;
+        if (op != null && !op.isEmpty()) {
+            action = op;
+        } else {
+            String mainAction = request.getParameter("action");
+            if (mainAction == null || mainAction.isEmpty() || "customerbooking".equals(mainAction)) {
+                action = "page";
+            } else {
+                action = mainAction;
+            }
         }
 
         Account account = (Account) request.getSession().getAttribute("ACCOUNT");

@@ -36,10 +36,10 @@
 <body class="invoice-history-compact" style="background-color: var(--bg-card);">
     <nav class="navbar navbar-expand-lg py-3 bg-white sticky-top shadow-sm border-bottom">
         <div class="container">
-            <a class="navbar-brand fw-bold" href="CustomerDashBoardController"><i class="bi bi-vinyl-fill me-2"></i>EliteAuto</a>
+            <a class="navbar-brand fw-bold" href="MainController?action=customer_dashboard"><i class="bi bi-vinyl-fill me-2"></i>EliteAuto</a>
             <div class="d-flex gap-2">
-                <a href="CustomerBookingController" class="btn btn-dark rounded-pill btn-sm"><i class="bi bi-plus-lg me-1"></i>Book Service</a>
-                <a href="CustomerDashBoardController" class="btn btn-outline-dark rounded-pill btn-sm">Back to Dashboard</a>
+                <a href="MainController?action=customerbooking" class="btn btn-dark rounded-pill btn-sm"><i class="bi bi-plus-lg me-1"></i>Book Service</a>
+                <a href="MainController?action=customer_dashboard" class="btn btn-outline-dark rounded-pill btn-sm">Back to Dashboard</a>
             </div>
         </div>
     </nav>
@@ -84,7 +84,7 @@
                 </div>
                 <h5 class="fw-bold">No invoices yet</h5>
                 <p class="text-muted small mb-4">Book your first car wash to see invoices here.</p>
-                <a href="CustomerBookingController" class="btn btn-dark rounded-pill px-4">Book Service</a>
+                <a href="MainController?action=customerbooking" class="btn btn-dark rounded-pill px-4">Book Service</a>
             </div>
             <% } else { %>
             <div class="table-responsive">
@@ -126,7 +126,7 @@
                                     && !"Cancelled".equalsIgnoreCase(status);
                         %>
                         <tr class="invoice-row" data-status="<%= status %>"
-                            onclick="openInvoiceDetail('CustomerBookingHistoryController', <%= inv.getInvoiceId() %>)">
+                            onclick="openInvoiceDetail('MainController?action=viewcustomerhistory', <%= inv.getInvoiceId() %>)">
                             <td>
                                 <div class="fw-semibold font-monospace">#<%= inv.getInvoiceId() %></div>
                                 <div class="text-muted small"><%= createdStr %></div>
@@ -177,7 +177,7 @@
                             </td>
                             <td class="text-end text-nowrap" onclick="event.stopPropagation();">
                                 <button type="button" class="btn btn-sm btn-outline-dark rounded-pill"
-                                        onclick="openInvoiceDetail('CustomerBookingHistoryController', <%= inv.getInvoiceId() %>)"
+                                        onclick="openInvoiceDetail('MainController?action=viewcustomerhistory', <%= inv.getInvoiceId() %>)"
                                         title="Details">
                                     <i class="bi bi-eye"></i>
                                 </button>
@@ -187,13 +187,14 @@
                                     <i class="bi bi-printer"></i>
                                 </button>
                                 <% if (canPay) { %>
-                                <a href="PaymentController?invoiceId=<%= inv.getInvoiceId() %>"
+                                <a href="MainController?action=customer_payment&invoiceId=<%= inv.getInvoiceId() %>"
                                    class="btn btn-sm btn-dark rounded-pill ms-1">Pay</a>
                                 <% } %>
                                 <% if (canCancel) { %>
-                                <form action="CustomerBookingHistoryController" method="post" class="d-inline ms-1"
+                                <form action="MainController" method="post" class="d-inline ms-1"
                                       onsubmit="return confirm('Cancel invoice #<%= inv.getInvoiceId() %> and related bookings?');">
-                                    <input type="hidden" name="action" value="cancelInvoice">
+                                    <input type="hidden" name="action" value="viewcustomerhistory">
+                                    <input type="hidden" name="op" value="cancelInvoice">
                                     <input type="hidden" name="invoiceId" value="<%= inv.getInvoiceId() %>">
                                     <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill">Cancel</button>
                                 </form>
@@ -211,6 +212,9 @@
         </div>
     </div>
 
+    <script>
+        window.invoicePrintBase = 'MainController?action=customer_invoice_print';
+    </script>
     <%@ include file="includes/invoice_history_modal.jsp" %>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>

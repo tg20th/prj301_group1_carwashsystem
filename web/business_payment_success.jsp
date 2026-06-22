@@ -22,7 +22,7 @@
 <body class="bus-page d-flex flex-column min-vh-100">
     <div class="bg-white border-bottom py-2 shadow-sm">
         <div class="container">
-            <a href="BusinessDashboardController" class="text-decoration-none text-dark fw-semibold small">
+            <a href="MainController?action=business_dashboard" class="text-decoration-none text-dark fw-semibold small">
                 <i class="bi bi-building me-1"></i>EliteAuto Business
             </a>
         </div>
@@ -57,9 +57,9 @@
             <p class="text-muted small mt-3 mb-0">Điểm thưởng đã được cộng cho tổng hóa đơn.</p>
 
             <div class="d-grid gap-2 mt-4">
-                <a href="BusinessBookingHistoryController" class="btn btn-black rounded-pill">Xem lịch sử booking</a>
-                <a href="BusinessBookingController" class="btn btn-outline-dark rounded-pill">Đặt thêm lịch</a>
-                <a href="BusinessDashboardController" class="btn btn-outline-secondary rounded-pill">Về Dashboard</a>
+                <a href="MainController?action=viewbusinesshistory" class="btn btn-black rounded-pill">Xem lịch sử booking</a>
+                <a href="MainController?action=business_booking" class="btn btn-outline-dark rounded-pill">Đặt thêm lịch</a>
+                <a href="MainController?action=business_dashboard" class="btn btn-outline-secondary rounded-pill">Về Dashboard</a>
             </div>
         </div>
     </div>

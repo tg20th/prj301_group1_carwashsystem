@@ -385,9 +385,10 @@ public class BookingDAO {
                     + "JOIN VehicleModels vm ON v.ModelID = vm.ModelID "
                     + "JOIN VehicleBrands vb ON vb.BrandID = vm.BrandID "
                     + "JOIN VehicleTypes vt ON vt.VehicleTypeID = vm.VehicleTypeID "
-                    + "WHERE t.SlotDate = CAST(GETDATE() AS DATE) "
-                    + "AND b.Status NOT IN ('Cancelled', 'NoShow') "
-                    + "ORDER BY t.StartTime, wb.BayName";
+                    + "WHERE (t.SlotDate = CAST(GETDATE() AS DATE) AND b.Status <> 'Cancelled') "
+                    + "OR (t.SlotDate > CAST(GETDATE() AS DATE) "
+                    + "AND b.Status IN ('Pending', 'Confirmed', 'InProgress')) "
+                    + "ORDER BY t.SlotDate, t.StartTime, wb.BayName";
 
             PreparedStatement st = cn.prepareStatement(sql);
             ResultSet table = st.executeQuery();

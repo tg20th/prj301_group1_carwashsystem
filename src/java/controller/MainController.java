@@ -217,6 +217,57 @@ public class MainController extends HttpServlet {
                 case "Revenue":
                     url = "RevenueController";
                     break;
+                case "viewcustomerhistory":
+                    url = "CustomerBookingHistoryController";
+                    break;
+                case "customerbooking":
+                    url = "CustomerBookingController";
+                    break;
+                case "customer_dashboard":
+                    url = "CustomerDashBoardController";
+                    break;
+                case "customer_payment":
+                    url = "PaymentController";
+                    break;
+                case "customer_payment_status":
+                    url = "PaymentStatusController";
+                    break;
+                case "customer_payment_success":
+                    url = "PaymentSuccessController";
+                    break;
+                case "customer_payment_sandbox":
+                    url = "PaymentSandboxController";
+                    break;
+                case "customer_invoice_print":
+                    url = "InvoicePrint";
+                    break;
+                case "business_dashboard":
+                    url = "BusinessDashboardController";
+                    break;
+                case "business_booking":
+                    url = "BusinessBookingController";
+                    break;
+                case "viewbusinesshistory":
+                    url = "BusinessBookingHistoryController";
+                    break;
+                case "business_payment":
+                    url = "BusinessPaymentController";
+                    break;
+                case "business_payment_status":
+                    url = "BusinessPaymentStatusController";
+                    break;
+                case "business_payment_success":
+                    url = "BusinessPaymentSuccessController";
+                    break;
+                case "business_payment_sandbox":
+                    url = "BusinessPaymentSandboxController";
+                    break;
+                case "business_invoice_print":
+                    url = "InvoicePrint";
+                    break;
+                case "invoice_admin":
+                    url = "ManageInvoiceController";
+                    break;
                 default:
                     url = "index.jsp";
                     break;
