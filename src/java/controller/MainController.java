@@ -4,19 +4,9 @@
  */
 package controller;
 
-import dao.BusinessDAO;
-import dao.VehicleBrandDAO;
-import dao.VehicleDAO;
-import dao.VehicleModelDAO;
 import dto.Account;
-import dao.VehicleModelDAO;
 import dto.Business;
-import dto.Vehicle;
-import dto.VehicleBrand;
-import dto.VehicleModel;
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.ArrayList;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.annotation.WebServlet;
@@ -90,43 +80,8 @@ public class MainController extends HttpServlet {
                     url = "addVehicle.jsp";
                     break;
                 case "getVehicleData":
-                    response.setContentType("application/json;charset=UTF-8");
-                    try ( PrintWriter out = response.getWriter()) {
-                        VehicleBrandDAO brandDAO = new VehicleBrandDAO();
-                        VehicleModelDAO modelDAO = new VehicleModelDAO();
-
-                        ArrayList<VehicleBrand> brands = brandDAO.getAllBrands();
-                        ArrayList<VehicleModel> models = modelDAO.getAllModels();
-
-                        StringBuilder json = new StringBuilder();
-                        json.append("{\"brands\":[");
-
-                        for (int i = 0; i < brands.size(); i++) {
-                            VehicleBrand b = brands.get(i);
-                            String name = b.getBrandName().replace("\"", "\\\"");
-                            json.append("{\"brandID\":").append(b.getBrandID())
-                                    .append(",\"brandName\":\"").append(name).append("\"}");
-                            if (i < brands.size() - 1) {
-                                json.append(",");
-                            }
-                        }
-                        json.append("],\"models\":[");
-
-                        for (int i = 0; i < models.size(); i++) {
-                            VehicleModel m = models.get(i);
-                            String name = m.getModelName().replace("\"", "\\\"");
-                            json.append("{\"modelID\":").append(m.getModelID())
-                                    .append(",\"brandID\":").append(m.getBrandID())
-                                    .append(",\"modelName\":\"").append(name).append("\"}");
-                            if (i < models.size() - 1) {
-                                json.append(",");
-                            }
-                        }
-                        json.append("]}");
-
-                        out.print(json.toString());
-                    }
-                    return; // prevent forward, we already wrote JSON response
+                    url = "GetVehicleDataController";
+                    break;
                 case "AddVehicle":
                     url = "AddVehicleController";
                     break;
@@ -134,22 +89,7 @@ public class MainController extends HttpServlet {
                     url = "RemoveVehicleController";
                     break;
                 case "UpdateVehicle_page":
-                    String vIDStr = request.getParameter("vehicleID");
-                    if (vIDStr != null) {
-                        int vehicleID = Integer.parseInt(vIDStr);
-                        VehicleDAO dao = new VehicleDAO();
-                        Vehicle v = dao.getVehicleByID(vehicleID);
-                        VehicleBrandDAO brandDAO = new VehicleBrandDAO();
-                        VehicleModelDAO modelDAO = new VehicleModelDAO();
-                        ArrayList<VehicleBrand> brandList = brandDAO.getAllBrands();
-                        ArrayList<VehicleModel> modelList = modelDAO.getAllModels();
-                        request.setAttribute("VEHICLE", v);
-                        request.setAttribute("BRAND_LIST", brandList);
-                        request.setAttribute("MODEL_LIST", modelList);
-                        url = "updateVehicle.jsp";
-                    } else {
-                        url = "CustomerDashBoardController";
-                    }
+                    url = "UpdateVehicleController";
                     break;
                 case "UpdateVehicle":
                     url = "UpdateVehicleController";
@@ -225,6 +165,7 @@ public class MainController extends HttpServlet {
                     break;
                 case "reject_vehicle":
                     url = "RejectVehicleController";
+                    break;
                 case "viewcustomerhistory":
                     url = "CustomerBookingHistoryController";
                     break;
